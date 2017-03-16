@@ -1,0 +1,15 @@
+{
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"textStyle",
+		"text" ],
+	"name" : "RMapTextLabelMorph",
+	"pools" : [
+		 ],
+	"super" : "BorderedMorph",
+	"type" : "normal" }

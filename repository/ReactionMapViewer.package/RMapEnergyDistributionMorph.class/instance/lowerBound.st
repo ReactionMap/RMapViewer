@@ -1,0 +1,3 @@
+accessing
+lowerBound
+	^ rmapMorph visibleEnergyRangeMin

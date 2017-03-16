@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Numerizers",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"energies" ],
+	"name" : "RMapMinEnergyGapFromReactants",
+	"pools" : [
+		 ],
+	"super" : "RMapVertexNumerizer",
+	"type" : "normal" }

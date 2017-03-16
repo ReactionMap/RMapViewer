@@ -1,0 +1,22 @@
+{
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"rmap",
+		"scratcherMorph",
+		"listMorph",
+		"loadButton",
+		"searchButton",
+		"moleculeList",
+		"primarySelectionIndex",
+		"listSelection",
+		"isStrict" ],
+	"name" : "RMapScratchingBrowser",
+	"pools" : [
+		 ],
+	"super" : "Model",
+	"type" : "normal" }

@@ -1,0 +1,15 @@
+{
+	"category" : "ReactionMapViewer-Support",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"min",
+		"max" ],
+	"name" : "RMapInterval",
+	"pools" : [
+		 ],
+	"super" : "Object",
+	"type" : "normal" }

@@ -1,0 +1,25 @@
+{
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"motionMolecule",
+		"moleculeIndex",
+		"indexToTime",
+		"form",
+		"offsetX",
+		"offsetY",
+		"scaleX",
+		"scaleY",
+		"e0",
+		"eMin",
+		"eMax",
+		"font" ],
+	"name" : "RMapEnergyProfileMorph",
+	"pools" : [
+		 ],
+	"super" : "Morph",
+	"type" : "normal" }

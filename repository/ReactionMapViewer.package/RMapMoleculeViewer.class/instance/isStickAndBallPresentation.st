@@ -1,0 +1,3 @@
+testing
+isStickAndBallPresentation
+	^ presentation = #stickAndBall

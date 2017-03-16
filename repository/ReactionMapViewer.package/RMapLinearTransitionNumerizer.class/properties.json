@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Numerizers",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		 ],
+	"name" : "RMapLinearTransitionNumerizer",
+	"pools" : [
+		 ],
+	"super" : "RMapTransitionNumerizer",
+	"type" : "normal" }

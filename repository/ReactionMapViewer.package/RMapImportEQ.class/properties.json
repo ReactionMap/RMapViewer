@@ -1,0 +1,16 @@
+{
+	"category" : "ReactionMapViewer-GRRMImport",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"tss",
+		"dcs",
+		"gap" ],
+	"name" : "RMapImportEQ",
+	"pools" : [
+		 ],
+	"super" : "RMapImportNode",
+	"type" : "normal" }

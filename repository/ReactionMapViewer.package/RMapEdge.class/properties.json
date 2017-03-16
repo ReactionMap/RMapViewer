@@ -1,0 +1,15 @@
+{
+	"category" : "ReactionMapViewer-Support",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"vertex1",
+		"vertex2" ],
+	"name" : "RMapEdge",
+	"pools" : [
+		 ],
+	"super" : "Object",
+	"type" : "normal" }

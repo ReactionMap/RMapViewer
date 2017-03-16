@@ -1,0 +1,16 @@
+{
+	"category" : "ReactionMapViewer-Renderers",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"rmap",
+		"step",
+		"substep" ],
+	"name" : "RMapRenderer",
+	"pools" : [
+		 ],
+	"super" : "Object",
+	"type" : "normal" }

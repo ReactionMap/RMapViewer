@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Numerizers",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		 ],
+	"name" : "RMapX",
+	"pools" : [
+		 ],
+	"super" : "RMapVertexNumerizer",
+	"type" : "normal" }

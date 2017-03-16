@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Support",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"energy" ],
+	"name" : "RMapMolecule",
+	"pools" : [
+		 ],
+	"super" : "JunMoleculeGeometry",
+	"type" : "normal" }

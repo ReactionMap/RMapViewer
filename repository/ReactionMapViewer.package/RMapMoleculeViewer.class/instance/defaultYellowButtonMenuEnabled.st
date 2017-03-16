@@ -1,0 +1,3 @@
+menu
+defaultYellowButtonMenuEnabled
+	^ true

@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Renderers",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		"AtomColors" ],
+	"commentStamp" : "",
+	"instvars" : [
+		"atomDiameter" ],
+	"name" : "RMapGeometryRenderer",
+	"pools" : [
+		 ],
+	"super" : "RMapRenderer",
+	"type" : "normal" }

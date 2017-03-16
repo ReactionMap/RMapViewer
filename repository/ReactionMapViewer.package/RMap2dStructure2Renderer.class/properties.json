@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Renderers",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		 ],
+	"name" : "RMap2dStructure2Renderer",
+	"pools" : [
+		 ],
+	"super" : "RMap2dGeometryRenderer",
+	"type" : "normal" }

@@ -1,0 +1,3 @@
+accessing
+bandWidth
+	^ 70

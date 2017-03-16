@@ -1,0 +1,3 @@
+testing
+isTS
+	^ true

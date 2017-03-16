@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Support",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		 ],
+	"name" : "RMapSimpleShortestPathSearcher",
+	"pools" : [
+		 ],
+	"super" : "RMapShortestPathSearcher",
+	"type" : "normal" }

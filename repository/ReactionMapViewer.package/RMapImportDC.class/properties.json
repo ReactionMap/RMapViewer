@@ -1,0 +1,16 @@
+{
+	"category" : "ReactionMapViewer-GRRMImport",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"eq",
+		"multiframeXYZ",
+		"multiframeEnergies" ],
+	"name" : "RMapImportDC",
+	"pools" : [
+		 ],
+	"super" : "RMapImportNode",
+	"type" : "normal" }

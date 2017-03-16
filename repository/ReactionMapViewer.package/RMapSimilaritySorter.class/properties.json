@@ -1,0 +1,17 @@
+{
+	"category" : "ReactionMapViewer-Support",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"rmap",
+		"vertices",
+		"signatures",
+		"columnSize" ],
+	"name" : "RMapSimilaritySorter",
+	"pools" : [
+		 ],
+	"super" : "Object",
+	"type" : "normal" }

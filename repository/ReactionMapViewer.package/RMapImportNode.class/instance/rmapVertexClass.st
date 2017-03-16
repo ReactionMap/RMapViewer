@@ -1,0 +1,3 @@
+accessing
+rmapVertexClass
+	^ self subclassResponsibility

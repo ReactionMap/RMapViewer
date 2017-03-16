@@ -1,0 +1,15 @@
+{
+	"category" : "ReactionMapViewer-Numerizers",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"rmap",
+		"setter" ],
+	"name" : "RMapVertexNumerizer",
+	"pools" : [
+		 ],
+	"super" : "Object",
+	"type" : "normal" }

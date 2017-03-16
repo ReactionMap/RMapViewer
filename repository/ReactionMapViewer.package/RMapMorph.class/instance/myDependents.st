@@ -1,0 +1,3 @@
+dependents access
+myDependents
+	^ dependents

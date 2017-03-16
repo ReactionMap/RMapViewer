@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Numerizers",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"hops" ],
+	"name" : "RMapHopsFromReactants",
+	"pools" : [
+		 ],
+	"super" : "RMapVertexNumerizer",
+	"type" : "normal" }

@@ -1,0 +1,17 @@
+{
+	"class" : {
+		 },
+	"instance" : {
+		"frameIndexFrom:" : "tomooda 10/24/2014 21:04",
+		"frameIndexFrom:to:" : "tomooda 10/24/2014 21:05",
+		"frameIndexTo:" : "tomooda 10/24/2014 21:08",
+		"from:energiesDo:" : "tomooda 10/24/2014 19:07",
+		"from:framesDo:" : "tomooda 10/24/2014 19:02",
+		"from:to:energiesDo:" : "tomooda 10/24/2014 21:06",
+		"from:to:framesDo:" : "tomooda 10/24/2014 21:06",
+		"isTS" : "tomooda 10/24/2014 19:59",
+		"multiframeEnergies" : "tomooda 10/24/2014 20:11",
+		"multiframeIndex" : "tomooda 10/24/2014 18:41",
+		"multiframes" : "tomooda 10/24/2014 18:58",
+		"to:energiesDo:" : "tomooda 10/24/2014 19:10",
+		"to:framesDo:" : "tomooda 10/24/2014 19:10" } }

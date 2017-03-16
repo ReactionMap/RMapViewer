@@ -1,0 +1,14 @@
+{
+	"class" : {
+		 },
+	"instance" : {
+		"frameIndexFrom:" : "tomooda 10/24/2014 21:00",
+		"frameIndexFrom:to:" : "tomooda 10/24/2014 20:58",
+		"frameIndexTo:" : "tomooda 10/24/2014 21:00",
+		"from:energiesDo:" : "tomooda 10/25/2014 20:32",
+		"from:framesDo:" : "tomooda 10/25/2014 20:33",
+		"from:to:energiesDo:" : "tomooda 10/25/2014 20:34",
+		"from:to:framesDo:" : "tomooda 10/25/2014 20:34",
+		"isDC" : "tomooda 10/24/2014 19:56",
+		"to:energiesDo:" : "tomooda 10/25/2014 20:35",
+		"to:framesDo:" : "tomooda 10/25/2014 20:35" } }

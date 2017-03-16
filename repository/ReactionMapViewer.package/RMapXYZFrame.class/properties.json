@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Support",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"atoms" ],
+	"name" : "RMapXYZFrame",
+	"pools" : [
+		 ],
+	"super" : "Object",
+	"type" : "normal" }

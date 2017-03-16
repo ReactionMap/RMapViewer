@@ -1,0 +1,3 @@
+testing
+isTubePresentation
+	^ presentation = #tube

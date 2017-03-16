@@ -1,0 +1,3 @@
+accessing
+visibleEnergyRangeMin
+	^ visibleEnergyRange min

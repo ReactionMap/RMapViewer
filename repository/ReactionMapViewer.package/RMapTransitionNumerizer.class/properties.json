@@ -1,0 +1,17 @@
+{
+	"category" : "ReactionMapViewer-Numerizers",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"from",
+		"to",
+		"steps",
+		"maxSteps" ],
+	"name" : "RMapTransitionNumerizer",
+	"pools" : [
+		 ],
+	"super" : "RMapVertexNumerizer",
+	"type" : "normal" }

@@ -1,0 +1,29 @@
+{
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"motionMolecule",
+		"moleculeIndex",
+		"indexToT",
+		"isPlaying",
+		"moleculeViewer",
+		"jumpToStartButton",
+		"prevCaptionButton",
+		"playPauseButton",
+		"nextCaptionButton",
+		"jumpToEndButton",
+		"indexChangedAction",
+		"jumpToEndIcon",
+		"jumpToStartIcon",
+		"pauseIcon",
+		"playIcon",
+		"emptyIcon" ],
+	"name" : "RMapMotionMoleculeViewer",
+	"pools" : [
+		 ],
+	"super" : "MorphicModel",
+	"type" : "normal" }

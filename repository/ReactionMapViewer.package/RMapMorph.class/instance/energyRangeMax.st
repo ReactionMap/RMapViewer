@@ -1,0 +1,3 @@
+accessing
+energyRangeMax
+	^ energyRange max

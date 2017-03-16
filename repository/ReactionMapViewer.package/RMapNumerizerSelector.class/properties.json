@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Support",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"value" ],
+	"name" : "RMapNumerizerSelector",
+	"pools" : [
+		 ],
+	"super" : "RMapSelector",
+	"type" : "normal" }

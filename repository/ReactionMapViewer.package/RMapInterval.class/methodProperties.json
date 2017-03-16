@@ -1,0 +1,13 @@
+{
+	"class" : {
+		"empty" : "tomooda 2/13/2014 13:02",
+		"from:to:" : "tomooda 2/13/2014 13:12",
+		"total" : "tomooda 1/17/2014 12:47" },
+	"instance" : {
+		"includes:" : "tomooda 2/13/2014 13:11",
+		"max" : "tomooda 2/13/2014 13:11",
+		"max:" : "tomooda 2/13/2014 13:11",
+		"merge:" : "tomooda 2/13/2014 13:12",
+		"min" : "tomooda 2/13/2014 13:12",
+		"min:" : "tomooda 2/13/2014 13:12",
+		"setMin:max:" : "tomooda 2/13/2014 13:12" } }

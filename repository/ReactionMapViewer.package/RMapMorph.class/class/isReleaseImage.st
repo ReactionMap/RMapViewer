@@ -1,0 +1,3 @@
+utilities
+isReleaseImage
+	^ isReleased == true

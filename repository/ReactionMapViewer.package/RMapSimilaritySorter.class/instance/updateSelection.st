@@ -1,0 +1,3 @@
+updating
+updateSelection
+	vertices := nil

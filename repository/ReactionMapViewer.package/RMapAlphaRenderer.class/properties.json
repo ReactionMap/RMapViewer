@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Renderers",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		 ],
+	"name" : "RMapAlphaRenderer",
+	"pools" : [
+		 ],
+	"super" : "RMapPlainRenderer",
+	"type" : "normal" }

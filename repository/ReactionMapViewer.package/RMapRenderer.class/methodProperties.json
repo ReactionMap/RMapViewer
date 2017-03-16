@@ -1,0 +1,21 @@
+{
+	"class" : {
+		"on:" : "tomooda 8/2/2013 18:40" },
+	"instance" : {
+		"centerEdgePointsFor:do:" : "tomooda 1/20/2014 09:42",
+		"drawEdge:color:on:" : "tomooda 1/28/2014 13:16",
+		"drawVertex:borderColor:on:" : "tomooda 7/29/2014 11:51",
+		"edgePointsBetween:and:do:" : "tomooda 1/17/2014 19:43",
+		"edgePointsFor:do:" : "tomooda 1/17/2014 19:46",
+		"formFor:" : "tomooda 1/17/2014 17:08",
+		"formsFor:" : "tomooda 1/17/2014 14:02",
+		"initialize" : "tomooda 1/17/2014 16:24",
+		"leftAndRightEdgePointsFor:do:" : "tomooda 1/20/2014 09:42",
+		"name" : "tomooda 8/2/2013 19:18",
+		"numVertices:" : "tomooda 10/6/2015 12:46",
+		"plainLabelFormsFor:" : "tomooda 1/18/2014 19:16",
+		"printOn:" : "tomooda 8/2/2013 19:19",
+		"rmap" : "tomooda 8/2/2013 18:39",
+		"rmap:" : "tomooda 8/2/2013 18:39",
+		"step" : "tomooda 1/17/2014 16:25",
+		"underlineLabelFormsFor:" : "tomooda 1/20/2014 09:35" } }

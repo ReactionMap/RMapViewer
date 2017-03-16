@@ -1,0 +1,3 @@
+*ReactionMapViewer
+hScrollBar
+	^ hScrollBar

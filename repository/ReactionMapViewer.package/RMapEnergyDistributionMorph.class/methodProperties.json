@@ -1,0 +1,24 @@
+{
+	"class" : {
+		"on:" : "tomooda 1/17/2014 08:02" },
+	"instance" : {
+		"click:" : "tomooda 1/17/2014 12:27",
+		"delete" : "tomooda 1/28/2014 13:08",
+		"drawOn:" : "tomooda 10/20/2015 12:24",
+		"energyAt:" : "tomooda 10/20/2015 12:24",
+		"energyAtY:" : "tomooda 10/20/2015 12:24",
+		"grab:" : "tomooda 2/13/2014 13:16",
+		"handlesMouseDown:" : "tomooda 1/17/2014 12:11",
+		"initialize" : "tomooda 2/13/2014 13:14",
+		"lowerBound" : "tomooda 2/13/2014 15:27",
+		"lowerBound:" : "tomooda 3/16/2017 12:24",
+		"max" : "tomooda 2/13/2014 15:25",
+		"min" : "tomooda 2/13/2014 15:25",
+		"mouseDown:" : "tomooda 1/17/2014 12:27",
+		"mouseMove:" : "tomooda 1/17/2014 12:27",
+		"setRMapMorph:" : "tomooda 1/21/2014 10:03",
+		"update:" : "tomooda 3/16/2017 12:24",
+		"updateDistribution" : "tomooda 3/16/2017 12:37",
+		"upperBound" : "tomooda 2/13/2014 15:28",
+		"upperBound:" : "tomooda 10/20/2015 08:35",
+		"yAtEnergy:" : "tomooda 10/20/2015 12:25" } }

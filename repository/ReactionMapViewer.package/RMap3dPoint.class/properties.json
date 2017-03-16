@@ -1,0 +1,16 @@
+{
+	"category" : "ReactionMapViewer-Support",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"x",
+		"y",
+		"z" ],
+	"name" : "RMap3dPoint",
+	"pools" : [
+		 ],
+	"super" : "Object",
+	"type" : "normal" }

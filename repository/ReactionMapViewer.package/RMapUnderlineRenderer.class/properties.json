@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Renderers",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		 ],
+	"name" : "RMapUnderlineRenderer",
+	"pools" : [
+		 ],
+	"super" : "RMapRenderer",
+	"type" : "normal" }

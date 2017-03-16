@@ -1,0 +1,22 @@
+{
+	"category" : "ReactionMapViewer-GRRMImport",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		"Rand" ],
+	"commentStamp" : "",
+	"instvars" : [
+		"label",
+		"position",
+		"energy",
+		"geometry",
+		"bonds",
+		"sdf",
+		"smiles",
+		"inchi",
+		"canost" ],
+	"name" : "RMapImportNode",
+	"pools" : [
+		 ],
+	"super" : "Object",
+	"type" : "normal" }

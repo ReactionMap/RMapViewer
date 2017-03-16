@@ -1,0 +1,2 @@
+(name 'ReactionMapViewer-tomooda.4' message 'fixed reaction tree view generation so that it no longer contains redundant bezier curves.' id '7838d0a9-3036-4202-836a-5a09dec3f47b' date '16 March 2017' time '1:38:18.738747 pm' author 'tomooda' ancestors ((name 'ReactionMapViewer-TomohiroOda.3' message 'load from local server
+' id 'ef7ee9a1-259a-5d6d-95b1-3289319f67ec' date '16 March 2017' time '12:41:45 pm' author 'TomohiroOda' ancestors () stepChildren ())) stepChildren ())

@@ -1,0 +1,3 @@
+accessing-paths
+maxNumberOfPaths
+	^ maxNumberOfPaths

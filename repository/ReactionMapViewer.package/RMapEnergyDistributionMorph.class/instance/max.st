@@ -1,0 +1,3 @@
+accessing
+max
+	^ rmapMorph energyRangeMax

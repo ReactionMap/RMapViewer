@@ -1,0 +1,15 @@
+{
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"rmapMorph",
+		"distribution" ],
+	"name" : "RMapEnergyDistributionMorph",
+	"pools" : [
+		 ],
+	"super" : "Morph",
+	"type" : "normal" }

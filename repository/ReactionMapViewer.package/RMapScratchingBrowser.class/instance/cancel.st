@@ -1,0 +1,3 @@
+operations
+cancel
+	listSelection := nil

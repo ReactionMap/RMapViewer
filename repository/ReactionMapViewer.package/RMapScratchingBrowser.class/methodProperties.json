@@ -1,0 +1,22 @@
+{
+	"class" : {
+		"on:" : "tomooda 10/2/2015 14:13",
+		"openDialogOn:" : "tomooda 10/22/2015 08:29",
+		"openOn:" : "tomooda 10/2/2015 14:14" },
+	"instance" : {
+		"buildOn:" : "tomooda 10/22/2015 15:45",
+		"cancel" : "tomooda 10/2/2015 18:33",
+		"inchi" : "tomooda 10/23/2015 14:31",
+		"initialize" : "tomooda 10/22/2015 15:42",
+		"isStrict" : "tomooda 10/22/2015 15:42",
+		"isStrict:" : "tomooda 10/23/2015 14:38",
+		"listSelectionAt:" : "tomooda 10/1/2015 13:59",
+		"listSelectionAt:put:" : "tomooda 10/1/2015 14:00",
+		"molString" : "tomooda 10/22/2015 15:31",
+		"moleculeList" : "tomooda 10/1/2015 13:51",
+		"primarySelectionIndex" : "tomooda 10/1/2015 13:53",
+		"primarySelectionIndex:" : "tomooda 10/1/2015 13:54",
+		"search" : "tomooda 10/23/2015 14:38",
+		"selections" : "tomooda 10/2/2015 18:33",
+		"setRMap:" : "tomooda 10/1/2015 15:13",
+		"smiles" : "tomooda 10/22/2015 15:50" } }
