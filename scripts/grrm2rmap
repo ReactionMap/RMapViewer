@@ -1,0 +1,734 @@
+#!/usr/bin/env python
+import sys
+import os
+from math import sqrt, ceil
+from random import random, sample, shuffle
+import json
+from time import time
+from copy import copy
+from subprocess import Popen, PIPE, STDOUT
+from tempfile import NamedTemporaryFile
+from StringIO import StringIO
+
+def which(program):
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in ["."]+os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+    return None
+
+def dist2((x0, y0), (x1, y1)):
+    dx = x0 - x1
+    dy = y0 - y1
+    return dx * dx + dy * dy
+
+class RMap:
+    def __init__(self, logfile_prefix = None):
+        if logfile_prefix is None:
+            self.EQs = list()
+            self.DCs = list()
+            self.TSs = list()
+            self.dummy_EQs = list()
+        else:
+            num_EQs, num_DCs, num_TSs = self._read_list(logfile_prefix+".log")
+            self.EQs = [EQ("EQ%s"%(i)) for i in range(0, num_EQs)]
+            self.DCs = [DC("DC%s"%(i)) for i in range(0, num_DCs)]
+            self.TSs = [TS("TS%s"%(i)) for i in range(0, num_TSs)]
+            self.dummy_EQs = list()
+            self._read_EQ_list(logfile_prefix+"_EQ_list.log")
+            self._read_DC_list(logfile_prefix+"_DC_list.log")
+            self._read_TS_list(logfile_prefix+"_TS_list.log")
+            for ts in self.TSs:
+                self.read_ts_multiframe_xyz(logfile_prefix, ts)
+            for dc in self.DCs:
+                self.read_dc_multiframe_xyz(logfile_prefix, dc)
+            self._get_molinfo()
+            for ts in self.TSs:
+                if ts.eq1 is None and ts.eq2 is not None:
+                    ts.eq2.TSs.remove(ts)
+                if ts.eq1 is not None and ts.eq2 is None:
+                    ts.eq1.TSs.remove(ts)
+            self.TSs = filter(lambda ts:ts.eq1 is not None and ts.eq2 is not None, self.TSs)
+            try:
+                self.grrm = file(logfile_prefix+".com").read()
+            except:
+                self.grrm = None
+                print "NO .com file. the rmap file will not have grrm run options"
+
+    def arrange(self, timeout = None, number_of_trials = 1, verbose=True):
+        if timeout:
+            deadline = time() + timeout * 60
+        else:
+            deadline = None
+        if verbose:
+            print "1st try"
+        champ = self.deepcopy()
+        champ._arrange(deadline=deadline, verbose=verbose)
+        best_score = champ.total_dist2()
+        if verbose:
+            print "Score: %s"%(best_score)
+        for i in range(number_of_trials-1):
+            if verbose:
+                n = i + 2
+                if n % 10 == 1:
+                    print "%sst try"%(n,)
+                elif n % 10 == 2:
+                    print "%snd try"%(n,)
+                elif n % 10 == 3:
+                    print "%srd try"%(n,)
+                else:
+                    print "%sth try"%(n,)
+            challenger = self.deepcopy()
+            shuffle(challenger.EQs)
+            challenger._arrange(deadline=deadline, verbose=verbose)
+            challenger_score = challenger.total_dist2()
+            if challenger_score < best_score:
+                champ = challenger
+                best_score = challenger_score
+            if verbose:
+                print "Best so far: %s"%(best_score,)
+        self.EQs = champ.EQs
+        self.DCs = champ.DCs
+        self.TSs = champ.TSs
+        self.dummy_EQs = champ.dummy_EQs
+
+    def deepcopy(self):
+        map = dict()
+        rmap = copy(self)
+        rmap.EQs = list((map.setdefault(eq, copy(eq)) for eq in self.EQs))
+        rmap.DCs = list((map.setdefault(dc, copy(dc)) for dc in self.DCs))
+        rmap.TSs = list((map.setdefault(ts, copy(ts)) for ts in self.TSs))
+        rmap.dummy_EQs = list((map.setdefault(eq, copy(eq)) for eq in self.dummy_EQs))
+        for eq in rmap.EQs:
+            eq.postcopy(map)
+        for dc in rmap.DCs:
+            dc.postcopy(map)
+        for ts in rmap.TSs:
+            ts.postcopy(map)
+        for eq in rmap.dummy_EQs:
+            eq.postcopy(map)
+        return rmap
+
+    def _arrange(self, deadline = None, verbose=False):
+        if verbose:
+            print "Initializing EQs"
+        self.gridize_EQs()
+        if verbose:
+            print "Arranging EQs"
+        self.arrange_EQs(deadline=deadline, verbose=verbose)
+        if verbose:
+            print "Arranging TSs"
+        self.arrange_TSs()
+        if verbose:
+            print "Arranging DCs"
+        self.arrange_DCs()
+
+    def total_dist2(self):
+        return sum((ts.dist2_between_eqs() for ts in self.TSs))
+
+    def gridize_EQs(self):
+        num_grids = int(ceil(sqrt(len(self.EQs)))+0.5)
+        dummies = [EQ(None) for _ in range(0, num_grids*num_grids-len(self.EQs))]
+        self.EQs += dummies
+        self.dummy_EQs += dummies
+        gap = 1.0 / num_grids
+        for i in range(0, len(self.EQs)):
+            eq = self.EQs[i]
+            x = i % num_grids
+            y = i // num_grids
+            if x % 2:
+                y += 0.5
+            eq.origin = (x*gap, y*gap)
+            eq.extent = (gap, gap)
+            eq.position = ((x+0.5)*gap, (y+0.5)*gap)
+
+    def arrange_EQs(self, deadline=None, verbose=False):
+        activelist = set(self.EQs)
+        total_d = self.total_dist2()
+        if verbose:
+            print total_d
+        last_d = total_d * 2.0
+        while total_d < last_d:
+            last_d = total_d
+            for eq in self.EQs:
+                eq.swap_for_better_dist2(self, activelist = activelist, deadline=deadline)
+            total_d = self.total_dist2()
+            if verbose:
+                print total_d
+            if deadline is not None and time() > deadline:
+                if verbose:
+                    print "timed out"
+                break
+
+    def arrange_TSs(self):
+        for ts in self.TSs:
+            ts.setup_bounds()
+            ts.move_to_space(self)
+    
+    def arrange_DCs(self):
+        for dc in self.DCs:
+            dc.setup_bounds()
+            dc.move_to_space(self)
+
+    def write_gnuplot(self, filename, only_EQs=False):
+        with file(filename, "wt") as wfile:
+            if only_EQs:
+                for ts in self.TSs:
+                    x1, y1 = ts.eq1.position
+                    x2, y2 = ts.eq2.position
+                    wfile.write("%s %s %s %s\n"%(x1, y1, x2-x1, y2-y1))
+            else:
+                for ts in self.TSs:
+                    x, y = ts.position
+                    x1, y1 = ts.eq1.position
+                    x2, y2 = ts.eq2.position
+                    wfile.write("%s %s %s %s\n"%(x, y, x1-x, y1-y))
+                    wfile.write("%s %s %s %s\n"%(x, y, x2-x, y2-y))
+                
+
+    def write_json(self, filename, only_EQs=False):
+        graph = dict()
+        vertices = list()
+        edges = list()
+        for eq in self.EQs:
+            if eq not in self.dummy_EQs:
+                vertices.append(eq.to_json())
+        if not only_EQs:
+            for dc in self.DCs:
+                vertices.append(dc.to_json())
+            for ts in self.TSs:
+                vertices.append(ts.to_json())
+        graph["vertices"] = vertices
+        if only_EQs:
+            for ts in self.TSs:
+                edges.append({"vertex1": self.EQs.index(ts.eq1), "vertex2": self.EQs.index(ts.eq2)})
+        else:
+            dc_index_offset = len(self.EQs)-len(self.dummy_EQs)
+            for dc_index in range(0, len(self.DCs)):
+                dc = self.DCs[dc_index]
+                edges.append({"vertex1": dc_index_offset + dc_index, "vertex2": self.EQs.index(dc.eq)})
+            ts_index_offset = dc_index_offset + len(self.DCs)
+            for ts_index in range(0, len(self.TSs)):
+                ts = self.TSs[ts_index]
+                edges.append({"vertex1": ts_index_offset + ts_index, "vertex2": self.EQs.index(ts.eq1)})
+                edges.append({"vertex1": ts_index_offset + ts_index, "vertex2": self.EQs.index(ts.eq2)})
+        graph["edges"] = edges
+        if self.grrm:
+            graph["grrm"] = self.grrm
+            
+        with file(filename, "wt") as wfile:
+            json.dump(graph, wfile)
+
+    def iter_other_than(self, node):
+        for eq in self.EQs:
+            if eq is not node:
+                if eq.position is None:
+                    print eq.label
+                yield eq
+        for dc in self.DCs:
+            if dc is not node:
+                if dc.position is None:
+                    print dc.label
+                yield dc
+        for ts in self.TSs:
+            if ts is not node:
+                if ts.position is None:
+                    print ts.label
+                yield ts
+
+    def _read_list(self, filename):
+        num_EQs = None
+        num_DCs = None
+        num_TSs = None
+        with file(filename, "rt") as rfile:
+            for line in rfile:
+                terms = line.split(" ")
+                if len(terms) >= 2:
+                    if terms[1] == "EQuilibrium":
+                        num_EQs = int(terms[0])
+                    elif terms[1] == "Dissociation":
+                        num_DCs = int(terms[0])
+                    elif terms[1] == "Transition":
+                        num_TSs = int(terms[0])
+        return num_EQs, num_DCs, num_TSs
+
+    def _read_EQ_list(self, filename):
+        eq = 0
+        geometry_mode = False
+        with file(filename, "rt") as rfile:
+            for line in rfile:
+                if line.startswith("# Geometry of "):
+                    assert not geometry_mode
+                    geometry_mode = True
+                elif line[:6] == "Energy":
+                    assert geometry_mode
+                    assert self.EQs[eq].geometry
+                    geometry_mode = False
+                    self.EQs[eq].energy = float(line.split("=")[1].strip())
+                    eq += 1
+                elif geometry_mode:
+                    atom, x, y, z = tuple(line.split())
+                    self.EQs[eq].geometry.append((atom, float(x), float(y), float(z)))
+        assert eq == len(self.EQs)
+
+    def _read_DC_list(self, filename):
+        dc = 0
+        geometry_mode = False
+        with file(filename, "rt") as rfile:
+            for line in rfile:
+                if line.startswith("# Geometry of "):
+                    assert not geometry_mode
+                    geometry_mode = True
+                elif line.startswith("Energy"):
+                    assert geometry_mode
+                    geometry_mode = False
+                    self.DCs[dc].energy = float(line.split("=")[1].strip())
+                elif line.startswith("CONNECTION"):
+                    assert self.DCs[dc].energy is not None
+                    assert self.DCs[dc].geometry
+                    start = line.index(":")+1
+                    end = line.index("-")
+                    eq = int(line[start:end].strip())
+                    assert line[end+2:end+4] == "DC"
+                    self.DCs[dc].eq = self.EQs[eq]
+                    self.EQs[eq].DCs.append(self.EQs[eq])
+                    dc += 1
+                elif geometry_mode:
+                    atom, x, y, z = tuple(line.split())
+                    self.DCs[dc].geometry.append((atom, float(x), float(y), float(z)))
+                    
+        assert dc == len(self.DCs)
+        assert not filter(lambda d:d.energy is None, self.DCs)
+
+    def _read_TS_list(self, filename):
+        ts = 0
+        geometry_mode = False
+        with file(filename, "rt") as rfile:
+            for line in rfile:
+                if line.startswith("# Geometry of "):
+                    assert not geometry_mode
+                    geometry_mode = True
+                elif line[:6] == "Energy":
+                    assert geometry_mode
+                    geometry_mode = False
+                    self.TSs[ts].energy = float(line.split("=")[1].strip())
+                elif line[:10] == "CONNECTION":
+                    assert self.TSs[ts].energy is not None
+                    assert self.TSs[ts].geometry
+                    start = line.index(":")+1
+                    end = line.index("-")
+                    eq1 = line[start:end].strip()
+                    eq2 = line[end+1:].strip()
+                    try:
+                        eq1 = int(eq1)
+                        self.TSs[ts].eq1 = self.EQs[eq1]
+                        self.EQs[eq1].TSs.append(self.TSs[ts])
+                    except:
+                        pass
+                    try:
+                        eq2 = int(eq2)
+                        self.TSs[ts].eq2 = self.EQs[eq2]
+                        self.EQs[eq2].TSs.append(self.TSs[ts])
+                    except:
+                        pass
+                    ts += 1
+                elif geometry_mode:
+                    atom, x, y, z = tuple(line.split())
+                    self.TSs[ts].geometry.append((atom, float(x), float(y), float(z)))
+
+    def read_dc_multiframe_xyz(self, logfile_prefix, node):
+      try:
+        with file(logfile_prefix+"_"+node.label+".log", "rt") as rfile:
+            chunks = rfile.read().split("=========================================================================")
+        def upToLineStartsWith(lines, keyword):
+            result = list()
+            for line in lines:
+                if line.startswith(keyword):
+                    break
+                result.append(line)
+            return result
+        header = "%s\n\n"%(len(node.geometry),)
+        forward_steps = [header+'\n'.join(upToLineStartsWith(step.split('\n')[1:], "ENERGY")) for step in chunks[1].split("\n\n") if step.startswith("# STEP ")]
+        forward_energies = [float(step.split("\n")[-2].split("=")[1].strip()) for step in chunks[1].split("\n\n") if step.startswith("# STEP ")]
+
+        geometry = header+'\n'.join(upToLineStartsWith(chunks[0].split('\n')[2:], "ENERGY"))
+        forward_steps.reverse()
+        forward_energies.reverse()
+        node.multiframe_xyz = forward_steps+[geometry]
+        node.multiframe_energies = forward_energies+[node.energy]
+      except:
+        node.multiframe_xyz = list()
+        node.multiframe_energies = list()
+
+    def read_ts_multiframe_xyz(self, logfile_prefix, node):
+      try:
+        with file(logfile_prefix+"_"+node.label+".log", "rt") as rfile:
+            chunks = rfile.read().split("=========================================================================")
+        def upToLineStartsWith(lines, keyword):
+            result = list()
+            for line in lines:
+                if line.startswith(keyword):
+                    break
+                result.append(line)
+            return result
+        header = "%s\n\n"%(len(node.geometry),)
+        forward_steps = [header+'\n'.join(upToLineStartsWith(step.split('\n')[1:], "ENERGY")) for step in chunks[1].split("\n\n") if step.startswith("# STEP ")]
+        forward_energies = [float(step.split("\n")[-2].split("=")[1].strip()) for step in chunks[1].split("\n\n") if step.startswith("# STEP ")]
+        backward_steps = [header+'\n'.join(upToLineStartsWith(step.split('\n')[1:], "ENERGY")) for step in chunks[3].split("\n\n") if step.startswith("# STEP ")]
+        backward_energies = [float(step.split("\n")[-2].split("=")[1].strip()) for step in chunks[3].split("\n\n") if step.startswith("# STEP ")]
+        geometry = header+'\n'.join(upToLineStartsWith(chunks[0].split('\n')[2:], "ENERGY"))
+        forward_steps.reverse()
+        forward_energies.reverse()
+        node.multiframe_xyz = forward_steps+[geometry]+backward_steps
+        node.multiframe_energies = forward_energies+[node.energy]+backward_energies
+        node.multiframe_index = len(forward_steps)
+      except:
+        node.multiframe_xyz = list()
+        node.multiframe_energies = list()
+        node.multiframe_index = 0
+      if node.eq1 and node.eq2 and node.eq1.label > node.eq2.label:
+            node.multiframe_xyz.reverse()
+            node.multiframe_energies.reverse()
+            node.multiframe_index = len(backward_steps)
+
+    def _get_molinfo(self):
+        with NamedTemporaryFile() as wfile:
+            def write_xyz(node):
+                print >> wfile, " %d"%(len(node.geometry))
+                print >> wfile, "XYZ"
+                for geom in node.geometry:
+                    print >> wfile, "%s %03.5f %03.5f %03.5f"%geom
+            for eq in self.EQs:
+                write_xyz(eq)
+            for dc in self.DCs:
+                write_xyz(dc)
+            for ts in self.TSs:
+                write_xyz(ts)
+            wfile.flush()
+            self._get_bonds(wfile.name)
+            self._get_smiles(wfile.name)
+            self._get_inchi(wfile.name)
+        self._get_canost()
+
+    def _get_bonds(self, xyz_filename):
+        program = which("babel")
+        if not program:
+            print >> sys.stderr, "[FATAL] The babel command not found."
+            sys.exit(1)
+        babel = Popen(
+            [program, "---errorlevel", "1", "-i", "xyz", xyz_filename, "-o", "sd"],
+            stdin=PIPE, stdout=PIPE, stderr=None)
+        def read_sdf(node):
+            lines = list()
+            def readline():
+                line = babel.stdout.readline()
+                lines.append(line)
+                return line
+            readline()
+            readline()
+            readline()
+            header = readline().split()
+            for _ in range(int(header[0])):
+                readline()
+            for _ in range(int(header[1])):
+                columns = readline().split()
+                node.bonds.append((int(columns[0])-1, int(columns[1])-1, int(columns[2])))
+            while readline().strip() != '$$$$':
+                pass
+            node.sdf = ''.join(lines)
+        for eq in self.EQs:
+            read_sdf(eq)
+        for dc in self.DCs:
+            read_sdf(dc)
+        for ts in self.TSs:
+            read_sdf(ts)
+        babel.terminate()
+    def _get_smiles(self, xyz_filename):
+        program = which("babel")
+        if not program:
+            print >> sys.stderr, "[FATAL] The babel command not found."
+            sys.exit(1)
+        babel = Popen(
+            [program, "---errorlevel", "1", "-i", "xyz", xyz_filename, "-o", "can"],
+            stdin=PIPE, stdout=PIPE, stderr=None)
+        def read_smi(node):
+            node.smiles = babel.stdout.readline().split('\t')[0].strip()
+        for eq in self.EQs:
+            read_smi(eq)
+        for dc in self.DCs:
+            read_smi(dc)
+        for ts in self.TSs:
+            read_smi(ts)
+        babel.terminate()
+    def _get_inchi(self, xyz_filename):
+        program = which("babel")
+        if not program:
+            print >> sys.stderr, "[FATAL] The babel command not found."
+            sys.exit(1)
+        babel = Popen(
+            [program, "---errorlevel", "1", "-i", "xyz", xyz_filename, "-o", "inchi"],
+            stdin=PIPE, stdout=PIPE, stderr=None)
+        def read_inchi(node):
+            for line in babel.stdout:
+                if line.startswith("InChI="):
+                    node.inchi = line[6:].strip()
+                    break
+        for eq in self.EQs:
+            read_inchi(eq)
+        for dc in self.DCs:
+            read_inchi(dc)
+        for ts in self.TSs:
+            read_inchi(ts)
+        babel.terminate()
+    def _get_canost(self):
+        canost_program = which("main_canost")
+        if not canost_program:
+            print >> sys.stderr, "[Warning] The main_canost program not found."
+        def read_canost(node):
+            node.canost = None
+            if not canost_program:
+                return
+            canost = Popen(
+                [canost_program, "-u", "f", "/dev/stdin", "/dev/stdout"],
+                stdin=PIPE, stdout=PIPE, stderr=None)
+            canost.stdin.write(node.sdf)
+            if canost.stdout.readline().strip() == "":
+                canost.stdout.readline()
+                node.canost = canost.stdout.readline().strip()
+            canost.terminate()
+        for eq in self.EQs:
+            read_canost(eq)
+        for dc in self.DCs:
+            read_canost(dc)
+        for ts in self.TSs:
+            read_canost(ts)
+
+class Node:
+    def __init__(self, label):
+        self.label = label
+        self.energy = None
+        self.position = (-1.0, -1.0)
+        self.origin = (0.0, 0.0)
+        self.extent = (1.0, 1.0)
+        self.geometry = list()
+        self.bonds = list()
+        self.smiles = str()
+        self.inchi = str()
+        self.sdf = str()
+
+    def postcopy(self, map):
+        pass
+
+    def dist2(self, node):
+        return dist2(self.position, node.position)
+
+    def _random_position(self):
+        return (self.origin[0]+self.extent[0]*random(), self.origin[1]+self.extent[1]*random())
+
+    def move_to_random(self):
+        self.position = self._random_position()
+        
+    def move_to_space(self, rmap, num_samples = 100):
+        best_d = 0.0
+        best_p = None
+        min_x = self.origin[0]-0.1
+        max_x = self.origin[0]+self.extent[0]+0.1
+        min_y = self.origin[1]-0.1
+        max_y = self.origin[1]+self.extent[1]+0.1
+        active_nodes = list((node for node in rmap.iter_other_than(self) if node.position[0] >= min_x and node.position[0] <= max_x and node.position[1] >= min_y and node.position[1] <= max_y))
+        for _ in range(0, num_samples):
+            new_p = self._random_position()
+            d = min((dist2(node.position, new_p) for node in active_nodes))
+            if d > best_d:
+                best_p = new_p
+                best_d = d
+        self.position = best_p
+
+    def to_json(self):
+        json = dict()
+        json["position"] = self.position
+        json["label"] = self.label
+        json["energy"] = self.energy
+        json["geometry"] = self.geometry
+        json["bonds"] = self.bonds
+        json["smiles"] = self.smiles
+        json["inchi"] = self.inchi
+        if self.canost:
+            json["canost"] = self.canost
+        json["sdf"] = self.sdf
+        return json
+
+    def __str__(self):
+        return str(self.label)
+
+    def __repr__(self):
+        return "<%s>"%(self.label)
+
+class EQ(Node):
+    def __init__(self, label):
+        Node.__init__(self, label)
+        self.TSs = list()
+        self.DCs = list()
+
+    def postcopy(self, map):
+        Node.postcopy(self, map)
+        self.TSs = list((map[ts] for ts in self.TSs))
+        self.DCs = list((map[dc] for dc in self.DCs))
+
+    def swap_for_better_dist2(self, rmap, activelist=None, deadline=None):
+        def total_ts_dist2(p, eq):
+            return sum((dist2(p, ts.eq2.position) if ts.eq1 is eq else dist2(p, ts.eq1.position) for ts in eq.TSs))
+        if activelist is None:
+            activelist = set(rmap.EQs)
+        self_d = total_ts_dist2(self.position, self)
+        best_d = 0
+        best_eq = self
+        self_in_activelist = self in activelist
+        for eq in rmap.EQs if self_in_activelist else activelist:
+            if self_in_activelist or eq in activelist:
+                if eq is not self:
+                    d = self_d + total_ts_dist2(eq.position, eq) - total_ts_dist2(eq.position, self) - total_ts_dist2(self.position, eq)
+                    if d > best_d:
+                        best_d = d
+                        best_eq = eq
+            if deadline is not None and time() > deadline:
+                break
+        if best_eq is not self:
+            self.position, best_eq.position = best_eq.position, self.position
+            self.origin, best_eq.origin = best_eq.origin, self.origin
+            self.extent, best_eq.extent = best_eq.extent, self.extent
+            if not self_in_activelist:
+                activelist.add(self)
+                self_in_activelist = True
+            if best_eq not in activelist:
+                activelist.add(best_eq)
+        else:
+            if self_in_activelist:
+                activelist.remove(self)
+        return best_eq is not self
+
+class TS(Node):
+    def __init__(self, label):
+        Node.__init__(self, label)
+        self.eq1 = None
+        self.eq2 = None
+
+    def postcopy(self, map):
+        Node.postcopy(self, map)
+        self.eq1 = map[self.eq1]
+        self.eq2 = map[self.eq2]
+
+    def dist2_between_eqs(self):
+        return self.eq1.dist2(self.eq2)
+
+    def setup_bounds(self):
+        origin1_x, origin1_y = self.eq1.origin
+        extent1_x, extent1_y = self.eq1.extent
+        origin2_x, origin2_y = self.eq2.origin
+        extent2_x, extent2_y = self.eq2.extent
+        origin_x = min(origin1_x, origin2_x)
+        origin_y = min(origin1_y, origin2_y)
+        corner_x = max(origin1_x+extent1_x, origin2_x+extent2_x)
+        corner_y = max(origin1_y+extent1_y, origin2_y+extent2_y)
+        self.origin = (origin_x, origin_y)
+        self.extent = (corner_x-origin_x, corner_y-origin_y)
+
+    def move_to_space(self, rmap, num_samples = 100):
+        best_d = -1.0e20
+        best_p = None
+        min_x = self.origin[0]-0.1
+        max_x = self.origin[0]+self.extent[0]+0.1
+        min_y = self.origin[1]-0.1
+        max_y = self.origin[1]+self.extent[1]+0.1
+        active_nodes = list((node for node in rmap.iter_other_than(self) if node.position[0] >= min_x and node.position[0] <= max_x and node.position[1] >= min_y and node.position[1] <= max_y))
+        for _ in range(0, num_samples):
+            new_p = self._random_position()
+            d = min((dist2(node.position, new_p) for node in active_nodes)) - (dist2(new_p, self.eq1.position) + dist2(new_p, self.eq2.position)) / 4.0
+            if d > best_d:
+                best_p = new_p
+                best_d = d
+        self.position = best_p
+
+    def to_json(self):
+        json = Node.to_json(self)
+        json["multiframe_xyz"] = self.multiframe_xyz
+        json["multiframe_energies"] = self.multiframe_energies
+        json["multiframe_index"] = self.multiframe_index
+        return json
+
+class DC(Node):
+    def __init__(self, label):
+        Node.__init__(self, label)
+        self.eq = None
+
+    def postcopy(self, map):
+        Node.postcopy(self, map)
+        self.eq = map[self.eq]
+
+    def setup_bounds(self):
+        self.origin = self.eq.origin
+        self.extent = self.eq.extent
+
+    def to_json(self):
+        json = Node.to_json(self)
+        json["multiframe_xyz"] = self.multiframe_xyz
+        json["multiframe_energies"] = self.multiframe_energies
+        return json
+
+if __name__ == '__main__':
+    from optparse import OptionParser
+    from os import listdir
+    from os.path import isdir, exists, join
+    parser = OptionParser(usage="Usage: %prog [options] <GRRM result directory>")
+    parser.add_option("-t", "--timeout", type="int", dest="timeout", default=None, help = "The program will give up to seek a better layout of EQs AFTER the given timeout (minutes). Please note that layout of TSs and DCs will start even after the timeout");
+    parser.add_option("-r", "--repeat", type="int", dest="number_of_trials", default=1, help = "The program will try the given number of layouts and returns the best among them. The default is 1.")
+    parser.add_option("-o", "--output", dest="wfilename", default=None, help = "the filename for output. The default is <formula>.rmap")
+    parser.add_option("-g", "--gnuplot", action="store_true", dest="gnuplot", default=False, help="generates also .dat file for gnuplot.")
+    parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="prints noisy messages.")
+    (options, args) = parser.parse_args()
+    if len(args) != 1:
+        parser.error("GRRM result directory is not specified.")
+    timeout = options.timeout
+    number_of_trials = options.number_of_trials
+    wfilename = options.wfilename
+    dirname = args[0]
+    if not isdir(dirname):
+        if not exists(dirname):
+            parser.error("The directory %s not found."%(dirname))
+        else:
+            parser.error("%s is not a directory."%(dirname))
+    formula = None
+    names = listdir(dirname)
+    for filename in names:
+        if filename.startswith("grrm_") and filename.endswith("_DC_list.log"):
+            name = filename[5:-12]
+            if formula is None or len(formula) < name:
+                formula = name
+    if formula is None:
+        parser.error("The given directory %s does not contain proper GRRM log files."%(dirname))
+    if "grrm_"+formula+".log" not in names:
+            parser.error("The given directory %s does not contain %s."%(dirname, "grrm_"+formula+".log"))
+    if "grrm_"+formula+"_EQ_list.log" not in names:
+            parser.error("The given directory %s does not contain %s."%(dirname, "grrm_"+formula+"_EQ_list.log"))
+    if "grrm_"+formula+"_DC_list.log" not in names:
+            parser.error("The given directory %s does not contain %s."%(dirname, "grrm_"+formula+"_DC_list.log"))
+    if "grrm_"+formula+"_TS_list.log" not in names:
+            parser.error("The given directory %s does not contain %s."%(dirname, "grrm_"+formula+"_TS_list.log"))
+    wfilename = wfilename or formula
+    if not wfilename.endswith(".rmap"):
+        wfilename += ".rmap"
+    rmap = RMap(join(dirname, "grrm_"+formula))
+    rmap.arrange(timeout=timeout, number_of_trials=number_of_trials, verbose=options.verbose)
+    if options.gnuplot:
+        rmap.write_gnuplot(wfilename[:-5]+".dat")
+    rmap.write_json(wfilename, only_EQs=False)
+    print "Wrote", wfilename
+
