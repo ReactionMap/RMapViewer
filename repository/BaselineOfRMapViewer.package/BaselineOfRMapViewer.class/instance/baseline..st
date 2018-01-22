@@ -22,7 +22,7 @@ baseline: spec
 				configuration: 'RTPDFExporter'
 					with: [ 
 							spec
-								versionString: #stable;
+								versionString: #development;
 								repository: 'http://www.smalltalkhub.com/mc/azazael/RTPDFExporter/main' ];
 				yourself.
 			spec
