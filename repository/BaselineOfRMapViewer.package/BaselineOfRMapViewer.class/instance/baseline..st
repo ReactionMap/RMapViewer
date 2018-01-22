@@ -19,6 +19,13 @@ baseline: spec
 								repository: 'http://www.smalltalkhub.com/mc/ObjectProfile/Roassal2/main' ];
 				yourself.
 			spec
+				configuration: 'RTPDFExporter'
+					with: [ 
+							spec
+								versionString: #stable;
+								repository: 'http://www.smalltalkhub.com/mc/azazael/RTPDFExporter/main' ];
+				yourself.
+			spec
 				configuration: 'PolyMath'
 					with: [ 
 							spec
