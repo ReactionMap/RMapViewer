@@ -33,7 +33,7 @@ baseline: spec
 								repository: 'http://smalltalkhub.com/mc/PolyMath/PolyMath/main' ];
 				yourself.
 			spec
-				package: 'ReactionMapViewer' with: [ spec requires: #('Roassal2' 'Jun' 'PolyMath') ];
+				package: 'ReactionMapViewer' with: [ spec requires: #('Roassal2' 'Jun' 'PolyMath' 'RTPDFExporter') ];
 				yourself.
 			spec
 				group: 'default' with: #('ReactionMapViewer');
