@@ -1,0 +1,3 @@
+accessing
+compositionTable
+	^ compositionTable

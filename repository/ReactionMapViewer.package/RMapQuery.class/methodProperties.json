@@ -1,0 +1,20 @@
+{
+	"class" : {
+		"defaultSpec" : "tomooda 1/23/2018 17:40" },
+	"instance" : {
+		"addElementInComposition" : "tomooda 1/23/2018 18:00",
+		"basisField" : "tomooda 1/23/2018 17:28",
+		"basisField:" : "tomooda 1/23/2018 17:28",
+		"commandField" : "tomooda 1/23/2018 17:28",
+		"commandField:" : "tomooda 1/23/2018 17:28",
+		"compositionMenu:shifted:" : "tomooda 1/23/2018 17:39",
+		"compositionTable" : "tomooda 1/23/2018 17:28",
+		"compositionTable:" : "tomooda 1/23/2018 17:28",
+		"initializeWidgets" : "tomooda 1/23/2018 17:34",
+		"methodField" : "tomooda 1/23/2018 17:28",
+		"methodField:" : "tomooda 1/23/2018 17:28",
+		"nameField" : "tomooda 1/23/2018 17:28",
+		"nameField:" : "tomooda 1/23/2018 17:28",
+		"removeElementInComposition" : "tomooda 1/23/2018 17:56",
+		"setElement:quantity:" : "tomooda 1/23/2018 17:58",
+		"setQuantityInComposition" : "tomooda 1/23/2018 18:00" } }

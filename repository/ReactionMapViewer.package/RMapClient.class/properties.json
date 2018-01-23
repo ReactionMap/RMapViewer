@@ -1,0 +1,16 @@
+{
+	"category" : "ReactionMapViewer-Client",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"url",
+		"rmapList",
+		"selectionIndex" ],
+	"name" : "RMapClient",
+	"pools" : [
+		 ],
+	"super" : "ComposableModel",
+	"type" : "normal" }
