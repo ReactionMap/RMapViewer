@@ -38,7 +38,7 @@ class RMap:
             self.TSs = list()
             self.dummy_EQs = list()
         else:
-            num_EQs, num_DCs, num_TSs = self._read_list(logfile_prefix+".log")
+            num_EQs, num_DCs, num_TSs = self._read_list(logfile_prefix)
             self.EQs = [EQ("EQ%s"%(i)) for i in range(0, num_EQs)]
             self.DCs = [DC("DC%s"%(i)) for i in range(0, num_DCs)]
             self.TSs = [TS("TS%s"%(i)) for i in range(0, num_TSs)]
@@ -58,10 +58,10 @@ class RMap:
                     ts.eq1.TSs.remove(ts)
             self.TSs = filter(lambda ts:ts.eq1 is not None and ts.eq2 is not None, self.TSs)
             try:
-                self.grrm = file(logfile_prefix+".com").read()
+                self.grrm = file(logfile_prefix+".com", "rt").read()
             except:
                 self.grrm = None
-                print "NO .com file. the rmap file will not have grrm run options"
+                print >> sys.stderr, "NO .com file. the rmap file will not have grrm run options"
 
     def arrange(self, timeout = None, number_of_trials = 1, verbose=True):
         if timeout:
@@ -244,20 +244,48 @@ class RMap:
                     print ts.label
                 yield ts
 
-    def _read_list(self, filename):
-        num_EQs = None
-        num_DCs = None
-        num_TSs = None
-        with file(filename, "rt") as rfile:
+    def _read_list(self, logfile_prefix):
+        num_EQs = 0
+        num_DCs = 0
+        num_TSs = 0
+        with file(logfile_prefix+"_EQ_list.log", "rt") as rfile:
             for line in rfile:
                 terms = line.split(" ")
-                if len(terms) >= 2:
-                    if terms[1] == "EQuilibrium":
-                        num_EQs = int(terms[0])
-                    elif terms[1] == "Dissociation":
-                        num_DCs = int(terms[0])
-                    elif terms[1] == "Transition":
-                        num_TSs = int(terms[0])
+                if terms[:4] == ["#", "Geometry", "of", "EQ"]:
+                    eq = int(terms[4][:-1])
+                    if eq < num_EQs:
+                        print >> sys.stderr, "[FATAL] Duplicated EQs "+str(eq)+" in "+logfile_prefix+"_EQ_list.log"
+                        sys.exit(1)
+                    if eq > num_EQs:
+                        print >> sys.stderr, "[FATAL] Gap between EQs ("+str(num_EQs)+","+str(eq)+")in "+logfile_prefix+"_EQ_list.log"
+                        sys.exit(1)
+                    num_EQs = num_EQs + 1
+
+        with file(logfile_prefix+"_TS_list.log", "rt") as rfile:
+            for line in rfile:
+                terms = line.split(" ")
+                if terms[:4] == ["#", "Geometry", "of", "TS"]:
+                    ts = int(terms[4][:-1])
+                    if ts < num_TSs:
+                        print >> sys.stderr, "[FATAL] Duplicated TSs" + str(ts) + " in "+logfile_prefix+"_TS_list.log"
+                        sys.exit(1)
+                    if ts > num_TSs:
+                        print >> sys.stderr, "[FATAL] Gap between TSs ("+str(num_TS)+","+str(ts)+") in "+logfile_prefix+"_EQ_list.log"
+                        sys.exit(1)
+                    num_TSs = num_TSs + 1
+
+        with file(logfile_prefix+"_DC_list.log", "rt") as rfile:
+            for line in rfile:
+                terms = line.split(" ")
+                if terms[:4] == ["#", "Geometry", "of", "DC"]:
+                    dc = int(terms[4][:-1])
+                    if dc < num_DCs:
+                        print >> sys.stderr, "[FATAL] Duplicated DCs" + str(dc) + " in "+logfile_prefix+"_DC_list.log"
+                        sys.exit(1)
+                    if dc > num_DCs:
+                        print >> sys.stderr, "[FATAL] Gap between DCs in "+logfile_prefix+"_DC_list.log"
+                        sys.exit(1)
+                    num_DCs = num_DCs + 1
         return num_EQs, num_DCs, num_TSs
 
     def _read_EQ_list(self, filename):
@@ -711,7 +739,7 @@ if __name__ == '__main__':
     for filename in names:
         if filename.startswith("grrm_") and filename.endswith("_DC_list.log"):
             name = filename[5:-12]
-            if formula is None or len(formula) < name:
+            if formula is None or len(name) < len(formula):
                 formula = name
     if formula is None:
         parser.error("The given directory %s does not contain proper GRRM log files."%(dirname))
