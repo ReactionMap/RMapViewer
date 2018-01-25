@@ -1,5 +1,6 @@
 specs
 defaultSpec
+	<script: 'RMapQuery new openDialogWithSpec title: ''RMapServer query'''>
 	<spec>
 	^ SpecLayout composed
 		newColumn: [ :c | 
