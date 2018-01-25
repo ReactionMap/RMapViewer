@@ -688,6 +688,7 @@ if __name__ == '__main__':
     from os import listdir
     from os.path import isdir, exists, join
     parser = OptionParser(usage="Usage: %prog [options] <GRRM result directory>")
+    parser.add_option("-p", "--prefix", dest="prefix", default=None, help = "specifies the prefix of GRRM output files.");
     parser.add_option("-t", "--timeout", type="int", dest="timeout", default=None, help = "The program will give up to seek a better layout of EQs AFTER the given timeout (minutes). Please note that layout of TSs and DCs will start even after the timeout");
     parser.add_option("-r", "--repeat", type="int", dest="number_of_trials", default=1, help = "The program will try the given number of layouts and returns the best among them. The default is 1.")
     parser.add_option("-o", "--output", dest="wfilename", default=None, help = "the filename for output. The default is <formula>.rmap")
