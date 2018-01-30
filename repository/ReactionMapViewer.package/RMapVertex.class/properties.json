@@ -10,6 +10,7 @@
 		"json",
 		"position",
 		"energy",
+		"baselineEnergy",
 		"bonds",
 		"forms" ],
 	"name" : "RMapVertex",

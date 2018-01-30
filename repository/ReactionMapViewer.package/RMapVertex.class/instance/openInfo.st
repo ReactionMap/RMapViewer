@@ -2,12 +2,11 @@ utilities
 openInfo
 	| font lines extent |
 	font := TextStyle default defaultFont.
-	lines := (Array
-		with: 'label'
-		with: 'energy'
-		with: 'smiles'
-		with: 'inchi'
-		with: 'canost') collect: [ :attribute | attribute , ': ' , (self at: attribute ifAbsentPut: [ 'N/A' ]) asString ].
+	lines := {('label: ' , self label).
+	('energy: ' , self kJpermolAboveBaselineString).
+	('smiles: ' , self smiles).
+	('inchi: ' , self inchi).
+	('canost: ' , self canost)}.
 	extent := ((lines inject: 0 into: [ :max :each | max max: (font widthOfString: each) ]) + 4)
 		@ (lines size * font height + 4).
 	(Text

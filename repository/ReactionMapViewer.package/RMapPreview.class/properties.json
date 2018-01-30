@@ -1,0 +1,17 @@
+{
+	"category" : "ReactionMapViewer-Client",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"nameLabel",
+		"componentsLabel",
+		"vertexList",
+		"rmap" ],
+	"name" : "RMapPreview",
+	"pools" : [
+		 ],
+	"super" : "ComposableModel",
+	"type" : "normal" }

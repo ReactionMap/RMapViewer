@@ -6,9 +6,13 @@
 		 ],
 	"commentStamp" : "",
 	"instvars" : [
-		"url",
+		"urlField",
+		"queryModel",
+		"searchButton",
 		"rmapList",
-		"selectionIndex" ],
+		"rmapModel",
+		"openButton",
+		"rmapMorph" ],
 	"name" : "RMapClient",
 	"pools" : [
 		 ],

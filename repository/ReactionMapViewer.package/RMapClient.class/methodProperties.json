@@ -1,5 +1,27 @@
 {
 	"class" : {
-		 },
+		"defaultSpec" : "tomooda 1/30/2018 17:45",
+		"on:" : "tomooda 1/30/2018 20:40" },
 	"instance" : {
-		 } }
+		"getRMap:" : "tomooda 1/30/2018 17:48",
+		"initialExtent" : "tomooda 1/30/2018 17:46",
+		"initializePresenter" : "tomooda 1/30/2018 17:32",
+		"initializeWidgets" : "tomooda 1/30/2018 18:44",
+		"newPreviewModel" : "tomooda 1/30/2018 17:24",
+		"newQueryModel" : "tomooda 1/30/2018 14:55",
+		"openButton" : "tomooda 1/30/2018 15:29",
+		"openButton:" : "tomooda 1/30/2018 15:29",
+		"openRMap" : "tomooda 1/30/2018 18:44",
+		"queryModel" : "tomooda 1/30/2018 14:53",
+		"queryModel:" : "tomooda 1/30/2018 14:53",
+		"rmapList" : "tomooda 1/30/2018 14:51",
+		"rmapList:" : "tomooda 1/30/2018 14:51",
+		"rmapModel" : "tomooda 1/30/2018 14:53",
+		"rmapModel:" : "tomooda 1/30/2018 14:53",
+		"rmapMorph:" : "tomooda 1/30/2018 17:50",
+		"search" : "tomooda 1/30/2018 15:51",
+		"searchButton" : "tomooda 1/30/2018 15:29",
+		"searchButton:" : "tomooda 1/30/2018 15:29",
+		"selectRMap:" : "tomooda 1/30/2018 17:49",
+		"urlField" : "tomooda 1/30/2018 14:53",
+		"urlField:" : "tomooda 1/30/2018 14:53" } }

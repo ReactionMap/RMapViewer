@@ -11,4 +11,16 @@ initialize
 				stretchValue: 5
 				weightValue: LogicalFont weightBold
 				slantValue: 0)
-		familyName: 'Arial'
+		familyName: 'Arial'.
+	font
+		ifNil: [ 
+			FreeTypeFontProvider updateFromSystem.
+			font := FreeTypeFontProvider current
+				fontFor:
+					(LogicalFont
+						familyName: 'Arial'
+						pointSize: 24
+						stretchValue: 5
+						weightValue: LogicalFont weightBold
+						slantValue: 0)
+				familyName: 'Arial' ]

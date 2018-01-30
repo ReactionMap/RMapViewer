@@ -14,5 +14,6 @@ updateDistribution
 					index := (vertex energy - tmpMin) * a + 1 min: 100 max: 1.
 					tmpDistribution at: index put: (tmpDistribution at: index) + 1 ].
 			peak := tmpDistribution max asFloat.
+			peak <= Float fmin ifTrue: [ peak := 1.0 ].
 			distribution := tmpDistribution collect: [ :num | num asFloat / peak ] ].
 	self changed

@@ -48,4 +48,9 @@ addVertexMenu: aMenu
 				addLine;
 				add: 'load from local server' translated target: self selector: #loadFromLocalServer;
 				add: 'store to local server' translated target: self selector: #storeToLocalServer ].
+	(Smalltalk includesKey: #RMapClient)
+		ifTrue: [ 
+			aMenu
+				addLine;
+				add: 'load from server' translated target: self selector: #loadFromServer ].
 	^ aMenu

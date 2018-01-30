@@ -1,6 +1,6 @@
 {
 	"class" : {
-		"defaultSpec" : "tomooda 1/25/2018 13:45" },
+		"defaultSpec" : "tomooda 1/30/2018 14:47" },
 	"instance" : {
 		"addElementInComposition" : "tomooda 1/23/2018 18:00",
 		"basisField" : "tomooda 1/23/2018 17:28",
@@ -15,7 +15,7 @@
 		"methodField:" : "tomooda 1/23/2018 17:28",
 		"nameField" : "tomooda 1/23/2018 17:28",
 		"nameField:" : "tomooda 1/23/2018 17:28",
-		"query" : "tomooda 1/25/2018 14:14",
+		"query" : "tomooda 1/30/2018 15:40",
 		"removeElementInComposition" : "tomooda 1/23/2018 17:56",
 		"setElement:quantity:" : "tomooda 1/23/2018 17:58",
 		"setQuantityInComposition" : "tomooda 1/23/2018 18:00" } }

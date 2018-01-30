@@ -20,5 +20,6 @@ defaultSpec
 						newRow: [ :r | 
 									r
 										add: #compositionTable;
-										yourself ] ];
+										yourself ] ]
+			width: 300;
 		yourself
