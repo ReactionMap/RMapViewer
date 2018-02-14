@@ -6,7 +6,7 @@ Please evaluate the following on Pharo 4.0 (downloadable from Pharo [fileserver]
 
 ```smalltalk
 Metacello new
-    repository: 'github://ReactionMap/RMapViewer/repository/';
+    repository: 'github://ReactionMap/RMapViewer/repository';
     baseline: 'RMapViewer';
     load
 ```
