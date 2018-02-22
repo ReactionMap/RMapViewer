@@ -3,4 +3,8 @@
 		 },
 	"instance" : {
 		"energy" : "tomooda 10/20/2015 12:53",
-		"energy:" : "tomooda 10/20/2015 12:54" } }
+		"energy:" : "tomooda 10/20/2015 12:54",
+		"executeMatchingCommands:" : "tomooda 2/22/2018 14:30",
+		"executeMatchingCommands:bonds:atomId:" : "tomooda 2/22/2018 14:30",
+		"generateMatchingCommandsWith:" : "tomooda 2/22/2018 14:31",
+		"isSubstructureOf:" : "tomooda 2/22/2018 14:31" } }
