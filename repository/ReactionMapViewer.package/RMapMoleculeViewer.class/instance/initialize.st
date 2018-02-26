@@ -14,7 +14,7 @@ initialize
 		familyName: 'Arial'.
 	font
 		ifNil: [ 
-			FreeTypeFontProvider updateFromSystem.
+			FreeTypeFontProvider current updateFromSystem.
 			font := FreeTypeFontProvider current
 				fontFor:
 					(LogicalFont
