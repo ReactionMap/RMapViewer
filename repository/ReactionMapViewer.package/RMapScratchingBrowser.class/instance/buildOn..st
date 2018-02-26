@@ -7,7 +7,7 @@ buildOn: aMorph
 	aMorph
 		addMorph:
 			((searchButton := CheckboxMorph on: self selected: #isStrict changeSelected: #isStrict:)
-				label: 'strict';
+				label: 'structural';
 				yourself)
 		fullFrame:
 			((1 @ 0 corner: 1 @ 0) asLayoutFrame
@@ -24,7 +24,7 @@ buildOn: aMorph
 				yourself)
 		fullFrame:
 			((1 @ 0 corner: 1 @ 0) asLayoutFrame
-				leftOffset: -150;
+				leftOffset: -100;
 				bottomOffset: 20;
 				yourself).
 	aMorph
@@ -36,7 +36,7 @@ buildOn: aMorph
 				changePrimarySelection: #primarySelectionIndex:
 				listSelection: #listSelectionAt:
 				changeListSelection: #listSelectionAt:put:
-				menu: nil)
+				menu: #moleculeListMenu:shifted:)
 				wrapSelector: #asListItem;
 				yourself)
 		fullFrame:

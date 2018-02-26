@@ -1,13 +1,12 @@
 operations
 search
-	| keySignature errors |
-	keySignature := scratcherMorph moleculeGeometry fullShapeSignatureWithBondCorrection.
+	| keyMolecule keySignature errors |
+	keyMolecule := scratcherMorph moleculeGeometry.
+	keySignature := keyMolecule  fullShapeSignatureWithBondCorrection.
 	errors := OrderedCollection new: moleculeList size.
 	moleculeList := (self isStrict
 		ifTrue: [ 
-			| inchi |
-			inchi := self inchi.
-			rmap vertices select: [ :vertex | (vertex at: 'inchi') = inchi ] ]
+			rmap vertices select: [ :vertex | keyMolecule isSubstructureOf: vertex asMolecule ] ]
 		ifFalse: [ rmap vertices ]) asSortedCollection: [ :v1 :v2 | v1 label <= v2 label ].
 	moleculeList
 		do: [ :vertex | 

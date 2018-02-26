@@ -12,11 +12,11 @@ generateMatchingCommandsWith: aJunMoleculeGeometry
 				ifTrue: [ 
 					{(bond atom1).
 					(bond atom2).
-					(o1 + o2)} ]
+					(o1 * o2)} ]
 				ifFalse: [ 
 					{(bond atom2).
 					(bond atom1).
-					(o1 + o2)} ] ]) asSortedCollection: [ :less :more | less last <= more last ].
+					(o1 * o2)} ] ]) asSortedCollection: [ :less :more | less last <= more last ].
 	replaceBlock := [ :a1 :a2 | 
 	| o |
 	o := superElementBag occurrencesOf: a1 symbol.
@@ -25,12 +25,14 @@ generateMatchingCommandsWith: aJunMoleculeGeometry
 					triple first = a1
 						ifTrue: [ 
 							triple at: 1 put: a2.
-							triple at: 3 put: triple third - o + 1 ].
+							o ~= 0
+								ifTrue: [ triple at: 3 put: triple third / o ] ].
 					triple second = a1
 						ifTrue: [ 
 							triple at: 2 put: triple first.
 							triple at: 1 put: a2.
-							triple at: 3 put: triple third - o + 1 ] ];
+							o ~= 0
+								ifTrue: [ triple at: 3 put: triple third / o ] ] ];
 		reSort ].
 	atomId := 0.
 	atom := nil.

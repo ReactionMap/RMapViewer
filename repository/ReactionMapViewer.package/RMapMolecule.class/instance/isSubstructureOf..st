@@ -23,5 +23,5 @@ isSubstructureOf: aJunMoleculeGeometry
 	subBondBag
 		doWithOccurrences: [ :b :o | 
 			(superBondBag occurrencesOf: b) < o
-				ifTrue: [ ^ true ] ].
+				ifTrue: [ ^ false ] ].
 	^ aJunMoleculeGeometry executeMatchingCommands: (self generateMatchingCommandsWith: aJunMoleculeGeometry)
