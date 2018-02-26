@@ -23,4 +23,5 @@ initialize
 						stretchValue: 5
 						weightValue: LogicalFont weightBold
 						slantValue: 0)
-				familyName: 'Arial' ]
+				familyName: 'Arial' ].
+	font ifNil: [ font := TextStyle default defaultFont ]
