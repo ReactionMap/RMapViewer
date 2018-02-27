@@ -2,8 +2,21 @@ interface building
 buildOn: aMorph
 	aMorph changeProportionalLayout.
 	aMorph
-		addMorph: (scratcherMorph := JunMoleculeScratcherMorph new)
-		fullFrame: ((0 @ 0 corner: 1 @ 1) asLayoutFrame rightOffset: -200).
+		addMorph: (scratcherMorph := RMapMoleculeScratcherMorph new)
+		fullFrame:
+			((0 @ 0 corner: 1 @ 1) asLayoutFrame
+				rightOffset: -200;
+				bottomOffset: -100).
+	aMorph
+		addMorph:
+			(periodicTableMorph := JunPeriodicTableMorph new
+				selectedAtom: JunCarbon;
+				action: [ :atomClass | scratcherMorph defaultAtomClass: atomClass ];
+				yourself)
+		fullFrame:
+			((0 @ 1 corner: 1 @ 1) asLayoutFrame
+				rightOffset: -200;
+				topOffset: -100).
 	aMorph
 		addMorph:
 			((searchButton := CheckboxMorph on: self selected: #isStrict changeSelected: #isStrict:)

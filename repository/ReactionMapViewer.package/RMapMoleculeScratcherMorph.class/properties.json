@@ -1,0 +1,14 @@
+{
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"defaultAtomClass" ],
+	"name" : "RMapMoleculeScratcherMorph",
+	"pools" : [
+		 ],
+	"super" : "JunMoleculeScratcherMorph",
+	"type" : "normal" }

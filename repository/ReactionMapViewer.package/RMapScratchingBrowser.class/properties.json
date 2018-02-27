@@ -8,6 +8,7 @@
 	"instvars" : [
 		"rmap",
 		"scratcherMorph",
+		"periodicTableMorph",
 		"listMorph",
 		"loadButton",
 		"searchButton",

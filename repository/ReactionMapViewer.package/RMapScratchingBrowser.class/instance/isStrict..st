@@ -1,4 +1,3 @@
 accessing
 isStrict: aBoolean
-	isStrict := aBoolean = true.
-	self search
+	isStrict := aBoolean = true
