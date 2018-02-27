@@ -3,6 +3,6 @@ makeReleaseImage
 	"RMapMorph makeReleaseImage"
 
 	World submorphs copy do: [ :m | m delete ].
-	RMapMorph new openFullInWorld.
 	isReleased := true.
+	RMapMorph new openFullInWorld.
 	Smalltalk snapshot: true andQuit: false
