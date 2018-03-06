@@ -19,8 +19,8 @@ buildOn: aMorph
 				topOffset: -100).
 	aMorph
 		addMorph:
-			((searchButton := CheckboxMorph on: self selected: #isStrict changeSelected: #isStrict:)
-				label: 'structural';
+			((searchButton := CheckboxMorph on: self selected: #sortByEnergy changeSelected: #sortByEnergy:)
+				label: 'sort by energy';
 				yourself)
 		fullFrame:
 			((1 @ 0 corner: 1 @ 0) asLayoutFrame

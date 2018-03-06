@@ -4,12 +4,10 @@
 		"openDialogOn:" : "tomooda 10/22/2015 08:29",
 		"openOn:" : "tomooda 10/2/2015 14:14" },
 	"instance" : {
-		"buildOn:" : "tomooda 2/27/2018 09:09",
+		"buildOn:" : "tomooda 3/7/2018 08:24",
 		"cancel" : "tomooda 10/2/2015 18:33",
 		"inchi" : "tomooda 10/23/2015 14:31",
-		"initialize" : "tomooda 10/22/2015 15:42",
-		"isStrict" : "tomooda 10/22/2015 15:42",
-		"isStrict:" : "tomooda 2/27/2018 09:16",
+		"initialize" : "tomooda 3/7/2018 08:23",
 		"listSelectionAt:" : "tomooda 10/1/2015 13:59",
 		"listSelectionAt:put:" : "tomooda 10/1/2015 14:00",
 		"molString" : "tomooda 10/22/2015 15:31",
@@ -17,7 +15,10 @@
 		"moleculeListMenu:shifted:" : "tomooda 2/26/2018 10:21",
 		"primarySelectionIndex" : "tomooda 10/1/2015 13:53",
 		"primarySelectionIndex:" : "tomooda 10/1/2015 13:54",
-		"search" : "tomooda 2/26/2018 09:59",
+		"search" : "tomooda 3/7/2018 08:44",
 		"selections" : "tomooda 10/2/2015 18:33",
-		"setRMap:" : "tomooda 10/1/2015 15:13",
-		"smiles" : "tomooda 10/22/2015 15:50" } }
+		"setRMap:" : "tomooda 3/7/2018 08:43",
+		"smiles" : "tomooda 10/22/2015 15:50",
+		"sortByEnergy" : "tomooda 3/7/2018 08:23",
+		"sortByEnergy:" : "tomooda 3/7/2018 08:46",
+		"sortMoleculeList" : "tomooda 3/7/2018 08:46" } }

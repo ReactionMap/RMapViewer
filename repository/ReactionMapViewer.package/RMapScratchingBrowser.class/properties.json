@@ -15,7 +15,7 @@
 		"moleculeList",
 		"primarySelectionIndex",
 		"listSelection",
-		"isStrict" ],
+		"sortByEnergy" ],
 	"name" : "RMapScratchingBrowser",
 	"pools" : [
 		 ],
