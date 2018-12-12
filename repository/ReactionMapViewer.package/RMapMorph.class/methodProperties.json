@@ -56,7 +56,7 @@
 		"deltaEnergyPathSorter" : "tomooda 5/3/2014 10:23",
 		"dependents" : "tomooda 1/21/2014 09:10",
 		"doubleClick:" : "tomooda 2/13/2014 13:26",
-		"drawOn:" : "tomooda 10/6/2015 13:08",
+		"drawOn:" : "tomooda 12/12/2018 11:15",
 		"edges" : "tomooda 11/6/2014 06:03",
 		"edgesDo:" : "tomooda 8/2/2013 08:57",
 		"energyDistributionMorph" : "tomooda 10/20/2015 12:25",
@@ -130,7 +130,7 @@
 		"release" : "tomooda 1/21/2014 09:12",
 		"removeDependent:" : "tomooda 1/21/2014 09:13",
 		"renderer" : "tomooda 1/27/2014 14:10",
-		"rotateSelection:" : "tomooda 7/28/2014 13:56",
+		"rotateSelection:" : "tomooda 12/12/2018 11:15",
 		"savePathsAsCVS" : "tomooda 5/7/2014 11:37",
 		"search:" : "tomooda 3/18/2014 10:39",
 		"search:score:into:from:to:" : "tomooda 5/17/2014 17:49",
@@ -179,5 +179,5 @@
 		"zName" : "tomooda 1/27/2014 13:42",
 		"zNumerizer" : "tomooda 1/27/2014 13:42",
 		"zNumerizer:" : "tomooda 1/27/2014 13:42",
-		"zoomIn" : "tomooda 9/27/2015 17:37",
-		"zoomOut" : "tomooda 9/27/2015 17:37" } }
+		"zoomIn" : "tomooda 12/12/2018 11:45",
+		"zoomOut" : "tomooda 12/12/2018 11:45" } }

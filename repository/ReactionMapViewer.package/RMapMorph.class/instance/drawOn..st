@@ -10,12 +10,19 @@ drawOn: aCanvas
 					edges do: [ :edge | self renderer drawEdge: edge color: Color black on: canvas ].
 					newHoverVertex := nil.
 					handPosition := ActiveHand position - self position.
-					visibleVertices := ((vertices select: [ :v | (self isEffectiveVertex: v) and: [ | p | p := self projector value: v. (p x between: 0.0 and: self width asFloat) and: [ p y between: 0.0 and: self height asFloat ]]])
+					visibleVertices := (vertices
+						select: [ :v | 
+							(self isEffectiveVertex: v)
+								and: [ 
+									| p |
+									p := self projector value: v.
+									(p x between: 0.0 and: self width asFloat) and: [ p y between: 0.0 and: self height asFloat ] ] ])
 						asSortedCollection: [ :deeper :shallower | 
 							((self zNumerizer value: shallower) ifNil: [ Float infinity ])
-								<= ((self zNumerizer value: deeper) ifNil: [ Float infinity ]) ]).
+								<= ((self zNumerizer value: deeper) ifNil: [ Float infinity ]) ].
 					self renderer numVertices: visibleVertices size.
-					visibleVertices do: [ :vertex | 
+					visibleVertices
+						do: [ :vertex | 
 							(self renderer drawVertex: vertex borderColor: nil on: canvas)
 								ifNotNil: [ :rect | 
 									(rect containsPoint: handPosition)
@@ -41,26 +48,12 @@ drawOn: aCanvas
 										hops: hops * 2
 										verticesDo: [ :vertex | self renderer drawVertex: vertex borderColor: nil on: canvas ]
 										edgesDo: [ :edge | self renderer drawEdge: edge color: Color black on: canvas ] ] ].
-					self
-						selectedVerticesDo: [ :vertex | 
-							vertex flushForms.
-							self selectionRenderer drawVertex: vertex borderColor: Color red on: canvas.
-							vertex flushForms ].
-					self
-						reactantsDo: [ :vertex | 
-							vertex flushForms.
-							self selectionRenderer drawVertex: vertex borderColor: Color blue on: canvas.
-							vertex flushForms ].
+					self selectedVerticesDo: [ :vertex | self selectionRenderer drawVertex: vertex borderColor: Color red on: canvas ].
+					self reactantsDo: [ :vertex | self selectionRenderer drawVertex: vertex borderColor: Color blue on: canvas ].
 					self
 						productsDo: [ :vertex | 
-							vertex flushForms.
 							(self selectionRenderer drawVertex: vertex borderColor: Color blue on: canvas)
-								ifNotNil: [ :rectangle | canvas frameRectangle: (rectangle insetBy: -3) width: 2 color: Color blue ].
-							vertex flushForms ].
-					hoverVertex
-						ifNotNil: [ 
-							hoverVertex flushForms.
-							self selectionRenderer drawVertex: hoverVertex borderColor: Color black on: canvas.
-							hoverVertex flushForms ].
+								ifNotNil: [ :rectangle | canvas frameRectangle: (rectangle insetBy: -3) width: 2 color: Color blue ] ].
+					hoverVertex ifNotNil: [ self selectionRenderer drawVertex: hoverVertex borderColor: Color black on: canvas ].
 					canvas flush ] ].
 	aCanvas paintImage: form at: self position

@@ -1,7 +1,6 @@
 private
 rotateSelection: anRMapVertex
 	[ 
-	anRMapVertex flushForms.
 	(selectedVertices includes: anRMapVertex)
 		ifTrue: [ 
 			selectedVertices := selectedVertices copyWithout: anRMapVertex.
