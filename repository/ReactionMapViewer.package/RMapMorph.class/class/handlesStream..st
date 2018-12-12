@@ -1,13 +1,13 @@
 utilities
 handlesStream: stream
-	| entry |
-	entry := stream directoryEntry.
-	(entry isFile and: [ stream name endsWith: '.rmap' ])
+	| ref |
+	ref := stream fullName asFileReference.
+	(ref isFile and: [ stream name endsWith: '.rmap' ])
 		ifTrue: [ 
-			(self fromStream: stream) openFullInWorld.
+			(self fromStream: ref) openFullInWorld.
 			^ true ].
-	entry isDirectory
+	ref isDirectory
 		ifTrue: [ 
-			(self fromDirectory: stream name asFileReference) ifNotNil: #openFullInWorld.
+			(self fromDirectory: ref) ifNotNil: #openFullInWorld.
 			^ true ].
 	^ true

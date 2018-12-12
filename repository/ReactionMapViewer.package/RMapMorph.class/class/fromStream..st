@@ -1,3 +1,3 @@
 instance creation
 fromStream: aStream
-	^ self fromDictionary: (NeoJSONReader on: aStream) next
+	^ self fromDictionary: (NeoJSONReader on: aStream readStream) next
