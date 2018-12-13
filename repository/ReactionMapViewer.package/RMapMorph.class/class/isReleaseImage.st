@@ -1,3 +1,0 @@
-utilities
-isReleaseImage
-	^ isReleased == true

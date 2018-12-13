@@ -1,3 +1,0 @@
-accessing
-energyRangeMin
-	^ energyRange min

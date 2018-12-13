@@ -1,3 +1,0 @@
-accessing
-sortByEnergy
-	^ false ~~ sortByEnergy

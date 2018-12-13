@@ -1,3 +1,0 @@
-accessing
-upperBound
-	^ rmapMorph visibleEnergyRangeMax

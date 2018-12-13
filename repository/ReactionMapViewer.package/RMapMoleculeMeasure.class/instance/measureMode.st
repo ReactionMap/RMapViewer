@@ -1,3 +1,0 @@
-accessing-modes
-measureMode
-	^ measureMode

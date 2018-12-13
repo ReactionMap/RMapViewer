@@ -1,3 +1,0 @@
-accessing
-flushForms
-	forms := nil

@@ -1,3 +1,0 @@
-class initialization
-startUp
-	FreeTypeFontProvider current updateFromSystem

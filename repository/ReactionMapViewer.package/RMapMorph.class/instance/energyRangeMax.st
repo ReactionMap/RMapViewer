@@ -1,3 +1,0 @@
-accessing
-energyRangeMax
-	^ energyRange max

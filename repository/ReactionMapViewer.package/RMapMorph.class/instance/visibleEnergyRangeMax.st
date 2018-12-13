@@ -1,3 +1,0 @@
-accessing
-visibleEnergyRangeMax
-	^ visibleEnergyRange max

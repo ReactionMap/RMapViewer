@@ -1,3 +1,0 @@
-testing
-isVanDerWaalsPresentation
-	^ presentation = #vanDerWaals

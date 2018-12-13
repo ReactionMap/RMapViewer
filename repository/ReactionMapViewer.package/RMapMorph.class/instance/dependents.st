@@ -1,3 +1,0 @@
-dependents access
-dependents
-	^ dependents

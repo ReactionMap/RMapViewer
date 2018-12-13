@@ -1,3 +1,0 @@
-defaults
-defaultMaxNumberOfPaths
-	^ 100

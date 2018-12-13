@@ -1,3 +1,0 @@
-accessing-numerizers
-zNumerizer: anRMapVertexNumerizer
-	zNumerizerSelector value: anRMapVertexNumerizer

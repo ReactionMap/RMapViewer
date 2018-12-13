@@ -1,3 +1,0 @@
-testing
-isTubePresentation
-	^ presentation = #tube

@@ -1,3 +1,0 @@
-accessing
-defaultAtomClass
-	^ defaultAtomClass

@@ -1,3 +1,0 @@
-testing
-isStickAndBallPresentation
-	^ presentation = #stickAndBall

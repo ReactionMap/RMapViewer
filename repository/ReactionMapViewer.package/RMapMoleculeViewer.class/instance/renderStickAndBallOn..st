@@ -1,3 +1,0 @@
-drawing
-renderStickAndBallOn: aJunRenderingContext
-	molecule renderOn: aJunRenderingContext

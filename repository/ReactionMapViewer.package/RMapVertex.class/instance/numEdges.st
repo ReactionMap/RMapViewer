@@ -1,3 +1,0 @@
-accessing
-numEdges
-	^ edges size

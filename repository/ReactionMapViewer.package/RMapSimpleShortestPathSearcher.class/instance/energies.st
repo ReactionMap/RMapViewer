@@ -1,3 +1,0 @@
-private
-energies
-	^ self shouldNotImplement

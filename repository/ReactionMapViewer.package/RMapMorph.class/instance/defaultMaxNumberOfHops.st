@@ -1,3 +1,0 @@
-defaults
-defaultMaxNumberOfHops
-	^ 8

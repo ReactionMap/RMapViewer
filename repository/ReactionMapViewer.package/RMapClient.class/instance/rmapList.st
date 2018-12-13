@@ -1,3 +1,0 @@
-accessing
-rmapList
-	^ rmapList

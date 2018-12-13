@@ -1,3 +1,0 @@
-accessing-paths
-pathSorter
-	^ pathSorter

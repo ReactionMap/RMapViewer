@@ -1,3 +1,0 @@
-dependents access
-myDependents
-	^ dependents

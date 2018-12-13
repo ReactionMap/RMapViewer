@@ -1,3 +1,0 @@
-constants
-distanceMode
-	^ #distance
