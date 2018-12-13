@@ -183,13 +183,13 @@ RMapEnergyProfileMorph >> pointFromT: t energy: e [
 { #category : #operations }
 RMapEnergyProfileMorph >> saveAsCVS [
 	(UIManager default
-		fileSave: 'Choose a file to save'
+		chooseForSaveFileReference: 'Choose a file to save'
 		extensions: #('cvs')
-		path: (Smalltalk os environment at: 'HOME' ifAbsent: '/'))
+		path: FileLocator home fullPath
+		preview: true)
 		ifNotNil: [ :fileReference | 
 			| writeStream endOfLine |
 			writeStream := fileReference writeStream.
-			writeStream ascii.
 			endOfLine := Smalltalk platform lineEnding.
 			motionMolecule
 				do: [ :molecule | 
@@ -200,7 +200,8 @@ RMapEnergyProfileMorph >> saveAsCVS [
 								nextPutAll: caption;
 								nextPutAll: '",';
 								nextPutAll: molecule energy printString;
-								nextPutAll: endOfLine ] ] ]
+								nextPutAll: endOfLine ] ].
+			writeStream close ]
 ]
 
 { #category : #private }

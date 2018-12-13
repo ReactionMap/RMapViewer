@@ -913,9 +913,11 @@ RMapMorph >> cvsForHopsSortedPath: anArrayOfRMapVertex [
 
 { #category : #'accessing-paths' }
 RMapMorph >> cvsForPath: anArrayOfRMapVertex [
-	self isEnergyPathSorter ifTrue: [ ^self cvsForEnergySortedPath: anArrayOfRMapVertex].
-	self isDeltaEnergyPathSorter ifTrue: [ ^self cvsForDeltaEnergySortedPath: anArrayOfRMapVertex].
-	^self cvsForHopsSortedPath: anArrayOfRMapVertex
+	self isEnergyPathSorter
+		ifTrue: [ ^ self cvsForEnergySortedPath: anArrayOfRMapVertex ].
+	self isDeltaEnergyPathSorter
+		ifTrue: [ ^ self cvsForDeltaEnergySortedPath: anArrayOfRMapVertex ].
+	^ self cvsForHopsSortedPath: anArrayOfRMapVertex
 ]
 
 { #category : #defaults }
@@ -1834,14 +1836,18 @@ RMapMorph >> rotateSelection: anRMapVertex [
 
 { #category : #private }
 RMapMorph >> savePathsAsCVS [
-	(UITheme current
-		fileSaveIn: World
-		title: 'foo'
+	(UIManager default
+		chooseForSaveFileReference: 'Choose a file to save'
 		extensions: #('cvs')
-		path: FileSystem workingDirectory parent parent parent fullName)
+		path: FileLocator home fullPath
+		preview: true)
 		ifNotNil: [ :fileReference | 
 			fileReference
-				writeStreamDo: [ :stream | stream ascii. paths do: [ :path | stream nextPutAll: (self cvsForPath: path) ] separatedBy: [ stream lf ] ] ]
+				writeStreamDo: [ :stream | 
+					stream ascii.
+					paths
+						do: [ :path | stream nextPutAll: (self cvsForPath: path) ]
+						separatedBy: [ stream lf ] ] ]
 ]
 
 { #category : #'viewer functions' }
