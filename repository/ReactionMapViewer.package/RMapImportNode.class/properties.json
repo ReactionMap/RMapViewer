@@ -1,10 +1,12 @@
 {
-	"category" : "ReactionMapViewer-GRRMImport",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		"Rand" ],
 	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "ReactionMapViewer-GRRMImport",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [
+		"Rand"
+	],
 	"instvars" : [
 		"label",
 		"position",
@@ -14,9 +16,8 @@
 		"sdf",
 		"smiles",
 		"inchi",
-		"canost" ],
+		"canost"
+	],
 	"name" : "RMapImportNode",
-	"pools" : [
-		 ],
-	"super" : "Object",
-	"type" : "normal" }
+	"type" : "normal"
+}

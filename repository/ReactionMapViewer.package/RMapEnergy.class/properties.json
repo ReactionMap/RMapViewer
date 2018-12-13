@@ -1,16 +1,15 @@
 {
-	"category" : "ReactionMapViewer-Numerizers",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
+	"super" : "RMapVertexNumerizer",
+	"category" : "ReactionMapViewer-Numerizers",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
 	"instvars" : [
 		"min",
 		"max",
-		"denominator" ],
+		"denominator"
+	],
 	"name" : "RMapEnergy",
-	"pools" : [
-		 ],
-	"super" : "RMapVertexNumerizer",
-	"type" : "normal" }
+	"type" : "normal"
+}

@@ -1,14 +1,11 @@
 {
-	"category" : "ReactionMapViewer-Projectors",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
-	"instvars" : [
-		 ],
-	"name" : "RMapFlippedRevolvingOrthogonalProjector",
-	"pools" : [
-		 ],
 	"super" : "RMapRevolvingOrthogonalProjector",
-	"type" : "normal" }
+	"category" : "ReactionMapViewer-Projectors",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "RMapFlippedRevolvingOrthogonalProjector",
+	"type" : "normal"
+}

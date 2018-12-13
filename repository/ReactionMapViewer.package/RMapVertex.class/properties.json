@@ -1,10 +1,12 @@
 {
-	"category" : "ReactionMapViewer-Support",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		"AtomColors" ],
 	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "ReactionMapViewer-Support",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [
+		"AtomColors"
+	],
 	"instvars" : [
 		"edges",
 		"json",
@@ -12,9 +14,8 @@
 		"energy",
 		"baselineEnergy",
 		"bonds",
-		"forms" ],
+		"forms"
+	],
 	"name" : "RMapVertex",
-	"pools" : [
-		 ],
-	"super" : "Object",
-	"type" : "normal" }
+	"type" : "normal"
+}

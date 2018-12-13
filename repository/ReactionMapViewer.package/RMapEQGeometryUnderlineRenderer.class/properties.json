@@ -1,14 +1,11 @@
 {
-	"category" : "ReactionMapViewer-Renderers",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
-	"instvars" : [
-		 ],
-	"name" : "RMapEQGeometryUnderlineRenderer",
-	"pools" : [
-		 ],
 	"super" : "RMapGeometryRenderer",
-	"type" : "normal" }
+	"category" : "ReactionMapViewer-Renderers",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "RMapEQGeometryUnderlineRenderer",
+	"type" : "normal"
+}

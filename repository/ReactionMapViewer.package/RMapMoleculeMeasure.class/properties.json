@@ -1,17 +1,16 @@
 {
-	"category" : "ReactionMapViewer-Morphs",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
+	"super" : "RMapMoleculeViewer",
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
 	"instvars" : [
 		"measureMode",
 		"dragSource",
 		"dropTarget",
-		"atoms" ],
+		"atoms"
+	],
 	"name" : "RMapMoleculeMeasure",
-	"pools" : [
-		 ],
-	"super" : "RMapMoleculeViewer",
-	"type" : "normal" }
+	"type" : "normal"
+}

@@ -1,15 +1,14 @@
 {
-	"category" : "ReactionMapViewer-Morphs",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
+	"super" : "Morph",
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
 	"instvars" : [
 		"rmapMorph",
-		"isExpanded" ],
+		"isExpanded"
+	],
 	"name" : "RMapLocatorMorph",
-	"pools" : [
-		 ],
-	"super" : "Morph",
-	"type" : "normal" }
+	"type" : "normal"
+}

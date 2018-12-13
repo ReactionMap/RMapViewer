@@ -2,7 +2,7 @@ utilities
 handlesStream: stream
 	| ref |
 	ref := stream fullName asFileReference.
-	(ref isFile and: [ stream name endsWith: '.rmap' ])
+	(ref isFile and: [ ref basename endsWith: '.rmap' ])
 		ifTrue: [ 
 			(self fromStream: ref) openFullInWorld.
 			^ true ].

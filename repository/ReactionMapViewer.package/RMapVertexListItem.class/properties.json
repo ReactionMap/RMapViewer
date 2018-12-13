@@ -1,14 +1,13 @@
 {
-	"category" : "ReactionMapViewer-Support",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
-	"instvars" : [
-		"vertex" ],
-	"name" : "RMapVertexListItem",
-	"pools" : [
-		 ],
 	"super" : "Object",
-	"type" : "normal" }
+	"category" : "ReactionMapViewer-Support",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"vertex"
+	],
+	"name" : "RMapVertexListItem",
+	"type" : "normal"
+}

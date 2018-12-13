@@ -1,17 +1,16 @@
 {
-	"category" : "ReactionMapViewer-Morphs",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
+	"super" : "JunAbstract3dMorph",
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
 	"instvars" : [
 		"molecule",
 		"presentation",
 		"label",
-		"font" ],
+		"font"
+	],
 	"name" : "RMapMoleculeViewer",
-	"pools" : [
-		 ],
-	"super" : "JunAbstract3dMorph",
-	"type" : "normal" }
+	"type" : "normal"
+}

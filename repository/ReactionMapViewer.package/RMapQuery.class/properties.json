@@ -1,18 +1,17 @@
 {
-	"category" : "ReactionMapViewer-Client",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
+	"super" : "ComposableModel",
+	"category" : "ReactionMapViewer-Client",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
 	"instvars" : [
 		"nameField",
 		"commandField",
 		"methodField",
 		"basisField",
-		"compositionTable" ],
+		"compositionTable"
+	],
 	"name" : "RMapQuery",
-	"pools" : [
-		 ],
-	"super" : "ComposableModel",
-	"type" : "normal" }
+	"type" : "normal"
+}

@@ -1,16 +1,15 @@
 {
-	"category" : "ReactionMapViewer-Projectors",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
+	"super" : "RMapOrthogonalProjector",
+	"category" : "ReactionMapViewer-Projectors",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
 	"instvars" : [
 		"r",
 		"theta",
-		"maxTheta" ],
+		"maxTheta"
+	],
 	"name" : "RMapRevolvingOrthogonalProjector",
-	"pools" : [
-		 ],
-	"super" : "RMapOrthogonalProjector",
-	"type" : "normal" }
+	"type" : "normal"
+}

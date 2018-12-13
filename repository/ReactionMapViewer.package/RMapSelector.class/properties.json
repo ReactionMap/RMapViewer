@@ -1,16 +1,15 @@
 {
-	"category" : "ReactionMapViewer-Support",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
+	"super" : "Model",
+	"category" : "ReactionMapViewer-Support",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
 	"instvars" : [
 		"list",
 		"index",
-		"getMenuBlock" ],
+		"getMenuBlock"
+	],
 	"name" : "RMapSelector",
-	"pools" : [
-		 ],
-	"super" : "Model",
-	"type" : "normal" }
+	"type" : "normal"
+}

@@ -1,14 +1,11 @@
 {
-	"category" : "ReactionMapViewer-Renderers",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
-	"instvars" : [
-		 ],
-	"name" : "RMap3dSmallGeometryRenderer",
-	"pools" : [
-		 ],
 	"super" : "RMap3dGeometryRenderer",
-	"type" : "normal" }
+	"category" : "ReactionMapViewer-Renderers",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "RMap3dSmallGeometryRenderer",
+	"type" : "normal"
+}

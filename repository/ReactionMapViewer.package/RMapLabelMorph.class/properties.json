@@ -1,14 +1,11 @@
 {
-	"category" : "ReactionMapViewer-Morphs",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
-	"instvars" : [
-		 ],
-	"name" : "RMapLabelMorph",
-	"pools" : [
-		 ],
 	"super" : "StringMorph",
-	"type" : "normal" }
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "RMapLabelMorph",
+	"type" : "normal"
+}

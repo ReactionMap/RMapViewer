@@ -1,14 +1,11 @@
 {
-	"category" : "ReactionMapViewer-Support",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
-	"instvars" : [
-		 ],
-	"name" : "RMapEnergyGapShortestPathSearcher",
-	"pools" : [
-		 ],
 	"super" : "RMapShortestPathSearcher",
-	"type" : "normal" }
+	"category" : "ReactionMapViewer-Support",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "RMapEnergyGapShortestPathSearcher",
+	"type" : "normal"
+}

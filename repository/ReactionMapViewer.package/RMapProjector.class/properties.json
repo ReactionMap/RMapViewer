@@ -1,14 +1,13 @@
 {
-	"category" : "ReactionMapViewer-Projectors",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
-	"instvars" : [
-		"rmap" ],
-	"name" : "RMapProjector",
-	"pools" : [
-		 ],
 	"super" : "Object",
-	"type" : "normal" }
+	"category" : "ReactionMapViewer-Projectors",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"rmap"
+	],
+	"name" : "RMapProjector",
+	"type" : "normal"
+}

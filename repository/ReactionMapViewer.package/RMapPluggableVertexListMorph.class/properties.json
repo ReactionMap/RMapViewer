@@ -1,14 +1,11 @@
 {
-	"category" : "ReactionMapViewer-Morphs",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
-	"instvars" : [
-		 ],
-	"name" : "RMapPluggableVertexListMorph",
-	"pools" : [
-		 ],
 	"super" : "PluggableListMorph",
-	"type" : "normal" }
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "RMapPluggableVertexListMorph",
+	"type" : "normal"
+}

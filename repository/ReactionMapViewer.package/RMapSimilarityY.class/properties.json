@@ -1,14 +1,11 @@
 {
-	"category" : "ReactionMapViewer-Numerizers",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
-	"instvars" : [
-		 ],
-	"name" : "RMapSimilarityY",
-	"pools" : [
-		 ],
 	"super" : "RMapSimilarityNumerizer",
-	"type" : "normal" }
+	"category" : "ReactionMapViewer-Numerizers",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "RMapSimilarityY",
+	"type" : "normal"
+}

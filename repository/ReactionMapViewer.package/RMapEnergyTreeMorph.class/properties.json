@@ -1,19 +1,18 @@
 {
-	"category" : "ReactionMapViewer-Morphs",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
+	"super" : "Morph",
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
 	"instvars" : [
 		"rmapMorph",
 		"font",
 		"hoverVertex",
 		"hoverError",
 		"hoverHop",
-		"hoverPoint" ],
+		"hoverPoint"
+	],
 	"name" : "RMapEnergyTreeMorph",
-	"pools" : [
-		 ],
-	"super" : "Morph",
-	"type" : "normal" }
+	"type" : "normal"
+}

@@ -1,10 +1,12 @@
 {
+	"commentStamp" : "",
+	"super" : "Morph",
 	"category" : "ReactionMapViewer-Morphs",
 	"classinstvars" : [
-		"isReleased" ],
-	"classvars" : [
-		 ],
-	"commentStamp" : "",
+		"isReleased"
+	],
+	"pools" : [ ],
+	"classvars" : [ ],
 	"instvars" : [
 		"vertices",
 		"edges",
@@ -36,9 +38,8 @@
 		"searchProgress",
 		"grrm",
 		"lastTime",
-		"stepTime" ],
+		"stepTime"
+	],
 	"name" : "RMapMorph",
-	"pools" : [
-		 ],
-	"super" : "Morph",
-	"type" : "normal" }
+	"type" : "normal"
+}

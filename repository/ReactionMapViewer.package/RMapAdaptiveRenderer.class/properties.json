@@ -1,15 +1,14 @@
 {
-	"category" : "ReactionMapViewer-Renderers",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
+	"super" : "RMapRenderer",
+	"category" : "ReactionMapViewer-Renderers",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
 	"instvars" : [
 		"renderers",
-		"selectedIndex" ],
+		"selectedIndex"
+	],
 	"name" : "RMapAdaptiveRenderer",
-	"pools" : [
-		 ],
-	"super" : "RMapRenderer",
-	"type" : "normal" }
+	"type" : "normal"
+}

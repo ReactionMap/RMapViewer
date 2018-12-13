@@ -1,10 +1,10 @@
 {
-	"category" : "ReactionMapViewer-Morphs",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
+	"super" : "Morph",
+	"category" : "ReactionMapViewer-Morphs",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
 	"instvars" : [
 		"motionMolecule",
 		"moleculeIndex",
@@ -17,9 +17,8 @@
 		"e0",
 		"eMin",
 		"eMax",
-		"font" ],
+		"font"
+	],
 	"name" : "RMapEnergyProfileMorph",
-	"pools" : [
-		 ],
-	"super" : "Morph",
-	"type" : "normal" }
+	"type" : "normal"
+}

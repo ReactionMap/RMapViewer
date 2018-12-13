@@ -1,14 +1,13 @@
 {
-	"category" : "ReactionMapViewer-Renderers",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
-	"instvars" : [
-		"attributes" ],
-	"name" : "RMapInfoRenderer",
-	"pools" : [
-		 ],
 	"super" : "RMapRenderer",
-	"type" : "normal" }
+	"category" : "ReactionMapViewer-Renderers",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"attributes"
+	],
+	"name" : "RMapInfoRenderer",
+	"type" : "normal"
+}

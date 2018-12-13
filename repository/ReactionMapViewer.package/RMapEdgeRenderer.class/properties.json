@@ -1,15 +1,14 @@
 {
+	"commentStamp" : "",
+	"super" : "RMapDotRenderer",
 	"category" : "ReactionMapViewer-Renderers",
-	"classinstvars" : [
-		 ],
+	"classinstvars" : [ ],
+	"pools" : [ ],
 	"classvars" : [
 		"BlackForms",
-		"GrayForms" ],
-	"commentStamp" : "",
-	"instvars" : [
-		 ],
+		"GrayForms"
+	],
+	"instvars" : [ ],
 	"name" : "RMapEdgeRenderer",
-	"pools" : [
-		 ],
-	"super" : "RMapDotRenderer",
-	"type" : "normal" }
+	"type" : "normal"
+}

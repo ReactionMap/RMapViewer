@@ -1,10 +1,10 @@
 {
-	"category" : "ReactionMapViewer-Client",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
+	"super" : "ComposableModel",
+	"category" : "ReactionMapViewer-Client",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
 	"instvars" : [
 		"urlField",
 		"queryModel",
@@ -12,9 +12,8 @@
 		"rmapList",
 		"rmapModel",
 		"openButton",
-		"rmapMorph" ],
+		"rmapMorph"
+	],
 	"name" : "RMapClient",
-	"pools" : [
-		 ],
-	"super" : "ComposableModel",
-	"type" : "normal" }
+	"type" : "normal"
+}

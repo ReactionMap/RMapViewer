@@ -1,14 +1,11 @@
 {
-	"category" : "ReactionMapViewer-Numerizers",
-	"classinstvars" : [
-		 ],
-	"classvars" : [
-		 ],
 	"commentStamp" : "",
-	"instvars" : [
-		 ],
-	"name" : "RMapRevolvingTransitionNumerizer",
-	"pools" : [
-		 ],
 	"super" : "RMapTransitionNumerizer",
-	"type" : "normal" }
+	"category" : "ReactionMapViewer-Numerizers",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "RMapRevolvingTransitionNumerizer",
+	"type" : "normal"
+}
