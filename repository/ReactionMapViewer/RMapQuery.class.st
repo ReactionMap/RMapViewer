@@ -1,6 +1,6 @@
 Class {
 	#name : #RMapQuery,
-	#superclass : #ComposableModel,
+	#superclass : #ComposablePresenter,
 	#instVars : [
 		'nameField',
 		'commandField',
@@ -8,7 +8,7 @@ Class {
 		'basisField',
 		'compositionTable'
 	],
-	#category : 'ReactionMapViewer-Client'
+	#category : #'ReactionMapViewer-Client'
 }
 
 { #category : #specs }

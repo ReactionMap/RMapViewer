@@ -1,6 +1,6 @@
 Class {
 	#name : #RMapClient,
-	#superclass : #ComposableModel,
+	#superclass : #ComposablePresenter,
 	#instVars : [
 		'urlField',
 		'queryModel',
@@ -10,7 +10,7 @@ Class {
 		'openButton',
 		'rmapMorph'
 	],
-	#category : 'ReactionMapViewer-Client'
+	#category : #'ReactionMapViewer-Client'
 }
 
 { #category : #specs }

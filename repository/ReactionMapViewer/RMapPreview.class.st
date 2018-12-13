@@ -1,13 +1,13 @@
 Class {
 	#name : #RMapPreview,
-	#superclass : #ComposableModel,
+	#superclass : #ComposablePresenter,
 	#instVars : [
 		'nameLabel',
 		'componentsLabel',
 		'vertexList',
 		'rmap'
 	],
-	#category : 'ReactionMapViewer-Client'
+	#category : #'ReactionMapViewer-Client'
 }
 
 { #category : #specs }
@@ -99,14 +99,4 @@ RMapPreview >> vertexList [
 { #category : #accessing }
 RMapPreview >> vertexList: anObject [
 	vertexList := anObject
-]
-
-{ #category : #accessing }
-RMapPreview >> viewerPlaceHolder [
-	^ viewerPlaceHolder
-]
-
-{ #category : #accessing }
-RMapPreview >> viewerPlaceHolder: anObject [
-	viewerPlaceHolder := anObject
 ]
