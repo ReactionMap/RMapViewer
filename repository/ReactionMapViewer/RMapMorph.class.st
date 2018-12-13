@@ -1487,7 +1487,7 @@ RMapMorph >> mouseDown: event [
 	event yellowButtonPressed
 		ifTrue: [ 
 			(self addVertexMenu: (UIManager default newMenuIn: self for: self))
-				ifNotNilDo: [ :menu | 
+				ifNotNil: [ :menu | 
 					menu setInvokingView: self.
 					menu popUpEvent: self activeHand lastEvent in: self world ] ]
 		ifFalse: [ event hand waitForClicksOrDrag: self event: event ]
