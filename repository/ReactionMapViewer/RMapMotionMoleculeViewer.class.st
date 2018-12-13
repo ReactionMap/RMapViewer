@@ -395,7 +395,7 @@ RMapMotionMoleculeViewer >> step [
 
 { #category : #'stepping and presenter' }
 RMapMotionMoleculeViewer >> stepTime [
-	^ (motionMolecule at: moleculeIndex) label ifNil: [ 300 ] ifNotNil: [ 1000 ]
+	^ (motionMolecule at: moleculeIndex) label ifNil: [ 100 ] ifNotNil: [ 1000 ]
 ]
 
 { #category : #operations }

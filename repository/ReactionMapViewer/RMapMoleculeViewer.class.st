@@ -55,7 +55,6 @@ RMapMoleculeViewer >> addYellowButtonMenuItemsTo: aMenu event: evt [
 	self defaultYellowButtonMenuEnabled
 		ifFalse: [ ^ self ].
 	aMenu
-		addStayUpItem
 		addTitle: (label ifNil: ['Molecule Viewer']).
 	aMenu
 		add: 'presentation'
@@ -112,19 +111,18 @@ RMapMoleculeViewer >> defaultYellowButtonMenuEnabled [
 
 { #category : #drawing }
 RMapMoleculeViewer >> drawOn: aCanvas [
-	| form rc |
-	form := Form extent: self innerBounds extent depth: 32.
+	| rc |
+	(form isNil or: [ form extent ~= self innerBounds extent ])
+		ifTrue: [ form := Form extent: self innerBounds extent depth: 32 ].
 	rc := [ form renderingContext ]
 		on: Error
 		do: [ :ex | nil ].
 	rc
-		ifNil: [ 
-			rc := [ form renderingContext ]
+		ifNil: [ rc := [ form renderingContext ]
 				on: Error
 				do: [ :ex | nil ] ].
 	rc
-		ifNil: [ 
-			rc := [ form renderingContext ]
+		ifNil: [ rc := [ form renderingContext ]
 				on: Error
 				do: [ :ex | nil ] ].
 	rc ifNil: [ ^ self ].
@@ -136,8 +134,7 @@ RMapMoleculeViewer >> drawOn: aCanvas [
 	rc lightIndex: 0 parallel: projection eyePoint negated color: Color gray.
 	presentation = #tube
 		ifTrue: [ self renderTubeOn: rc ]
-		ifFalse: [ 
-			presentation = #vanDerWaals
+		ifFalse: [ presentation = #vanDerWaals
 				ifTrue: [ self renderVanDerWaalsOn: rc ]
 				ifFalse: [ self renderStickAndBallOn: rc ] ].
 	rc flush.
