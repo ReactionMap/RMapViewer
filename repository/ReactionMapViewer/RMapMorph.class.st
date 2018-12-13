@@ -1542,13 +1542,12 @@ RMapMorph >> openFullInWorld [
 	| viewer |
 	viewer := self buildViewer.
 	self class isReleaseImage
-		ifFalse: [ 
-			^ viewer
+		ifFalse: [ ^ viewer
 				extent: 500 @ 500;
 				openInWindowLabeled: 'RMapViewer' ].
 	World submorphs copy do: [ :m | m delete ].
 	World changeProportionalLayout.
-	World addMorph: viewer fullFrame: (LayoutFrame fractions: (0 @ 0 corner: 1 @ 1)).
+	World addMorph: viewer fullFrame: LayoutFrame identity.
 	^ viewer
 ]
 
@@ -1655,7 +1654,7 @@ RMapMorph >> pathSorter [
 RMapMorph >> pathSorterMorph [
 	| morph |
 	morph := Morph new.
-	morph color: UITheme current settings windowColor.
+	morph color: Smalltalk ui theme settings windowColor.
 	morph changeProportionalLayout.
 	morph
 		addMorph:
@@ -1664,7 +1663,10 @@ RMapMorph >> pathSorterMorph [
 				getState: #isDeltaEnergyPathSorter
 				action: #setDeltaEnergyPathSorter
 				label: #deltaEnergyPathSorter)
-		fullFrame: (LayoutFrame fractions: (0 @ 0 corner: 0.15 @ 1)).
+		fullFrame:
+			(LayoutFrame identity
+				rightFraction: 0.15;
+				yourself).
 	morph
 		addMorph:
 			(PluggableButtonMorph
@@ -1672,7 +1674,11 @@ RMapMorph >> pathSorterMorph [
 				getState: #isEnergyPathSorter
 				action: #setEnergyPathSorter
 				label: #energyPathSorter)
-		fullFrame: (LayoutFrame fractions: (0.15 @ 0 corner: 0.3 @ 1)).
+		fullFrame:
+			(LayoutFrame identity
+				leftFraction: 0.15;
+				rightFraction: 0.3;
+				yourself).
 	morph
 		addMorph:
 			(PluggableButtonMorph
@@ -1680,7 +1686,11 @@ RMapMorph >> pathSorterMorph [
 				getState: #isHopsPathSorter
 				action: #setHopsPathSorter
 				label: #hopsPathSorter)
-		fullFrame: (LayoutFrame fractions: (0.3 @ 0 corner: 0.45 @ 1)).
+		fullFrame:
+			(LayoutFrame identity
+				leftFraction: 0.3;
+				rightFraction: 0.45;
+				yourself).
 	morph
 		addMorph:
 			(PluggableButtonMorph
@@ -1688,10 +1698,18 @@ RMapMorph >> pathSorterMorph [
 				getState: #isShortestOnly
 				action: #toggleShortestOnly
 				label: #shortestOnlyLabel)
-		fullFrame: (LayoutFrame fractions: (0.45 @ 0 corner: 0.6 @ 1)).
+		fullFrame:
+			(LayoutFrame identity
+				leftFraction: 0.45;
+				rightFraction: 0.6;
+				yourself).
 	morph
 		addMorph: (RMapLabelMorph contents: 'search depth')
-		fullFrame: (LayoutFrame fractions: (0.65 @ 0 corner: 0.75 @ 1)).
+		fullFrame:
+			(LayoutFrame identity
+				leftFraction: 0.65;
+				rightFraction: 0.75;
+				yourself).
 	morph
 		addMorph:
 			((PluggableTextFieldMorph on: self text: #maxNumberOfHops accept: #maxNumberOfHops:)
@@ -1703,10 +1721,18 @@ RMapMorph >> pathSorterMorph [
 				ghostText: 'max # hops';
 				backgroundColor: Color white;
 				yourself)
-		fullFrame: (LayoutFrame fractions: (0.75 @ 0 corner: 0.80 @ 1)).
+		fullFrame:
+			(LayoutFrame identity
+				leftFraction: 0.75;
+				rightFraction: 0.80;
+				yourself).
 	morph
 		addMorph: (RMapLabelMorph contents: 'search results')
-		fullFrame: (LayoutFrame fractions: (0.80 @ 0 corner: 0.90 @ 1)).
+		fullFrame:
+			(LayoutFrame identity
+				leftFraction: 0.80;
+				rightFraction: 0.90;
+				yourself).
 	morph
 		addMorph:
 			((PluggableTextFieldMorph on: self text: #maxNumberOfPaths accept: #maxNumberOfPaths:)
@@ -1718,13 +1744,20 @@ RMapMorph >> pathSorterMorph [
 				ghostText: 'max # paths';
 				backgroundColor: Color white;
 				yourself)
-		fullFrame: (LayoutFrame fractions: (0.90 @ 0 corner: 0.95 @ 1)).
+		fullFrame:
+			(LayoutFrame identity
+				leftFraction: 0.90;
+				rightFraction: 0.95;
+				yourself).
 	morph
 		addMorph:
 			((PluggableButtonMorph on: self getState: nil action: #savePathsAsCVS)
 				label: 'Save';
 				yourself)
-		fullFrame: (LayoutFrame fractions: (0.95 @ 0 corner: 1 @ 1)).
+		fullFrame:
+			(LayoutFrame identity
+				leftFraction: 0.95;
+				yourself).
 	^ morph
 ]
 
