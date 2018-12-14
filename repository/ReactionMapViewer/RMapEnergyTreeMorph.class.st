@@ -252,8 +252,7 @@ RMapEnergyTreeMorph >> hops [
 { #category : #'initialize-release' }
 RMapEnergyTreeMorph >> initialize [
 	super initialize.
-	font := TextStyle default defaultFont.
-	verticesByHops := Array new
+	font := TextStyle default defaultFont
 ]
 
 { #category : #'event handling' }
