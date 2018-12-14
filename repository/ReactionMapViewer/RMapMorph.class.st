@@ -1422,11 +1422,11 @@ RMapMorph >> mouseMove: event [
 
 { #category : #'event handling' }
 RMapMorph >> mouseWheel: aMouseEvent [
-	aMouseEvent isUp
+	aMouseEvent isDown
 		ifTrue: [ 
 			aMouseEvent wasHandled: true.
 			self zoomOut ].
-	aMouseEvent isDown
+	aMouseEvent isUp
 		ifTrue: [ self zoomIn ].
 	super mouseWheel: aMouseEvent
 ]
@@ -1492,7 +1492,7 @@ RMapMorph >> openScratchingBrowser [
 
 { #category : #private }
 RMapMorph >> openTreeViewer [
-	| topNode agenda done links extraLinks renderer icons b |
+	| topNode agenda done links extraLinks renderer icons b view |
 	topNode := vertices argmin: #energy.
 	agenda := Array with: nil -> topNode.
 	done := IdentitySet new: self vertices size.
@@ -1500,8 +1500,7 @@ RMapMorph >> openTreeViewer [
 	links := Array new writeStream.
 	extraLinks := Array new writeStream.
 	[ agenda notEmpty ]
-		whileTrue: [ 
-			| newAgenda |
+		whileTrue: [ | newAgenda |
 			newAgenda := Array new writeStream.
 			agenda
 				do: [ :assoc | 
@@ -1512,8 +1511,7 @@ RMapMorph >> openTreeViewer [
 						neighborsDo: [ :next | 
 							(done includes: next)
 								ifTrue: [ extraLinks nextPut: node -> next ]
-								ifFalse: [ 
-									done add: next.
+								ifFalse: [ done add: next.
 									newAgenda nextPut: node -> next ] ] ].
 			agenda := newAgenda contents ].
 	links := links contents.
@@ -1537,14 +1535,35 @@ RMapMorph >> openTreeViewer [
 		withTextBelow: [ :v | v kJpermol - topNode kJpermol printShowingDecimalPlaces: 2 ].
 	b nodes: (links collect: #value).
 	b shape line.
-	b edges fromAssociations: links.
+	b edges useAssociations: links.
 	b layout tree.
 	b shape
 		shape: RMapTreeViewBezierLine new;
 		color: (Color blue alpha: 0.5).
-	b edges fromAssociations: extraLinks.
+	b edges useAssociations: extraLinks.
 	b build.
-	b view openInWindowSized: self extent titled: 'Reaction Tree View'
+	view := b view.
+	view announcer
+		subscribe: TRKeyUp
+		do: [ :evt | 
+			(evt commandKeyPressed and: [ evt keyValue = 35 ])
+				ifTrue: [ (UIManager default
+						chooseForSaveFileReference: 'Export as PNG'
+						extensions: #('png')
+						path: FileLocator home fullPath
+						preview: true)
+						ifNotNil: [ :ref | 
+							RTPNGExporter new
+								builder: view;
+								fileName: ref fullName;
+								exportToFile ] ].
+			evt keyValue = 126
+				ifTrue: [ view canvas camera scale: view canvas camera scale / 0.9.
+					view canvas morph changed ].
+			evt keyValue = 125
+				ifTrue: [ view canvas camera scale: view canvas camera scale * 0.9.
+					view canvas morph changed ] ].
+	view openInWindowSized: self extent titled: 'Reaction Tree View'
 ]
 
 { #category : #'user interface' }

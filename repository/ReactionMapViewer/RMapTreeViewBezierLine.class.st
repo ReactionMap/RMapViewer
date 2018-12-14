@@ -22,3 +22,8 @@ RMapTreeViewBezierLine >> getListOfPointsForTrachel: anEdge [
 	listOfPoints add: end.
 	^ listOfPoints
 ]
+
+{ #category : #hooks }
+RMapTreeViewBezierLine >> trachelShapeClass [
+	^ TRBezierShape
+]
