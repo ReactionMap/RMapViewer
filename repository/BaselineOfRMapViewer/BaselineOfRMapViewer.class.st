@@ -16,10 +16,7 @@ BaselineOfRMapViewer >> baseline: spec [
 						versionString: #stable;
 						repository: 'http://www.smalltalkhub.com/mc/ObjectProfile/Roassal2/main' ];
 				baseline: 'NeoJSON' with: [ spec repository: 'github://svenvc/NeoJSON/repository' ];
-				configuration: 'PolyMath'
-					with: [ spec
-						version: '0.70';
-						repository: 'http://smalltalkhub.com/mc/PolyMath/PolyMath/main' ];
+				baseline: 'PolyMath' with: [ spec repository: 'github://PolyMathOrg/PolyMath/src' ];
 				package: 'ReactionMapViewer'
 					with: [ spec requires: #('Jun' 'NeoJSON' 'Roassal2' 'PolyMath') ];
 				yourself.
