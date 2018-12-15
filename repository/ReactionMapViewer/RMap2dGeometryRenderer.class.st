@@ -107,21 +107,21 @@ RMap2dGeometryRenderer >> formsFor: anRMapVertex [
 { #category : #accessing }
 RMap2dGeometryRenderer >> geometry2d: anRMapVertex do: aBlock [
 	| a f f1 f2 f3 |
-	a := DhbMatrix rows: (self geometryMatrix: anRMapVertex).
+	a := PMMatrix rows: (self geometryMatrix: anRMapVertex).
 	f := (a transpose * a) orthogonalize.
 	f1 := f numberOfColumns >= 1
 		ifTrue: [ f columnAt: 1 ]
-		ifFalse: [ DhbVector with: 0.0 with: 0.0 with: 0.0 ].
+		ifFalse: [ PMVector with: 0.0 with: 0.0 with: 0.0 ].
 	f2 := f numberOfColumns >= 2
 		ifTrue: [ f columnAt: 2 ]
-		ifFalse: [ DhbVector with: 0.0 with: 0.0 with: 0.0 ].
+		ifFalse: [ PMVector with: 0.0 with: 0.0 with: 0.0 ].
 	f3 := f numberOfColumns >= 3
 		ifTrue: [ f columnAt: 3 ]
-		ifFalse: [ DhbVector with: 0.0 with: 0.0 with: 0.0 ].
+		ifFalse: [ PMVector with: 0.0 with: 0.0 with: 0.0 ].
 	anRMapVertex
 		geometryDo: [ :atom :x :y :z | 
 			| v |
-			v := DhbVector with: x with: y with: z.
+			v := PMVector with: x with: y with: z.
 			aBlock
 				value: atom
 				value: f1 * v
