@@ -10,13 +10,18 @@ BaselineOfRMapViewer >> baseline: spec [
 	spec
 		for: #common
 		do: [ spec
-				baseline: 'Jun' with: [ spec repository: 'github://tomooda/Jun/repository' ];
+				baseline: 'Jun'
+					with: [ spec
+						loads: 'Chemistry-Full';
+						repository: 'github://tomooda/Jun/repository' ];
 				configuration: 'Roassal2'
 					with: [ spec
 						versionString: #stable;
 						repository: 'http://www.smalltalkhub.com/mc/ObjectProfile/Roassal2/main' ];
-				baseline: 'NeoJSON' with: [ spec repository: 'github://svenvc/NeoJSON/repository' ];
-				baseline: 'PolyMath' with: [ spec repository: 'github://PolyMathOrg/PolyMath/src' ];
+				baseline: 'NeoJSON'
+					with: [ spec repository: 'github://svenvc/NeoJSON/repository' ];
+				baseline: 'PolyMath'
+					with: [ spec repository: 'github://PolyMathOrg/PolyMath/src' ];
 				package: 'ReactionMapViewer'
 					with: [ spec requires: #('Jun' 'NeoJSON' 'Roassal2' 'PolyMath') ];
 				yourself.
