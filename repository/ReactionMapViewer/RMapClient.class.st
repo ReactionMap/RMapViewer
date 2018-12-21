@@ -49,10 +49,9 @@ RMapClient class >> on: anRMapMorph [
 
 { #category : #operations }
 RMapClient >> getRMap: aDictionary [
-	| url query client response |
+	| url client response |
 	aDictionary ifNil: [ ^ nil ].
 	url := urlField text asString trim asZnUrl / 'api' / 'get'.
-	query := self queryModel query.
 	client := ZnClient new
 		beOneShot;
 		url: url;
@@ -62,7 +61,8 @@ RMapClient >> getRMap: aDictionary [
 	response := client response.
 	^ response isSuccess
 		ifTrue: [ NeoJSONReader fromString: response entity string ]
-		ifFalse: [ nil ]
+		ifFalse: [ self halt.
+			nil ]
 ]
 
 { #category : #initialization }
