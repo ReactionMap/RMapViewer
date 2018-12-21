@@ -61,8 +61,7 @@ RMapClient >> getRMap: aDictionary [
 	response := client response.
 	^ response isSuccess
 		ifTrue: [ NeoJSONReader fromString: response entity string ]
-		ifFalse: [ self halt.
-			nil ]
+		ifFalse: [ nil ]
 ]
 
 { #category : #initialization }
