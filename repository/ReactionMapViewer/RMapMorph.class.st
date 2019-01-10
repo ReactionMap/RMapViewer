@@ -246,6 +246,7 @@ RMapMorph class >> isReleaseImage [
 RMapMorph class >> makeReleaseImage [
 	"RMapMorph makeReleaseImage"
 
+	Morph halosEnabled: false.
 	World submorphs copy do: [ :m | m delete ].
 	isReleased := true.
 	RMapMorph new openFullInWorld.
@@ -372,7 +373,12 @@ RMapMorph class >> readTSs: aFileReference EQs: eqs [
 RMapMorph class >> setDevelopmentImage [
 	"RMapMorph setDevelopmentImage"
 
-	isReleased := false
+	isReleased := false.
+	Morph halosEnabled: true.
+	World submorphs copy
+		do: [ :m | 
+			(m findA: self)
+				ifTrue: [ m openInWindowLabeled: 'RMapViewer' ] ]
 ]
 
 { #category : #'dependents access' }
