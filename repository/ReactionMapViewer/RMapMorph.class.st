@@ -377,7 +377,7 @@ RMapMorph class >> setDevelopmentImage [
 	Morph halosEnabled: true.
 	World submorphs copy
 		do: [ :m | 
-			(m findA: self)
+			(m allMorphs contains: [ :r | r isKindOf: self ])
 				ifTrue: [ m openInWindowLabeled: 'RMapViewer' ] ]
 ]
 
