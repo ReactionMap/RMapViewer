@@ -124,11 +124,13 @@ RMapClient >> openButton: anObject [
 RMapClient >> openRMap [
 	| rmap |
 	rmap := self getRMap: rmapList selectedItem.
+	self delete.
 	rmapMorph
-		ifNil: [ 
-			rmapMorph := RMapMorph fromDictionary: rmap.
-			rmapMorph openInWindow ].
-	rmapMorph load: rmap
+		ifNil: [ rmapMorph := RMapMorph fromDictionary: rmap.
+			^ rmapMorph openFullInWorld ].
+	rmapMorph
+		load: rmap;
+		openFullInWorld
 ]
 
 { #category : #accessing }

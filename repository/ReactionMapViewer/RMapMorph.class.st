@@ -40,13 +40,10 @@ Class {
 	#category : 'ReactionMapViewer-Morphs'
 }
 
-{ #category : #'class initialization' }
-RMapMorph class >> createReleasedImage [
-	"RMapMorph createReleasedImage"
-	World submorphs copy do: [  :m | m delete ].
-	isReleased := true.
-	RMapMorph new openFullInWorld.
-	Smalltalk snapshot: true andQuit: true 
+{ #category : #operations }
+RMapMorph class >> closeAll [
+	World submorphs copy
+		do: [ :m | (m findDeeplyA: RMapMorph) ifNotNil: [ m delete ] ]
 ]
 
 { #category : #examples }
@@ -246,11 +243,67 @@ RMapMorph class >> isReleaseImage [
 RMapMorph class >> makeReleaseImage [
 	"RMapMorph makeReleaseImage"
 
-	Morph halosEnabled: false.
+	| menuBar |
+	MenubarMorph closeAll.
 	World submorphs copy do: [ :m | m delete ].
+	menuBar := MenubarMorph new
+		menuBarItems: self menuSpec items;
+		open;
+		yourself.
+	'RMapViewer.png' asFileReference
+		in: [ :ref | 
+			ref exists
+				ifTrue: [ | form |
+					form := PNGReadWriter formFromStream: ref binaryReadStream.
+					form getCanvas
+						fillRectangle: (0 @ 0 extent: form extent)
+						color: (Color white alpha: 0.7).
+					World color: (form colorAt: 0 @ 0).
+					form asMorph
+						position: 0 @ menuBar bottom;
+						beSticky;
+						openInWorld ] ].
 	isReleased := true.
-	RMapMorph new openFullInWorld.
+	Morph halosEnabled: false.
 	Smalltalk snapshot: true andQuit: false
+]
+
+{ #category : #menubar }
+RMapMorph class >> menuSpec [
+	| menu |
+	menu := PluggableMenuSpec new.
+	menu addMenuItem
+		label: 'File';
+		subMenu:
+			[ | fileMenu |
+			fileMenu := PluggableMenuSpec new.
+			fileMenu addMenuItem
+				label: 'Open file...';
+				action: (MessageSend receiver: self selector: #openFile).
+			fileMenu addMenuItem
+				label: 'Open url...';
+				action: (MessageSend receiver: self selector: #openURL).
+			fileMenu addSeparator.
+			fileMenu addMenuItem
+				label: 'Close';
+				action: (MessageSend receiver: self selector: #closeAll).
+			fileMenu ] value.
+	^ menu
+]
+
+{ #category : #operations }
+RMapMorph class >> openFile [
+	(UIManager default
+		chooseExistingFileReference: 'Open an RMap file'
+		extensions: #('rmap')
+		path: FileLocator home
+		preview: false)
+		ifNotNil: [ :ref | (self fromStream: ref) openFullInWorld ]
+]
+
+{ #category : #operations }
+RMapMorph class >> openURL [
+	RMapClient new openWithSpec
 ]
 
 { #category : #'*ReactionMapViewer-GRRMImport' }
@@ -1469,10 +1522,11 @@ RMapMorph >> openFullInWorld [
 	| viewer |
 	viewer := self buildViewer.
 	self class isReleaseImage
-		ifFalse: [ ^ viewer
-				extent: 500 @ 500;
-				openInWindowLabeled: 'RMapViewer' ].
-	World submorphs copy do: [ :m | m delete ].
+		ifFalse: [ ^ (viewer openInWindowLabeled: 'RMapViewer') fullscreen ].
+	World submorphs copy
+		do: [ :m | 
+			((m isKindOf: MenubarMorph) or: [ m isKindOf: ImageMorph ])
+				ifFalse: [ m delete ] ].
 	World changeProportionalLayout.
 	World addMorph: viewer fullFrame: LayoutFrame identity.
 	^ viewer
