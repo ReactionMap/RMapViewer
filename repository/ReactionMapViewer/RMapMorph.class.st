@@ -246,10 +246,8 @@ RMapMorph class >> makeReleaseImage [
 	| menuBar |
 	MenubarMorph closeAll.
 	World submorphs copy do: [ :m | m delete ].
-	menuBar := MenubarMorph new
-		menuBarItems: self menuSpec items;
-		open;
-		yourself.
+	self menubar: (menuBar := MenubarMorph new).
+	menuBar open.
 	'RMapViewer.png' asFileReference
 		in: [ :ref | 
 			ref exists
@@ -268,27 +266,24 @@ RMapMorph class >> makeReleaseImage [
 	Smalltalk snapshot: true andQuit: false
 ]
 
-{ #category : #menubar }
-RMapMorph class >> menuSpec [
-	| menu |
-	menu := PluggableMenuSpec new.
-	menu addMenuItem
-		label: 'File';
-		subMenu:
-			[ | fileMenu |
-			fileMenu := PluggableMenuSpec new.
-			fileMenu addMenuItem
-				label: 'Open file...';
-				action: (MessageSend receiver: self selector: #openFile).
-			fileMenu addMenuItem
-				label: 'Open url...';
-				action: (MessageSend receiver: self selector: #openURL).
-			fileMenu addSeparator.
-			fileMenu addMenuItem
-				label: 'Close';
-				action: (MessageSend receiver: self selector: #closeAll).
-			fileMenu ] value.
-	^ menu
+{ #category : #menu }
+RMapMorph class >> menubar: aMenubarMorph [
+	"(World findA: MenubarMorph) ifNotNil: [:m | self menubar: m]"
+
+	aMenubarMorph menuBarItems: OrderedCollection new.
+	^ aMenubarMorph
+		addMorphBack:
+			(aMenubarMorph newMenuItem
+				contents: 'File';
+				subMenu:
+					(MenubarMenuMorph new
+						add: 'Open file...' target: self selector: #openFile;
+						yourself;
+						add: 'Open url...' target: self selector: #openURL;
+						addLine;
+						add: 'Close' target: self selector: #closeAll;
+						yourself);
+				yourself)
 ]
 
 { #category : #operations }
@@ -915,8 +910,14 @@ RMapMorph >> defaultPathSorter [
 
 { #category : #private }
 RMapMorph >> delete [
-	searchProcess ifNotNil: [ searchProcess terminate. searchProcess := nil].
-	^super delete
+	searchProcess
+		ifNotNil: [ searchProcess terminate.
+			searchProcess := nil ].
+	(World findA: MenubarMorph)
+		ifNotNil: [ :menubar | 
+			menubar removeAllMorphs.
+			self class menubar: menubar ].
+	^ super delete
 ]
 
 { #category : #'accessing-paths' }
@@ -1363,6 +1364,18 @@ RMapMorph >> maxNumberOfPaths: anInteger [
 	self updatePaths
 ]
 
+{ #category : #menu }
+RMapMorph >> menubar: aMenubarMorph [
+	aMenubarMorph removeAllMorphs.
+	self class menubar: aMenubarMorph.
+	aMenubarMorph
+		addMorphBack:
+			(aMenubarMorph newMenuItem
+				contents: 'Molecule';
+				subMenu: MenubarMenuMorph new;
+				yourself)
+]
+
 { #category : #'accessing-paths' }
 RMapMorph >> morphForDeltaEnergySortedPath: anArrayOfRMapVertex [
 	| peakEnergy peakNodeIndex |
@@ -1520,9 +1533,15 @@ RMapMorph >> openAnimationOnPath [
 { #category : #'user interface' }
 RMapMorph >> openFullInWorld [
 	| viewer |
+	(World findA: MenubarMorph)
+		ifNotNil: [ :menubar | self menubar: menubar ].
 	viewer := self buildViewer.
 	self class isReleaseImage
-		ifFalse: [ ^ (viewer openInWindowLabeled: 'RMapViewer') fullscreen ].
+		ifFalse: [ | window |
+			window := viewer openInWindowLabeled: 'RMapViewer'.
+			window fullscreen.
+			window announcer subscribe: WindowClosed send: #delete to: self.
+			^ window ].
 	World submorphs copy
 		do: [ :m | 
 			((m isKindOf: MenubarMorph) or: [ m isKindOf: ImageMorph ])
