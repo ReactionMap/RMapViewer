@@ -6,42 +6,57 @@ Class {
 		'form'
 	],
 	#classInstVars : [
-		'cachedForm'
+		'cachedForm',
+		'lock'
 	],
 	#category : #'ReactionMapViewer-Support'
 }
 
 { #category : #utilities }
+RMapVertexListItem class >> critical: aBlock [
+	lock critical: aBlock
+]
+
+{ #category : #utilities }
 RMapVertexListItem class >> formFor: anRMapVertex [
 	| molecule box center projection rc |
-	cachedForm
-		ifNil: [ cachedForm := Form extent: self listIconSize @ self listIconSize depth: 32 ].
-	molecule := RMapMolecule new.
-	anRMapVertex
-		geometry2dDo: [ :atom :x :y :z | molecule add: (JunAtom symbol: atom at: (Jun3dPoint x: x y: y z: z)) ].
-	molecule autoBonds.
-	box := molecule boundingBox.
-	center := box center.
-	projection := JunParallelProjection
-		eyePoint: (0 ,, 0 ,, (box depth * 2)) + center
-		sightPoint: center
-		upVector: 0 ,, 1 ,, 0
-		height: (box width max: box height)
-		near: 0.1
-		far: box depth * 10.
-	[ rc := [ cachedForm renderingContext ]
-		on: Error
-		do: [ :ex | nil ].
-	rc isNil ] whileTrue: [ Processor yield ].
-	rc enableCullface.
-	rc backgroundColor: Color transparent.
-	rc projection: projection.
-	rc clear.
-	rc ambientLight: Color gray.
-	rc lightIndex: 0 parallel: projection eyePoint negated color: Color gray.
-	molecule renderOn: rc.
-	rc flush.
-	^ cachedForm copy: (0 @ 0 extent: cachedForm extent)
+	self
+		critical: [ cachedForm
+				ifNil: [ cachedForm := Form
+						extent: self listIconSize @ self listIconSize
+						depth: 32 ].
+			molecule := RMapMolecule new.
+			anRMapVertex
+				geometry2dDo:
+					[ :atom :x :y :z | molecule add: (JunAtom symbol: atom at: (Jun3dPoint x: x y: y z: z)) ].
+			molecule autoBonds.
+			box := molecule boundingBox.
+			center := box center.
+			projection := JunParallelProjection
+				eyePoint: (0 ,, 0 ,, (box depth * 2)) + center
+				sightPoint: center
+				upVector: 0 ,, 1 ,, 0
+				height: (box width max: box height)
+				near: 0.1
+				far: box depth * 10.
+			rc := cachedForm renderingContext.
+			rc enableCullface.
+			rc backgroundColor: Color transparent.
+			rc projection: projection.
+			rc clear.
+			rc ambientLight: Color gray.
+			rc
+				lightIndex: 0
+				parallel: projection eyePoint negated
+				color: Color gray.
+			molecule renderOn: rc.
+			rc flush.
+			^ cachedForm copy: (0 @ 0 extent: cachedForm extent) ]
+]
+
+{ #category : #initialization }
+RMapVertexListItem class >> initialize [
+	lock := Semaphore forMutualExclusion
 ]
 
 { #category : #constants }
