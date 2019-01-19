@@ -56,7 +56,10 @@ RMapVertexListItem class >> formFor: anRMapVertex [
 
 { #category : #initialization }
 RMapVertexListItem class >> initialize [
-	lock := Semaphore forMutualExclusion
+	lock := Semaphore forMutualExclusion.
+	SessionManager default
+		registerSystemClassNamed: self name
+		atPriority: 100
 ]
 
 { #category : #constants }
@@ -69,6 +72,11 @@ RMapVertexListItem class >> on: anRMapVertex [
 	^ self new
 		vertex: anRMapVertex;
 		yourself
+]
+
+{ #category : #'system startup' }
+RMapVertexListItem class >> startUp: aBoolean [
+	cachedForm := nil
 ]
 
 { #category : #accessing }
