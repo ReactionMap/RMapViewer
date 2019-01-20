@@ -11,9 +11,10 @@ Class {
 		'moleculeList',
 		'primarySelectionIndex',
 		'listSelection',
-		'sortByEnergy'
+		'sortByEnergy',
+		'sortByEnergyCheckbox'
 	],
-	#category : 'ReactionMapViewer-Morphs'
+	#category : #'ReactionMapViewer-Morphs'
 }
 
 { #category : #'instance creation' }
@@ -77,14 +78,23 @@ RMapScratchingBrowser class >> openOn: anRMapMorph [
 	^ window
 ]
 
+{ #category : #accessing }
+RMapScratchingBrowser >> FlistSelectionAt: anInteger put: aBoolean [
+	aBoolean
+		ifTrue: [ listSelection add: anInteger ]
+		ifFalse: [ listSelection remove: anInteger ifAbsent: [  ] ]
+]
+
 { #category : #'interface building' }
 RMapScratchingBrowser >> buildOn: aMorph [
+	| listWidth |
+	listWidth := RMapVertexListItem width + 18.
 	aMorph changeProportionalLayout.
 	aMorph
 		addMorph: (scratcherMorph := RMapMoleculeScratcherMorph new)
 		fullFrame:
 			((0 @ 0 corner: 1 @ 1) asLayoutFrame
-				rightOffset: -200;
+				rightOffset: listWidth negated;
 				bottomOffset: -100).
 	aMorph
 		addMorph:
@@ -94,16 +104,19 @@ RMapScratchingBrowser >> buildOn: aMorph [
 				yourself)
 		fullFrame:
 			((0 @ 1 corner: 1 @ 1) asLayoutFrame
-				rightOffset: -200;
+				rightOffset: listWidth negated;
 				topOffset: -100).
 	aMorph
 		addMorph:
-			((searchButton := CheckboxMorph on: self selected: #sortByEnergy changeSelected: #sortByEnergy:)
+			((sortByEnergyCheckbox := CheckboxMorph
+				on: self
+				selected: #sortByEnergy
+				changeSelected: #sortByEnergy:)
 				label: 'sort by energy';
 				yourself)
 		fullFrame:
 			((1 @ 0 corner: 1 @ 0) asLayoutFrame
-				leftOffset: -200;
+				leftOffset: listWidth negated;
 				rightOffset: -150;
 				bottomOffset: 20;
 				yourself).
@@ -116,7 +129,7 @@ RMapScratchingBrowser >> buildOn: aMorph [
 				yourself)
 		fullFrame:
 			((1 @ 0 corner: 1 @ 0) asLayoutFrame
-				leftOffset: -100;
+				leftOffset: listWidth negated // 2;
 				bottomOffset: 20;
 				yourself).
 	aMorph
@@ -134,7 +147,7 @@ RMapScratchingBrowser >> buildOn: aMorph [
 		fullFrame:
 			((1 @ 0 corner: 1 @ 1) asLayoutFrame
 				topOffset: 20;
-				leftOffset: -200;
+				leftOffset: listWidth negated;
 				yourself)
 ]
 
@@ -163,7 +176,7 @@ RMapScratchingBrowser >> listSelectionAt: anInteger [
 
 { #category : #accessing }
 RMapScratchingBrowser >> listSelectionAt: anInteger put: aBoolean [
-	aBoolean = true
+	aBoolean
 		ifTrue: [ listSelection add: anInteger ]
 		ifFalse: [ listSelection remove: anInteger ifAbsent: [  ] ]
 ]

@@ -10,11 +10,7 @@ Class {
 		'zNumerizerSelector',
 		'projectorSelector',
 		'rendererSelector',
-		'hoverRenderer',
-		'selectionRenderer',
-		'selectedVertices',
-		'reactants',
-		'products',
+		'pathQuery',
 		'viewScale',
 		'viewOffset',
 		'energyRange',
@@ -37,7 +33,7 @@ Class {
 	#classInstVars : [
 		'isReleased'
 	],
-	#category : 'ReactionMapViewer-Morphs'
+	#category : #'ReactionMapViewer-Morphs'
 }
 
 { #category : #operations }
@@ -453,52 +449,20 @@ RMapMorph >> addPathListMenu: aMenu [
 
 { #category : #'viewer functions' }
 RMapMorph >> addProduct: anRMapVertex [
-	(products includes: anRMapVertex)
-		ifFalse: [ 
-			selectedVertices := selectedVertices copyWithout: anRMapVertex.
-			products := products copyWith: anRMapVertex.
-			reactants := reactants copyWithout: anRMapVertex.
-			self updatePaths.
-			 
-			self xNumerizer updateSelection.
-			self yNumerizer updateSelection.
-			self zNumerizer updateSelection.
-			self projector updateSelection.
-			self changed: #selection  ]
+	pathQuery addProduct: anRMapVertex.
+	self updatePathQuery
 ]
 
 { #category : #'viewer functions' }
 RMapMorph >> addReactant: anRMapVertex [
-	(reactants includes: anRMapVertex)
-		ifFalse: [ 
-			selectedVertices := selectedVertices copyWithout: anRMapVertex.
-			products := products copyWithout: anRMapVertex.
-			reactants := reactants copyWith: anRMapVertex.
-			self updatePaths.
-			 
-			self xNumerizer updateSelection.
-			self yNumerizer updateSelection.
-			self zNumerizer updateSelection.
-			self projector updateSelection.
-			self changed: #selection  ]
+	pathQuery addReactant: anRMapVertex.
+	self updatePathQuery
 ]
 
 { #category : #'viewer functions' }
 RMapMorph >> addSelection: anRMapVertex [
-	(selectedVertices includes: anRMapVertex)
-		ifFalse: [ 
-			selectedVertices := selectedVertices copyWith: anRMapVertex.
-			((products includes: anRMapVertex) or: [ reactants includes: anRMapVertex ])
-				ifTrue: [ 
-					products := products copyWithout: anRMapVertex.
-					reactants := reactants copyWithout: anRMapVertex.
-					self updatePaths ].
-				 
-			self xNumerizer updateSelection.
-			self yNumerizer updateSelection.
-			self zNumerizer updateSelection.
-			self projector updateSelection.
-			self changed: #selection  ]
+	pathQuery addFree: anRMapVertex.
+	self updatePathQuery
 ]
 
 { #category : #adding }
@@ -516,28 +480,28 @@ RMapMorph >> addVertexMenu: aMenu [
 			(aMenu add: 'show GRRM run params' translated target: self selector: #showGRRM) enabled: grrm notNil ]
 		ifNotNil: [ :v | 
 			aMenu addTitle: v label.
-			((products includes: v) or: [ (reactants includes: v) or: [ selectedVertices includes: v ] ])
+			(pathQuery includes: v)
 				ifTrue: [ 
 					aMenu
 						add: 'unselect' translated
 						target: self
 						selector: #unselect:
 						argument: v ].
-			(selectedVertices includes: v)
+			(pathQuery freeList includes: v)
 				ifFalse: [ 
 					aMenu
 						add: 'select' translated
 						target: self
 						selector: #addSelection:
 						argument: v ].
-			(reactants includes: v)
+			(pathQuery reactantList includes: v)
 				ifFalse: [ 
 					aMenu
 						add: 'reactant' translated
 						target: self
 						selector: #addReactant:
 						argument: v ].
-			(products includes: v)
+			(pathQuery productList includes: v)
 				ifFalse: [ 
 					aMenu
 						add: 'product' translated
@@ -627,10 +591,15 @@ RMapMorph >> breakDependents [
 
 { #category : #'user interface' }
 RMapMorph >> buildViewer [
-	| pane h upper energy lower viewer |
+	| left pane h upper energy lower right viewer |
 	h := TextStyle default defaultFont height.
-	pane := Morph new.
-	pane color: Color white.
+	left := Morph new.
+	left color: Color white.
+	pathQuery buildOn: left.
+	pane := BorderedMorph new.
+	pane
+		color: Color white;
+		borderWidth: 0.
 	pane changeProportionalLayout.
 	pane
 		addMorph: xNumerizerSelector asDropListMorph
@@ -662,12 +631,19 @@ RMapMorph >> buildViewer [
 			((0.8 @ 1 corner: 1 @ 1) asLayoutFrame
 				topOffset: -20;
 				yourself).
-	pane addMorph: self searchBox fullFrame: ((0 @ 0 corner: 1 @ 0) asLayoutFrame bottomRightOffset: -220 @ (h + 4)).
+	pane
+		addMorph: self searchBox
+		fullFrame:
+			((0 @ 0 corner: 1 @ 0) asLayoutFrame bottomRightOffset: -220 @ (h + 4)).
 	pane
 		addMorph:
-			('EQ: ' , (vertices select: [ :v | v label first = $E ]) size printString , ' TS: '
-				, (vertices select: [ :v | v label first = $T ]) size printString , ' DC: '
-				, (vertices select: [ :v | v label first = $D ]) size printString) asMorph
+			('EQ: '
+				, (vertices select: [ :v | v label first = $E ]) size printString
+				, ' TS: '
+				, (vertices select: [ :v | v label first = $T ]) size printString
+				, ' DC: '
+				, (vertices select: [ :v | v label first = $D ]) size printString)
+				asMorph
 		fullFrame:
 			((1 @ 0 corner: 1 @ 0) asLayoutFrame
 				leftOffset: -220;
@@ -693,7 +669,9 @@ RMapMorph >> buildViewer [
 				bottomOffset: -20;
 				yourself).
 	upper := BorderedMorph new.
-	upper color: Color white.
+	upper
+		color: Color white;
+		borderWidth: 0.
 	upper changeProportionalLayout.
 	upper addMorph: pane fullFrame: (0 @ 0 corner: 0.5 @ 1) asLayoutFrame.
 	energy := Morph new.
@@ -727,12 +705,18 @@ RMapMorph >> buildViewer [
 				topLeftOffset: 100 @ 0;
 				bottomRightOffset: 0 @ 0;
 				yourself).
-	upper addMorph: energy fullFrame: (0.5 @ 0 corner: 1 @ 1) asLayoutFrame.
+	upper
+		addMorph: energy
+		fullFrame: (0.5 @ 0 corner: 1 @ 1) asLayoutFrame.
 	upper addPaneSplitters.
 	lower := BorderedMorph new.
-	lower color: Color white.
+	lower
+		color: Color white;
+		borderWidth: 0.
 	lower changeProportionalLayout.
-	lower addMorph: self locatorMorph fullFrame: (0 @ 0 corner: 0.1 @ 1) asLayoutFrame.
+	lower
+		addMorph: self locatorMorph
+		fullFrame: (0 @ 0 corner: 0.1 @ 1) asLayoutFrame.
 	lower
 		addMorph: self pathSorterMorph
 		fullFrame:
@@ -753,12 +737,35 @@ RMapMorph >> buildViewer [
 				topOffset: -20;
 				yourself).
 	lower addPaneSplitters.
+	right := BorderedMorph new.
+	right
+		color: Color white;
+		borderWidth: 0.
+	right changeProportionalLayout.
+	right
+		addMorph: upper
+		fullFrame: (0 @ 0 corner: 1 @ 0.7) asLayoutFrame.
+	right
+		addMorph: lower
+		fullFrame: (0 @ 0.7 corner: 1 @ 1) asLayoutFrame.
+	right addPaneSplitters.
 	viewer := BorderedMorph new.
-	viewer color: Color white.
+	viewer
+		color: Color white;
+		borderWidth: 0.
 	viewer changeProportionalLayout.
-	viewer addMorph: upper fullFrame: (0 @ 0 corner: 1 @ 0.7) asLayoutFrame.
-	viewer addMorph: lower fullFrame: (0 @ 0.7 corner: 1 @ 1) asLayoutFrame.
-	viewer addPaneSplitters.
+	viewer
+		addMorph: left
+			fullFrame:
+			(LayoutFrame identity
+				rightFraction: 0.0;
+				rightOffset: 300;
+				yourself);
+		addMorph: right
+			fullFrame:
+			(LayoutFrame identity
+				leftOffset: 300;
+				yourself).
 	^ viewer
 ]
 
@@ -795,22 +802,20 @@ RMapMorph >> createJSON [
 { #category : #private }
 RMapMorph >> createPaths [
 	^ self isShortestOnly
-		ifTrue: [ 
-			| result |
+		ifTrue: [ | result |
 			result := self searcher search.
 			self progress: 0.0.
 			result ]
-		ifFalse: [ 
-			| newPaths |
+		ifFalse: [ | newPaths |
 			newPaths := SortedCollection
-				sortBlock: [ :less :more | less value < more value or: [ less value = more value and: [ less key size < more key size ] ] ].
-			products
-				ifNotEmpty: [ 
-					self
+				sortBlock: [ :less :more | 
+					less value < more value
+						or: [ less value = more value and: [ less key size < more key size ] ] ].
+			pathQuery productList
+				ifNotEmpty: [ self
 						reactantsDo: [ :vertex | 
 							(self isEffectiveVertex: vertex)
-								ifTrue: [ 
-									self
+								ifTrue: [ self
 										search: (Array with: vertex)
 										score: Float fmax negated
 										into: newPaths
@@ -818,20 +823,6 @@ RMapMorph >> createPaths [
 										to: 1.0 ] ] ].
 			searchProgress value: 0.0.
 			newPaths asArray collect: [ :assoc | assoc key ] ]
-]
-
-{ #category : #private }
-RMapMorph >> createPathsOld [
-	| newPaths |
-	newPaths := SortedCollection sortBlock: [ :less :more | less value < more value or: [less value = more value and: [less key size < more key size]]].
-	products
-		ifNotEmpty: [ 
-			self
-				reactantsDo: [ :vertex | 
-					(self isEffectiveVertex: vertex)
-						ifTrue: [  self search: (Array with: vertex) score: Float fmax negated into: newPaths from: 0.0 to: 1.0. ] ] ].
-	searchProgress value: 0.0.
-	^ newPaths asArray collect: [ :assoc | assoc key ]
 ]
 
 { #category : #'accessing-paths' }
@@ -940,22 +931,22 @@ RMapMorph >> doubleClick: event [
 { #category : #drawing }
 RMapMorph >> drawOn: aCanvas [
 	form
-		ifNil: [ 
-			form := Form extent: self extent depth: 32.
+		ifNil: [ form := Form extent: self extent depth: 32.
 			form getCanvas
 				in: [ :canvas | 
 					| newHoverVertex visibleVertices handPosition |
 					canvas fillColor: Color white.
-					edges do: [ :edge | self renderer drawEdge: edge color: Color black on: canvas ].
+					edges
+						do: [ :edge | self renderer drawEdge: edge color: Color black on: canvas ].
 					newHoverVertex := nil.
 					handPosition := ActiveHand position - self position.
 					visibleVertices := (vertices
 						select: [ :v | 
 							(self isEffectiveVertex: v)
-								and: [ 
-									| p |
+								and: [ | p |
 									p := self projector value: v.
-									(p x between: 0.0 and: self width asFloat) and: [ p y between: 0.0 and: self height asFloat ] ] ])
+									(p x between: 0.0 and: self width asFloat)
+										and: [ p y between: 0.0 and: self height asFloat ] ] ])
 						asSortedCollection: [ :deeper :shallower | 
 							((self zNumerizer value: shallower) ifNil: [ Float infinity ])
 								<= ((self zNumerizer value: deeper) ifNil: [ Float infinity ]) ].
@@ -968,32 +959,45 @@ RMapMorph >> drawOn: aCanvas [
 										ifTrue: [ newHoverVertex := vertex ] ] ].
 					hoverVertex := newHoverVertex.
 					pathSelector value
-						ifNotNil: [ 
-							(canvas asAlphaBlendingCanvas: 0.8) fillColor: Color white.
+						ifNotNil: [ (canvas asAlphaBlendingCanvas: 0.8) fillColor: Color white.
 							(paths at: pathSelector index)
 								in: [ :path | 
 									2 to: path size do: [ :index | 
 										(path at: index - 1)
 											edgesDo: [ :edge | 
-												(edge vertex1 == (path at: index) or: [ edge vertex2 == (path at: index) ])
+												(edge vertex1 == (path at: index)
+													or: [ edge vertex2 == (path at: index) ])
 													ifTrue: [ self renderer drawEdge: edge color: Color black on: canvas ] ] ].
-									path do: [ :vertex | self renderer drawVertex: vertex borderColor: nil on: canvas ] ] ]
-						ifNil: [ 
-							selectedVertices
-								ifNotEmpty: [ 
-									(canvas asAlphaBlendingCanvas: 0.8) fillColor: Color white.
+									path
+										do:
+											[ :vertex | self renderer drawVertex: vertex borderColor: nil on: canvas ] ] ]
+						ifNil: [ pathQuery freeList
+								ifNotEmpty: [ (canvas asAlphaBlendingCanvas: 0.8) fillColor: Color white.
 									self
-										fromAll: selectedVertices
+										fromAll: pathQuery freeList asArray
 										hops: hops * 2
-										verticesDo: [ :vertex | self renderer drawVertex: vertex borderColor: nil on: canvas ]
+										verticesDo:
+											[ :vertex | self renderer drawVertex: vertex borderColor: nil on: canvas ]
 										edgesDo: [ :edge | self renderer drawEdge: edge color: Color black on: canvas ] ] ].
-					self selectedVerticesDo: [ :vertex | self selectionRenderer drawVertex: vertex borderColor: Color red on: canvas ].
-					self reactantsDo: [ :vertex | self selectionRenderer drawVertex: vertex borderColor: Color blue on: canvas ].
+					self
+						selectedVerticesDo:
+							[ :vertex | self renderer drawVertex: vertex borderColor: Color red on: canvas ].
+					self
+						reactantsDo:
+							[ :vertex | self renderer drawVertex: vertex borderColor: Color blue on: canvas ].
 					self
 						productsDo: [ :vertex | 
-							(self selectionRenderer drawVertex: vertex borderColor: Color blue on: canvas)
-								ifNotNil: [ :rectangle | canvas frameRectangle: (rectangle insetBy: -3) width: 2 color: Color blue ] ].
-					hoverVertex ifNotNil: [ self selectionRenderer drawVertex: hoverVertex borderColor: Color black on: canvas ].
+							(self renderer drawVertex: vertex borderColor: Color blue on: canvas)
+								ifNotNil: [ :rectangle | 
+									canvas
+										frameRectangle: (rectangle insetBy: -3)
+										width: 2
+										color: Color blue ] ].
+					hoverVertex
+						ifNotNil: [ self renderer
+								drawVertex: hoverVertex
+								borderColor: Color black
+								on: canvas ].
 					canvas flush ] ].
 	aCanvas paintImage: form at: self position
 ]
@@ -1106,32 +1110,27 @@ RMapMorph >> handlesMouseWheel: anEvent [
 
 { #category : #testing }
 RMapMorph >> hasMarkedVertices [
-	^ selectedVertices notEmpty or: [ reactants notEmpty or: [ products notEmpty ] ]
+	^ pathQuery isEmpty not
 ]
 
 { #category : #testing }
 RMapMorph >> hasProduct: anRMapVertex [
-	^ products includes: anRMapVertex
+	^ pathQuery productList includes: anRMapVertex
 ]
 
 { #category : #testing }
 RMapMorph >> hasReactant: anRMapVertex [
-	^ reactants includes: anRMapVertex
+	^ pathQuery reactantList includes: anRMapVertex
 ]
 
 { #category : #testing }
 RMapMorph >> hasSelection: anRMapVertex [
-	^ selectedVertices includes: anRMapVertex
+	^ pathQuery freeList includes: anRMapVertex
 ]
 
 { #category : #'accessing-paths' }
 RMapMorph >> hopsPathSorter [
 	^ 'number of hops'
-]
-
-{ #category : #'accessing-renderer' }
-RMapMorph >> hoverRenderer [
-	^ hoverRenderer ifNil: [ self renderer ]
 ]
 
 { #category : #'initialize-release' }
@@ -1141,6 +1140,9 @@ RMapMorph >> initialize [
 	lastTime := Time millisecondClockValue.
 	dependents := Array new.
 	self initializeRMap.
+	pathQuery := RMapPathQueryModel new
+		onPathQueryChangeSend: #updatePathQuery to: self;
+		yourself.
 	pathSelector := RMapSelector new.
 	pathSelector getMenuBlock: [ :aMenu | self addPathListMenu: aMenu ].
 	pathSelector index: 0.
@@ -1198,9 +1200,6 @@ RMapMorph >> initializeRMap [
 	visibleEnergyRange := RMapInterval empty.
 	vertices := OrderedCollection new.
 	edges := OrderedCollection new.
-	selectedVertices := Array new.
-	reactants := Array new.
-	products := Array new.
 	viewScale := 0.9.
 	viewOffset := 0.5 @ 0.5.
 	hops := 1.
@@ -1217,12 +1216,12 @@ RMapMorph >> initializeRenderers [
 	geometry := RMap3dSmallGeometryRenderer on: self.
 	rendererSelector := RMapSelector new
 		add:
-				((RMapAdaptiveRenderer on: self)
-						add: geometry maxNumVertices: 40;
-						add: plain maxNumVertices: 100;
-						add: edge maxNumVertices: 1000;
-						add: dot maxNumVertices: Float infinity;
-						yourself);
+			((RMapAdaptiveRenderer on: self)
+				add: geometry maxNumVertices: 40;
+				add: plain maxNumVertices: 100;
+				add: edge maxNumVertices: 1000;
+				add: dot maxNumVertices: Float infinity;
+				yourself);
 		add: eqDot;
 		add: dot;
 		add: edge;
@@ -1240,9 +1239,7 @@ RMapMorph >> initializeRenderers [
 		add: (RMapEQGeometryUnderlineRenderer on: self);
 		add: (RMapInfoRenderer on: self);
 		addDependent: self;
-		yourself.
-	hoverRenderer := RMapNullRenderer on: self.
-	selectionRenderer := nil
+		yourself
 ]
 
 { #category : #'accessing-paths' }
@@ -1524,10 +1521,11 @@ RMapMorph >> openAnimationOnPath [
 		ifNotNil: [ :motionMolecule | 
 			| profile |
 			profile := (RMapEnergyProfileMorph on: motionMolecule) yourself.
-			profile openInWindow bounds: (300 @ 0 extent: 700 @ 400).
+			profile openInWindow
+				bounds: (300 @ self worldTop extent: 700 @ 400).
 			((RMapMotionMoleculeViewer on: motionMolecule)
 				indexChangedAction: [ :index | profile moleculeIndex: index ];
-				openInWindow) bounds: (0 @ 0 extent: 300 @ 400) ]
+				openInWindow) bounds: (0 @ self worldTop extent: 300 @ 400) ]
 ]
 
 { #category : #'user interface' }
@@ -1566,7 +1564,8 @@ RMapMorph >> openJmolOnVertex [
 
 { #category : #'user interface' }
 RMapMorph >> openScratchingBrowser [
-	(RMapScratchingBrowser openDialogOn: self) selections ifNotNil: [ :vs | self selections: vs ]
+	(RMapScratchingBrowser openDialogOn: self) selections
+		ifNotNil: [ :vs | pathQuery addAndSelectAll: vs ]
 ]
 
 { #category : #private }
@@ -1650,6 +1649,11 @@ RMapMorph >> pathListMorph [
 	^ pathSelector asMorphListMorph
 		extent: 500 @ 200;
 		yourself
+]
+
+{ #category : #accessing }
+RMapMorph >> pathQuery [
+	^ pathQuery
 ]
 
 { #category : #accessing }
@@ -1780,7 +1784,7 @@ RMapMorph >> paths [
 
 { #category : #enumerating }
 RMapMorph >> productsDo: aBlock [
-	products do: aBlock
+	pathQuery productList do: aBlock
 ]
 
 { #category : #accessing }
@@ -1795,7 +1799,7 @@ RMapMorph >> projector [
 
 { #category : #enumerating }
 RMapMorph >> reactantsDo: aBlock [
-	reactants do: aBlock
+	pathQuery reactantList do: aBlock
 ]
 
 { #category : #'dependents access' }
@@ -1817,31 +1821,7 @@ RMapMorph >> renderer [
 
 { #category : #private }
 RMapMorph >> rotateSelection: anRMapVertex [
-	[ 
-	(selectedVertices includes: anRMapVertex)
-		ifTrue: [ 
-			selectedVertices := selectedVertices copyWithout: anRMapVertex.
-			reactants := reactants copyWith: anRMapVertex.
-			self updatePaths.
-			^ self ].
-	(reactants includes: anRMapVertex)
-		ifTrue: [ 
-			reactants := reactants copyWithout: anRMapVertex.
-			products := products copyWith: anRMapVertex.
-			self updatePaths.
-			^ self ].
-	(products includes: anRMapVertex)
-		ifTrue: [ 
-			products := products copyWithout: anRMapVertex.
-			self updatePaths.
-			^ self ].
-	selectedVertices := selectedVertices copyWith: anRMapVertex ]
-		ensure: [ 
-			self xNumerizer updateSelection.
-			self yNumerizer updateSelection.
-			self zNumerizer updateSelection.
-			self projector updateSelection.
-			self changed: #selection ]
+	pathQuery rotateSelection: anRMapVertex
 ]
 
 { #category : #private }
@@ -1864,21 +1844,23 @@ RMapMorph >> savePathsAsCVS [
 RMapMorph >> search: aString [
 	| terms |
 	terms := aString substrings.
-	selectedVertices := terms isEmpty
-		ifTrue: [ Array new ]
-		ifFalse: [ 
-			(vertices
-				select: [ :vertex | 
-					| label smiles inchi canost |
-					label := vertex label.
-					smiles := vertex at: 'smiles' ifAbsent: [ '' ].
-					inchi := vertex at: 'inchi' ifAbsent: [ '' ].
-					canost := vertex at: 'canost' ifAbsent: [ '' ].
-					terms
-						allSatisfy: [ :term | 
-							label = term
-								or: [ (smiles findString: term) > 0 or: [ (inchi findString: term) > 0 or: [ (canost findString: term) > 0 ] ] ] ] ])
-				asArray ]
+	pathQuery
+		addAndSelectAll:
+			(terms isEmpty
+				ifTrue: [ Array new ]
+				ifFalse: [ (vertices
+						select: [ :vertex | 
+							| label smiles inchi canost |
+							label := vertex label.
+							smiles := vertex at: 'smiles' ifAbsent: [ '' ].
+							inchi := vertex at: 'inchi' ifAbsent: [ '' ].
+							canost := vertex at: 'canost' ifAbsent: [ '' ].
+							terms
+								allSatisfy: [ :term | 
+									label = term
+										or: [ (smiles findString: term) > 0
+												or: [ (inchi findString: term) > 0 or: [ (canost findString: term) > 0 ] ] ] ] ])
+						asArray ])
 ]
 
 { #category : #private }
@@ -1950,22 +1932,7 @@ RMapMorph >> selectedPath [
 
 { #category : #enumerating }
 RMapMorph >> selectedVerticesDo: aBlock [
-	selectedVertices do: aBlock
-]
-
-{ #category : #'accessing-renderer' }
-RMapMorph >> selectionRenderer [
-	^ selectionRenderer ifNil: [ self renderer ]
-]
-
-{ #category : #'viewer functions' }
-RMapMorph >> selections: aCollectionOfRMapVertex [
-	selectedVertices := Array withAll: aCollectionOfRMapVertex.
-	self xNumerizer updateSelection.
-	self yNumerizer updateSelection.
-	self zNumerizer updateSelection.
-	self projector updateSelection.
-	self changed: #selection
+	pathQuery freeList do: aBlock
 ]
 
 { #category : #'accessing-paths' }
@@ -2077,18 +2044,8 @@ RMapMorph >> toggleShortestOnly [
 
 { #category : #'viewer functions' }
 RMapMorph >> unselect: anRMapVertex [
-	selectedVertices := selectedVertices copyWithout: anRMapVertex.
-	((products includes: anRMapVertex) or: [ reactants includes: anRMapVertex ])
-		ifTrue: [ 
-			products := products copyWithout: anRMapVertex.
-			reactants := reactants copyWithout: anRMapVertex.
-			self updatePaths ].
-	 
-			self xNumerizer updateSelection.
-			self yNumerizer updateSelection.
-			self zNumerizer updateSelection.
-			self projector updateSelection.
-			self changed: #selection 
+	pathQuery unselect: anRMapVertex.
+	self updatePathQuery
 ]
 
 { #category : #updating }
@@ -2097,6 +2054,16 @@ RMapMorph >> update: anObject [
 		ifTrue: [ 
 			self updateRenderer.
 			self changed ]
+]
+
+{ #category : #updating }
+RMapMorph >> updatePathQuery [
+	self updatePaths.
+	self xNumerizer updateSelection.
+	self yNumerizer updateSelection.
+	self zNumerizer updateSelection.
+	self projector updateSelection.
+	self changed: #selection
 ]
 
 { #category : #updating }
@@ -2194,6 +2161,13 @@ RMapMorph >> visibleEnergyRangeMinFieldMorph [
 	morph hideScrollBarsIndefinitely: true.
 	morph acceptOnCR: true.
 	^ morph
+]
+
+{ #category : #private }
+RMapMorph >> worldTop [
+	^ (World findA: MenubarMorph)
+		ifNil: [ 0 ]
+		ifNotNil: [ :menubar | menubar bottom + 1 ]
 ]
 
 { #category : #'accessing-numerizers' }

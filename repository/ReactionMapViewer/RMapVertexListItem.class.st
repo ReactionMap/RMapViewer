@@ -79,6 +79,11 @@ RMapVertexListItem class >> startUp: aBoolean [
 	cachedForm := nil
 ]
 
+{ #category : #constants }
+RMapVertexListItem class >> width [
+	^ 50 + self listIconSize
+]
+
 { #category : #accessing }
 RMapVertexListItem >> form [
 	^ form ifNil: [ form := self class formFor: self vertex ]
@@ -103,7 +108,7 @@ RMapVertexListItem >> listRenderOn: aCanvas atRow: row bounds: aRectangle color:
 	aCanvas
 		drawString: vertex label
 		at: 2 @ ((64 - TextStyle defaultFont height) / 2.0) + aRectangle topLeft.
-	aCanvas paintImage: self form at: aRectangle topLeft + (70 @ 0)
+	aCanvas paintImage: self form at: aRectangle topLeft + (50 @ 0)
 ]
 
 { #category : #accessing }
@@ -118,5 +123,5 @@ RMapVertexListItem >> vertex: anRMapVertex [
 
 { #category : #'list icon support' }
 RMapVertexListItem >> widthToDisplayInList: aListMorph [
-	^ 150
+	^ self class width
 ]
