@@ -70,25 +70,35 @@ RMapSimilaritySorter >> update [
 
 { #category : #updating }
 RMapSimilaritySorter >> updateSelection [
-	vertices := nil
+	"vertices := nil"
 ]
 
 { #category : #private }
 RMapSimilaritySorter >> vertices [
 	^ vertices
-		ifNil: [ 
-			| selection |
-			selection := Array new: 1 streamContents: [ :stream | rmap selectedVerticesDo: [ :v | stream nextPut: v ] ].
+		ifNil: [ | selection |
+			selection := rmap hoverVertex
+				ifNotNil: [ :v | Array with: v ]
+				ifNil: [ (rmap argminVertex: [ :vertex | vertex energy ])
+						ifNotNil: [ :v | Array with: v ]
+						ifNil: [ Array new ] ].
 			vertices := selection
-				ifEmpty: [ Array new: rmap vertices size streamContents: [ :stream | stream nextPutAll: rmap vertices ] ]
-				ifNotEmpty: [ 
-					| keySignatures errors |
-					keySignatures := selection collect: [ :v | self signatures at: v ifAbsent: [ Dictionary new ] ].
+				ifEmpty: [ Array
+						new: rmap vertices size
+						streamContents: [ :stream | stream nextPutAll: rmap vertices ] ]
+				ifNotEmpty: [ | keySignatures errors |
+					keySignatures := selection
+						collect: [ :v | self signatures at: v ifAbsent: [ Dictionary new ] ].
 					errors := Array
 						new: rmap vertices size
 						streamContents: [ :stream | 
 							self signatures
-								keysAndValuesDo: [ :v :sig | stream nextPut: (keySignatures collect: [ :keySig | self errorBetween: sig and: keySig ]) min -> v ] ].
+								keysAndValuesDo: [ :v :sig | 
+									stream
+										nextPut:
+											(keySignatures
+												collect: [ :keySig | self errorBetween: sig and: keySig ])
+												min -> v ] ].
 					(errors asSortedCollection collect: #value) asArray ] ]
 ]
 

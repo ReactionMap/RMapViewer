@@ -14,6 +14,7 @@ RMapNullRenderer >> drawEdge: anRMapEdge color: aColor on: aCanvas [
 
 { #category : #drawing }
 RMapNullRenderer >> drawVertex: anRMapVertex borderColor: aColor on: aCanvas [
+	^ nil
 ]
 
 { #category : #'accessing-edge points' }
@@ -25,13 +26,8 @@ RMapNullRenderer >> edgePointsFor: anRMapVertex do: aBlock [
 ]
 
 { #category : #'accessing-forms' }
-RMapNullRenderer >> formFor: anRMapVertex [
-	^nil
-]
-
-{ #category : #'accessing-forms' }
-RMapNullRenderer >> formsFor: anRMapVertex [ 
-	^ Array new
+RMapNullRenderer >> formsFor: anRMapVertex [
+	^ nil
 ]
 
 { #category : #'accessing-edge points' }

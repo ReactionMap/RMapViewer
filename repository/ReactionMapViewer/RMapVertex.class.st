@@ -257,9 +257,21 @@ RMapVertex >> flushForms [
 	forms := nil
 ]
 
-{ #category : #private }
+{ #category : #accessing }
+RMapVertex >> form [
+	^ forms
+		ifNil: [ nil ]
+		ifNotNil: [ forms ifEmpty: [ nil ] ifNotEmpty: [ forms first ] ]
+]
+
+{ #category : #accessing }
 RMapVertex >> forms [
 	^ forms
+]
+
+{ #category : #accessing }
+RMapVertex >> forms: anArrayOfForm [
+	forms := anArrayOfForm
 ]
 
 { #category : #accessing }
@@ -450,6 +462,11 @@ RMapVertex >> printOn: aStream [
 	aStream nextPut: $<.
 	json at: 'label' ifPresent: [:label | aStream nextPutAll: label ].
 	aStream nextPut: $>
+]
+
+{ #category : #accessing }
+RMapVertex >> renderFormsWith: anRMapRenderer [
+	forms := anRMapRenderer formsFor: self
 ]
 
 { #category : #private }

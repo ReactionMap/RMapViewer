@@ -25,8 +25,8 @@ RMapAdaptiveRenderer >> drawVertex: anRMapVertex borderColor: aColor on: aCanvas
 ]
 
 { #category : #accessing }
-RMapAdaptiveRenderer >> formFor: anRMapVertex [
-	^ self selectedRenderer formFor: anRMapVertex
+RMapAdaptiveRenderer >> formsFor: anRMapVertex [
+	^ self selectedRenderer formsFor: anRMapVertex
 ]
 
 { #category : #'initialize-release' }

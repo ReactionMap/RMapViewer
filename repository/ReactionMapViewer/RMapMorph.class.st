@@ -10,6 +10,7 @@ Class {
 		'zNumerizerSelector',
 		'projectorSelector',
 		'rendererSelector',
+		'hoverRenderer',
 		'pathQuery',
 		'viewScale',
 		'viewOffset',
@@ -242,8 +243,10 @@ RMapMorph class >> makeReleaseImage [
 	| menuBar |
 	MenubarMorph closeAll.
 	World submorphs copy do: [ :m | m delete ].
-	self menubar: (menuBar := MenubarMorph new).
-	menuBar open.
+	menuBar := MenubarMorph new
+		menuBarItems: self menubarSpec;
+		open;
+		yourself.
 	'RMapViewer.png' asFileReference
 		in: [ :ref | 
 			ref exists
@@ -263,23 +266,24 @@ RMapMorph class >> makeReleaseImage [
 ]
 
 { #category : #menu }
-RMapMorph class >> menubar: aMenubarMorph [
-	"(World findA: MenubarMorph) ifNotNil: [:m | self menubar: m]"
+RMapMorph class >> menubarSpec [
+	"(World findA: MenubarMorph) ifNotNil: [:m | self menubarSpec: m]"
 
-	aMenubarMorph menuBarItems: OrderedCollection new.
-	^ aMenubarMorph
-		addMorphBack:
-			(aMenubarMorph newMenuItem
-				contents: 'File';
-				subMenu:
-					(MenubarMenuMorph new
-						add: 'Open file...' target: self selector: #openFile;
-						yourself;
-						add: 'Open url...' target: self selector: #openURL;
-						addLine;
-						add: 'Close' target: self selector: #closeAll;
-						yourself);
-				yourself)
+	| spec |
+	spec := PluggableMenuSpec new.
+	spec addMenuItem
+		label: 'File';
+		subMenu:
+			(PluggableMenuSpec new
+				add: 'Open file...'
+					action: (MessageSend receiver: self selector: #openFile);
+				add: 'Open url...'
+					action: (MessageSend receiver: self selector: #openURL);
+				addSeparator;
+				add: 'Close'
+					action: (MessageSend receiver: self selector: #closeAll);
+				yourself).
+	^ spec
 ]
 
 { #category : #operations }
@@ -777,6 +781,32 @@ RMapMorph >> changed: aSymbol [
 		ifTrue: [ self updatePaths ]
 ]
 
+{ #category : #'event handling' }
+RMapMorph >> click: anEvent [
+	| newHoverVertex handPosition visibleVertices |
+	newHoverVertex := nil.
+	handPosition := anEvent position - self position.
+	visibleVertices := (vertices
+		select: [ :v | 
+			(self isEffectiveVertex: v)
+				and: [ | p |
+					p := self projector value: v.
+					(p x between: 0.0 and: self width asFloat)
+						and: [ p y between: 0.0 and: self height asFloat ] ] ])
+		asSortedCollection: [ :deeper :shallower | 
+			((self zNumerizer value: shallower) ifNil: [ Float infinity ])
+				<= ((self zNumerizer value: deeper) ifNil: [ Float infinity ]) ].
+	visibleVertices
+		do: [ :vertex | 
+			(self renderer rectangleFor: vertex)
+				ifNotNil: [ :rect | 
+					(rect containsPoint: handPosition)
+						ifTrue: [ newHoverVertex := vertex ] ] ].
+	hoverVertex := newHoverVertex == hoverVertex
+		ifTrue: [ nil ]
+		ifFalse: [ newHoverVertex ]
+]
+
 { #category : #private }
 RMapMorph >> createJSON [
 	| json invVertices vs es |
@@ -904,10 +934,10 @@ RMapMorph >> delete [
 	searchProcess
 		ifNotNil: [ searchProcess terminate.
 			searchProcess := nil ].
-	(World findA: MenubarMorph)
-		ifNotNil: [ :menubar | 
-			menubar removeAllMorphs.
-			self class menubar: menubar ].
+	MenubarMorph closeAll.
+	MenubarMorph new
+		menuBarItems: self class menubarSpec items;
+		open.
 	^ super delete
 ]
 
@@ -934,30 +964,25 @@ RMapMorph >> drawOn: aCanvas [
 		ifNil: [ form := Form extent: self extent depth: 32.
 			form getCanvas
 				in: [ :canvas | 
-					| newHoverVertex visibleVertices handPosition |
+					| visibleVertices |
 					canvas fillColor: Color white.
 					edges
 						do: [ :edge | self renderer drawEdge: edge color: Color black on: canvas ].
-					newHoverVertex := nil.
-					handPosition := ActiveHand position - self position.
 					visibleVertices := (vertices
 						select: [ :v | 
 							(self isEffectiveVertex: v)
 								and: [ | p |
 									p := self projector value: v.
 									(p x between: 0.0 and: self width asFloat)
-										and: [ p y between: 0.0 and: self height asFloat ] ] ])
+										and: [ (p y between: 0.0 and: self height asFloat)
+												and: [ v ~~ hoverVertex ] ] ] ])
 						asSortedCollection: [ :deeper :shallower | 
 							((self zNumerizer value: shallower) ifNil: [ Float infinity ])
 								<= ((self zNumerizer value: deeper) ifNil: [ Float infinity ]) ].
 					self renderer numVertices: visibleVertices size.
 					visibleVertices
-						do: [ :vertex | 
-							(self renderer drawVertex: vertex borderColor: nil on: canvas)
-								ifNotNil: [ :rect | 
-									(rect containsPoint: handPosition)
-										ifTrue: [ newHoverVertex := vertex ] ] ].
-					hoverVertex := newHoverVertex.
+						do:
+							[ :v | self renderer drawVertex: v borderColor: Color transparent on: canvas ].
 					pathSelector value
 						ifNotNil: [ (canvas asAlphaBlendingCanvas: 0.8) fillColor: Color white.
 							(paths at: pathSelector index)
@@ -970,15 +995,7 @@ RMapMorph >> drawOn: aCanvas [
 													ifTrue: [ self renderer drawEdge: edge color: Color black on: canvas ] ] ].
 									path
 										do:
-											[ :vertex | self renderer drawVertex: vertex borderColor: nil on: canvas ] ] ]
-						ifNil: [ pathQuery freeList
-								ifNotEmpty: [ (canvas asAlphaBlendingCanvas: 0.8) fillColor: Color white.
-									self
-										fromAll: pathQuery freeList asArray
-										hops: hops * 2
-										verticesDo:
-											[ :vertex | self renderer drawVertex: vertex borderColor: nil on: canvas ]
-										edgesDo: [ :edge | self renderer drawEdge: edge color: Color black on: canvas ] ] ].
+											[ :vertex | self renderer drawVertex: vertex borderColor: nil on: canvas ] ] ].
 					self
 						selectedVerticesDo:
 							[ :vertex | self renderer drawVertex: vertex borderColor: Color red on: canvas ].
@@ -994,10 +1011,11 @@ RMapMorph >> drawOn: aCanvas [
 										width: 2
 										color: Color blue ] ].
 					hoverVertex
-						ifNotNil: [ self renderer
-								drawVertex: hoverVertex
-								borderColor: Color black
-								on: canvas ].
+						ifNotNil: [ (self hoverRenderer
+								forceDrawVertex: hoverVertex
+								borderColor: Color transparent
+								on: canvas)
+								ifNotNil: [ :rect | canvas frameRectangle: rect width: 3 color: Color black ] ].
 					canvas flush ] ].
 	aCanvas paintImage: form at: self position
 ]
@@ -1131,6 +1149,16 @@ RMapMorph >> hasSelection: anRMapVertex [
 { #category : #'accessing-paths' }
 RMapMorph >> hopsPathSorter [
 	^ 'number of hops'
+]
+
+{ #category : #'accessing-renderer' }
+RMapMorph >> hoverRenderer [
+	^ hoverRenderer ifNil: [ hoverRenderer := RMapInfoRenderer on: self ]
+]
+
+{ #category : #accessing }
+RMapMorph >> hoverVertex [
+	^ hoverVertex
 ]
 
 { #category : #'initialize-release' }
@@ -1362,15 +1390,35 @@ RMapMorph >> maxNumberOfPaths: anInteger [
 ]
 
 { #category : #menu }
-RMapMorph >> menubar: aMenubarMorph [
-	aMenubarMorph removeAllMorphs.
-	self class menubar: aMenubarMorph.
-	aMenubarMorph
-		addMorphBack:
-			(aMenubarMorph newMenuItem
-				contents: 'Molecule';
-				subMenu: MenubarMenuMorph new;
-				yourself)
+RMapMorph >> menubarSpec [
+	| spec |
+	spec := self class menubarSpec.
+	spec addMenuItem
+		label: 'Molecule';
+		subMenu: self moleculeMenuSpec.
+	spec addMenuItem
+		label: 'Reaction map';
+		subMenu: self reactionMapMenuSpec.
+	^ spec
+]
+
+{ #category : #menu }
+RMapMorph >> moleculeMenuSpec [
+	| spec |
+	spec := PluggableMenuSpec new.
+	(spec
+		add: '	View info...'
+		action: (MessageSend receiver: self selector: #openInfoOnVertex))
+		enabledBlock: [ hoverVertex notNil ].
+	(spec
+		add: 'View 3D...'
+		action: (MessageSend receiver: self selector: #openJmolOnVertex))
+		enabledBlock: [ hoverVertex notNil ].
+	(spec
+		add: 'View 3D measure...'
+		action: (MessageSend receiver: self selector: #openMeasureViewerOnVertex))
+		enabledBlock: [ hoverVertex notNil ].
+	^ spec
 ]
 
 { #category : #'accessing-paths' }
@@ -1531,8 +1579,10 @@ RMapMorph >> openAnimationOnPath [
 { #category : #'user interface' }
 RMapMorph >> openFullInWorld [
 	| viewer |
-	(World findA: MenubarMorph)
-		ifNotNil: [ :menubar | self menubar: menubar ].
+	MenubarMorph closeAll.
+	MenubarMorph new
+		menuBarItems: self menubarSpec items;
+		open.
 	viewer := self buildViewer.
 	self class isReleaseImage
 		ifFalse: [ | window |
@@ -1558,8 +1608,18 @@ RMapMorph >> openInWindowLabeled: aString [
 ]
 
 { #category : #'user interface' }
+RMapMorph >> openInfoOnVertex [
+	hoverVertex ifNotNil: #openInfo
+]
+
+{ #category : #'user interface' }
 RMapMorph >> openJmolOnVertex [
-	hoverVertex ifNotNil: [ :v | v openJmol]
+	hoverVertex ifNotNil: #openJmol
+]
+
+{ #category : #'user interface' }
+RMapMorph >> openMeasureViewerOnVertex [
+	hoverVertex ifNotNil: #openMeasureViewer
 ]
 
 { #category : #'user interface' }
@@ -1802,6 +1862,40 @@ RMapMorph >> reactantsDo: aBlock [
 	pathQuery reactantList do: aBlock
 ]
 
+{ #category : #menu }
+RMapMorph >> reactionMapMenuSpec [
+	| spec |
+	spec := PluggableMenuSpec new.
+	spec
+		add: '	Open tree map...'
+			action: (MessageSend receiver: self selector: #openTreeViewer);
+		addSeparator.
+	spec addMenuItem
+		label: 'Map visualization';
+		subMenu:
+			(PluggableMenuSpec new
+				add: 'Reaction'
+					action: (MessageSend receiver: self selector: #setReactionView);
+				add: 'Energy'
+					action: (MessageSend receiver: self selector: #setEnergyView);
+				add: 'Similarity'
+					action: (MessageSend receiver: self selector: #setSimilarityView);
+				yourself).
+	spec addSeparator.
+	spec addMenuItem
+		label: 'Selected visual';
+		subMenu:
+			(PluggableMenuSpec new
+				add: 'Label'
+					action: (MessageSend receiver: self selector: #setLabelHoverRenderer);
+				add: 'Model'
+					action: (MessageSend receiver: self selector: #setGeometryHoverRenderer);
+				add: 'Info'
+					action: (MessageSend receiver: self selector: #setInfoHoverRenderer);
+				yourself).
+	^ spec
+]
+
 { #category : #'dependents access' }
 RMapMorph >> release [ 
 	super release.
@@ -1949,6 +2043,19 @@ RMapMorph >> setEnergyPathSorter [
 	self updatePaths
 ]
 
+{ #category : #'accessing-numerizers' }
+RMapMorph >> setEnergyView [
+	self xNumerizer: (RMapKind on: self setter: #xNumerizer:).
+	self yNumerizer: (RMapEnergy on: self setter: #yNumerizer:).
+	self changed
+]
+
+{ #category : #'accessing-renderer' }
+RMapMorph >> setGeometryHoverRenderer [
+	hoverRenderer := RMap3dLargeGeometryRenderer on: self.
+	self changed
+]
+
 { #category : #'accessing-paths' }
 RMapMorph >> setHopsPathSorter [
 	pathSorter := #hops.
@@ -1956,11 +2063,39 @@ RMapMorph >> setHopsPathSorter [
 	self updatePaths
 ]
 
+{ #category : #'accessing-renderer' }
+RMapMorph >> setInfoHoverRenderer [
+	hoverRenderer := RMapInfoRenderer on: self.
+	self changed
+]
+
+{ #category : #'accessing-renderer' }
+RMapMorph >> setLabelHoverRenderer [
+	hoverRenderer := RMapPlainRenderer on: self.
+	self changed
+]
+
+{ #category : #'accessing-numerizers' }
+RMapMorph >> setReactionView [
+	self xNumerizer: (RMapX on: self setter: #xNumerizer:).
+	self yNumerizer: (RMapY on: self setter: #yNumerizer:).
+	self changed
+]
+
 { #category : #'accessing-paths' }
 RMapMorph >> setShortestOnly: aBoolean [
 	shortestOnly := aBoolean = true.
 	self changed: #pathSorter.
 	self updatePaths
+]
+
+{ #category : #'accessing-numerizers' }
+RMapMorph >> setSimilarityView [
+	| sorter |
+	sorter := RMapSimilaritySorter on: self.
+	self xNumerizer: (sorter xNumerizer: #xNumerizer:).
+	self yNumerizer: (sorter yNumerizer: #yNumerizer:).
+	self changed
 ]
 
 { #category : #'accessing-paths' }
@@ -2079,7 +2214,7 @@ RMapMorph >> updatePaths [
 
 { #category : #updating }
 RMapMorph >> updateRenderer [
-	vertices do: [  :vertex | vertex flushForms ]
+	vertices do: [ :vertex | vertex renderFormsWith: self renderer ]
 ]
 
 { #category : #accessing }

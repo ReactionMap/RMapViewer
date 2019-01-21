@@ -23,10 +23,12 @@ RMapDotRenderer >> drawEdge: anRMapEdge color: aColor on: aCanvas [
 ]
 
 { #category : #accessing }
-RMapDotRenderer >> formFor: anRMapVertex [
-	^ anRMapVertex isEQ
-		ifTrue: [ self blackForm ]
-		ifFalse: [ self grayForm ]
+RMapDotRenderer >> formsFor: anRMapVertex [
+	^ Array
+		with:
+			(anRMapVertex isEQ
+				ifTrue: [ self blackForm ]
+				ifFalse: [ self grayForm ])
 ]
 
 { #category : #accessing }

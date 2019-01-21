@@ -5,9 +5,9 @@ Class {
 }
 
 { #category : #accessing }
-RMapEQDotRenderer >> formFor: anRMapVertex [
+RMapEQDotRenderer >> formsFor: anRMapVertex [
 	^ anRMapVertex isEQ
-		ifTrue: [ self blackForm ]
+		ifTrue: [ Array with: self blackForm ]
 		ifFalse: [ nil ]
 ]
 

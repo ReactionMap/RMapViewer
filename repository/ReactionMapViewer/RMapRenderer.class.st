@@ -46,20 +46,20 @@ RMapRenderer >> drawEdge: anRMapEdge color: aColor on: aCanvas [
 { #category : #drawing }
 RMapRenderer >> drawVertex: anRMapVertex borderColor: aColor on: aCanvas [
 	^ (rmap isEffectiveVertex: anRMapVertex)
-		ifTrue: [ 
-			(rmap projector value: anRMapVertex)
+		ifTrue: [ (rmap projector value: anRMapVertex)
 				ifNotNil: [ :p | 
-					((p x between: 0.0 and: rmap width asFloat) and: [ p y between: 0.0 and: rmap height asFloat ])
-						ifTrue: [ 
-							| label rect |
+					((p x between: 0.0 and: rmap width asFloat)
+						and: [ p y between: 0.0 and: rmap height asFloat ])
+						ifTrue: [ | label rect |
 							label := self formFor: anRMapVertex.
 							label
-								ifNotNil: [ 
-									rect := p - (label extent / 2.0 + 2) extent: label extent + 4.
-									aColor ifNotNil: [ aCanvas frameRectangle: rect width: 2 color: aColor ].
+								ifNotNil: [ rect := p - (label extent / 2.0 + 2) extent: label extent + 4.
+									aColor
+										ifNotNil: [ aCanvas frameRectangle: rect width: 2 color: aColor ].
 									aCanvas paintImage: label at: p - (label extent / 2.0).
 									rect ] ]
 						ifFalse: [ nil ] ] ]
+		ifFalse: [ nil ]
 ]
 
 { #category : #'accessing-edge points' }
@@ -89,11 +89,42 @@ RMapRenderer >> edgePointsFor: anRMapVertex do: aBlock [
 	self centerEdgePointsFor: anRMapVertex do: aBlock
 ]
 
+{ #category : #drawing }
+RMapRenderer >> forceDrawVertex: anRMapVertex borderColor: aColor on: aCanvas [
+	^ (rmap isEffectiveVertex: anRMapVertex)
+		ifTrue: [ (rmap projector value: anRMapVertex)
+				ifNotNil: [ :p | 
+					((p x between: 0.0 and: rmap width asFloat)
+						and: [ p y between: 0.0 and: rmap height asFloat ])
+						ifTrue: [ | label rect |
+							label := self formFromForms: (self formsFor: anRMapVertex).
+							label
+								ifNotNil: [ rect := p - (label extent / 2.0 + 2) extent: label extent + 4.
+									aColor
+										ifNotNil: [ aCanvas frameRectangle: rect width: 2 color: aColor ].
+									aCanvas paintImage: label at: p - (label extent / 2.0).
+									rect ] ]
+						ifFalse: [ nil ] ] ]
+		ifFalse: [ nil ]
+]
+
 { #category : #accessing }
 RMapRenderer >> formFor: anRMapVertex [
-	| forms |
-	forms := anRMapVertex formsIfAbsentPut: [ self formsFor: anRMapVertex ].
-	^forms at: step \\ forms size + 1
+	^ self
+		formFromForms:
+			(anRMapVertex forms
+				ifNil: [ anRMapVertex
+						renderFormsWith: self;
+						forms ])
+]
+
+{ #category : #accessing }
+RMapRenderer >> formFromForms: anArrayOfForms [
+	^ anArrayOfForms
+		ifNil: [ nil ]
+		ifNotNil: [ anArrayOfForms
+				ifEmpty: [ nil ]
+				ifNotEmpty: [ anArrayOfForms at: step \\ anArrayOfForms size + 1 ] ]
 ]
 
 { #category : #accessing }
@@ -152,6 +183,20 @@ RMapRenderer >> plainLabelFormsFor: anRMapVertex [
 { #category : #printing }
 RMapRenderer >> printOn: aStream [
 	aStream nextPutAll: self name
+]
+
+{ #category : #drawing }
+RMapRenderer >> rectangleFor: anRMapVertex [
+	^ (rmap isEffectiveVertex: anRMapVertex)
+		ifTrue: [ (rmap projector value: anRMapVertex)
+				ifNotNil: [ :p | 
+					((p x between: 0.0 and: rmap width asFloat)
+						and: [ p y between: 0.0 and: rmap height asFloat ])
+						ifTrue: [ | label rect |
+							label := anRMapVertex form.
+							label
+								ifNotNil: [ p - (label extent / 2.0 + 2) extent: label extent + 4 ] ]
+						ifFalse: [ nil ] ] ]
 ]
 
 { #category : #accessing }
