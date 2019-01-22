@@ -244,7 +244,7 @@ RMapMorph class >> makeReleaseImage [
 	MenubarMorph closeAll.
 	World submorphs copy do: [ :m | m delete ].
 	menuBar := MenubarMorph new
-		menuBarItems: self menubarSpec;
+		menuBarItems: self menubarSpec items;
 		open;
 		yourself.
 	'RMapViewer.png' asFileReference
@@ -1578,11 +1578,12 @@ RMapMorph >> openAnimationOnPath [
 
 { #category : #'user interface' }
 RMapMorph >> openFullInWorld [
-	| viewer |
+	| viewer menuBar |
 	MenubarMorph closeAll.
-	MenubarMorph new
+	menuBar := MenubarMorph new
 		menuBarItems: self menubarSpec items;
-		open.
+		open;
+		yourself.
 	viewer := self buildViewer.
 	self class isReleaseImage
 		ifFalse: [ | window |
@@ -1595,7 +1596,12 @@ RMapMorph >> openFullInWorld [
 			((m isKindOf: MenubarMorph) or: [ m isKindOf: ImageMorph ])
 				ifFalse: [ m delete ] ].
 	World changeProportionalLayout.
-	World addMorph: viewer fullFrame: LayoutFrame identity.
+	World
+		addMorph: viewer
+		fullFrame:
+			(LayoutFrame identity
+				topOffset: menuBar bounds bottom;
+				yourself).
 	^ viewer
 ]
 
