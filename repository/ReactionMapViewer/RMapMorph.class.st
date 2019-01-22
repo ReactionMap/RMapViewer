@@ -262,7 +262,7 @@ RMapMorph class >> makeReleaseImage [
 						openInWorld ] ].
 	isReleased := true.
 	Morph halosEnabled: false.
-	Smalltalk snapshot: true andQuit: false
+	"Smalltalk snapshot: true andQuit: false"
 ]
 
 { #category : #menu }
