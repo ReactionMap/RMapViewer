@@ -86,7 +86,7 @@ RMapInfoRenderer >> edgePointsFor: anRMapVertex do: aBlock [
 		in: [ :form | 
 			halfWidth := form width / 2.0.
 			halfHeight := form height / 2.0 ].
-	(rmap projector value: anRMapVertex)
+	(rmap positionFor: anRMapVertex)
 		ifNotNil: [ :position | 
 			aBlock value: (position x - halfWidth) @ (position y - halfHeight).
 			aBlock value: (position x + halfWidth) @ (position y - halfHeight).

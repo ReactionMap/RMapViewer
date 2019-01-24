@@ -624,18 +624,6 @@ RMapMorph >> buildViewer [
 				topOffset: -20;
 				yourself).
 	pane
-		addMorph: projectorSelector asDropListMorph
-		fullFrame:
-			((0.6 @ 1 corner: 0.8 @ 1) asLayoutFrame
-				topOffset: -20;
-				yourself).
-	pane
-		addMorph: rendererSelector asDropListMorph
-		fullFrame:
-			((0.8 @ 1 corner: 1 @ 1) asLayoutFrame
-				topOffset: -20;
-				yourself).
-	pane
 		addMorph: self searchBox
 		fullFrame:
 			((0 @ 0 corner: 1 @ 0) asLayoutFrame bottomRightOffset: -220 @ (h + 4)).
@@ -790,7 +778,7 @@ RMapMorph >> click: anEvent [
 		select: [ :v | 
 			(self isEffectiveVertex: v)
 				and: [ | p |
-					p := self projector value: v.
+					p := self positionFor: v.
 					(p x between: 0.0 and: self width asFloat)
 						and: [ p y between: 0.0 and: self height asFloat ] ] ])
 		asSortedCollection: [ :deeper :shallower | 
@@ -972,7 +960,7 @@ RMapMorph >> drawOn: aCanvas [
 						select: [ :v | 
 							(self isEffectiveVertex: v)
 								and: [ | p |
-									p := self projector value: v.
+									p := self positionFor: v.
 									(p x between: 0.0 and: self width asFloat)
 										and: [ (p y between: 0.0 and: self height asFloat)
 												and: [ v ~~ hoverVertex ] ] ] ])
@@ -1179,7 +1167,6 @@ RMapMorph >> initialize [
 	pathSorter := self defaultPathSorter.
 	shortestOnly := true.
 	self initializeNumerizers.
-	self initializeProjectors.
 	self initializeRenderers
 ]
 
@@ -1208,17 +1195,6 @@ RMapMorph >> initializeNumerizers [
 		add: (RMapKind on: self setter: #zNumerizer:);
 		add: (RMapMinEnergyGapFromReactants on: self setter: #zNumerizer:);
 		add: (RMapHopsFromReactants on: self setter: #zNumerizer:);
-		yourself
-]
-
-{ #category : #'initialize-release' }
-RMapMorph >> initializeProjectors [
-	projectorSelector := RMapSelector new
-		add: (RMapOrthogonalProjector on: self);
-		add: (RMapRevolvingOrthogonalProjector on: self);
-		add: (RMapFlippedRevolvingOrthogonalProjector on: self);
-		add: (RMapPerspectiveProjector on: self);
-		add: (RMapRevolvingPerspectiveProjector on: self);
 		yourself
 ]
 
@@ -1843,9 +1819,25 @@ RMapMorph >> pathSorterMorph [
 	^ morph
 ]
 
-{ #category : #'accessing-numerizers' }
+{ #category : #accessing }
 RMapMorph >> paths [
 	^ paths
+]
+
+{ #category : #'accessing-visuals' }
+RMapMorph >> positionFor: anRMapVertex [
+	| w h scale x y |
+	w := self width asFloat.
+	h := self height asFloat.
+	scale := w max: h.
+	x := self xNumerizer value: anRMapVertex.
+	x ifNil: [ ^ nil ].
+	x := (x - self viewOffset x) * self viewScale * scale + (w // 2).
+	y := self yNumerizer value: anRMapVertex.
+	y ifNil: [ ^ nil ].
+	y := (y - self viewOffset y) * self viewScale negated * scale
+		+ (h // 2).
+	^ x @ y
 ]
 
 { #category : #enumerating }
@@ -1856,11 +1848,6 @@ RMapMorph >> productsDo: aBlock [
 { #category : #accessing }
 RMapMorph >> progress: aNumber [
 	searchProgress value: aNumber
-]
-
-{ #category : #'accessing-projector' }
-RMapMorph >> projector [
-	^ projectorSelector value
 ]
 
 { #category : #enumerating }
@@ -2143,7 +2130,6 @@ RMapMorph >> step [
 	self xNumerizer step.
 	self yNumerizer step.
 	self zNumerizer step.
-	self projector step.
 	self renderer step.
 	self changed
 ]
@@ -2203,7 +2189,6 @@ RMapMorph >> updatePathQuery [
 	self xNumerizer updateSelection.
 	self yNumerizer updateSelection.
 	self zNumerizer updateSelection.
-	self projector updateSelection.
 	self changed: #selection
 ]
 
@@ -2228,7 +2213,10 @@ RMapMorph >> vertexAtPoint: aPoint suchThat: guardBlock [
 	| point |
 	point := aPoint - self position.
 	^ self
-		argminVertex: [ :vertex | (self projector value: vertex) ifNil: [ Float fmax ] ifNotNil: [ :p | p dist: point ] ]
+		argminVertex: [ :vertex | 
+			(self positionFor: vertex)
+				ifNil: [ Float fmax ]
+				ifNotNil: [ :p | p dist: point ] ]
 		suchThat: guardBlock
 ]
 
@@ -2240,6 +2228,15 @@ RMapMorph >> vertices [
 { #category : #enumerating }
 RMapMorph >> verticesDo: aBlock [
 	vertices do: aBlock
+]
+
+{ #category : #accessing }
+RMapMorph >> viewBounds [
+	| w h scale |
+	w := self width asFloat.
+	h := self height asFloat.
+	scale := w @ h / self viewScale / (w max: h).
+	^ self viewOffset - (scale / 2.0) extent: scale
 ]
 
 { #category : #accessing }

@@ -18,7 +18,7 @@ RMapRenderer class >> on: anRMapMorph [
 
 { #category : #'accessing-edge points' }
 RMapRenderer >> centerEdgePointsFor: anRMapVertex do: aBlock [
-	(rmap projector value: anRMapVertex) ifNotNil: aBlock
+	(rmap positionFor: anRMapVertex) ifNotNil: aBlock
 ]
 
 { #category : #drawing }
@@ -46,7 +46,7 @@ RMapRenderer >> drawEdge: anRMapEdge color: aColor on: aCanvas [
 { #category : #drawing }
 RMapRenderer >> drawVertex: anRMapVertex borderColor: aColor on: aCanvas [
 	^ (rmap isEffectiveVertex: anRMapVertex)
-		ifTrue: [ (rmap projector value: anRMapVertex)
+		ifTrue: [ (rmap positionFor: anRMapVertex)
 				ifNotNil: [ :p | 
 					((p x between: 0.0 and: rmap width asFloat)
 						and: [ p y between: 0.0 and: rmap height asFloat ])
@@ -92,7 +92,7 @@ RMapRenderer >> edgePointsFor: anRMapVertex do: aBlock [
 { #category : #drawing }
 RMapRenderer >> forceDrawVertex: anRMapVertex borderColor: aColor on: aCanvas [
 	^ (rmap isEffectiveVertex: anRMapVertex)
-		ifTrue: [ (rmap projector value: anRMapVertex)
+		ifTrue: [ (rmap positionFor: anRMapVertex)
 				ifNotNil: [ :p | 
 					((p x between: 0.0 and: rmap width asFloat)
 						and: [ p y between: 0.0 and: rmap height asFloat ])
@@ -143,7 +143,7 @@ RMapRenderer >> initialize [
 RMapRenderer >> leftAndRightEdgePointsFor: anRMapVertex do: aBlock [
 	| halfWidth |
 	halfWidth := (self formFor: anRMapVertex) width / 2.0.
-	(rmap projector value: anRMapVertex)
+	(rmap positionFor: anRMapVertex)
 		ifNotNil: [ :position | 
 			aBlock value: (position x - halfWidth) @ position y.
 			aBlock value: (position x + halfWidth) @ position y ]
@@ -188,7 +188,7 @@ RMapRenderer >> printOn: aStream [
 { #category : #drawing }
 RMapRenderer >> rectangleFor: anRMapVertex [
 	^ (rmap isEffectiveVertex: anRMapVertex)
-		ifTrue: [ (rmap projector value: anRMapVertex)
+		ifTrue: [ (rmap positionFor: anRMapVertex)
 				ifNotNil: [ :p | 
 					((p x between: 0.0 and: rmap width asFloat)
 						and: [ p y between: 0.0 and: rmap height asFloat ])
