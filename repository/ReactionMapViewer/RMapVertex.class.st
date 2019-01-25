@@ -49,7 +49,16 @@ RMapVertex class >> fromJson: aDictionary [
 RMapVertex class >> initialize [
 	CachedForm32 := Form extent: 32 @ 32 depth: 32.
 	CachedForm64 := Form extent: 64 @ 64 depth: 32.
-	FormLock := Semaphore forMutualExclusion
+	FormLock := Semaphore forMutualExclusion.
+	SessionManager default
+		registerSystemClassNamed: self name
+		atPriority: 100
+]
+
+{ #category : #'system startup' }
+RMapVertex class >> startUp: aBoolean [
+	CachedForm32 := Form extent: 32 @ 32 depth: 32.
+	CachedForm64 := Form extent: 64 @ 64 depth: 32
 ]
 
 { #category : #accessing }

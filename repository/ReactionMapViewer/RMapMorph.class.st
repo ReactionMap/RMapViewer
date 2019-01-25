@@ -514,10 +514,10 @@ RMapMorph >> addVertexMenu: aMenu [
 		ifNotNil: [ :v | 
 			aMenu addTitle: v label.
 			aMenu
-				add: 'rotate left' target: v selector: #rotateModelLeft;
-				add: 'rotate right' target: v selector: #rotateModelRight;
-				add: 'rotate up' target: v selector: #rotateModelUp;
-				add: 'rotate down' target: v selector: #rotateModelDown;
+				add: 'rotate left' target: self selector: #rotateModelLeft;
+				add: 'rotate right' target: self selector: #rotateModelRight;
+				add: 'rotate up' target: self selector: #rotateModelUp;
+				add: 'rotate down' target: self selector: #rotateModelDown;
 				addLine.
 			(pathQuery includes: v)
 				ifTrue: [ aMenu
@@ -1818,6 +1818,38 @@ RMapMorph >> release [
 RMapMorph >> removeDependent: anObject [
 	dependents := dependents copyWithout: anObject.
 	^ anObject
+]
+
+{ #category : #'viewer functions' }
+RMapMorph >> rotateModelDown [
+	hoverVertex
+		ifNotNil: [ :v | 
+			v rotateModelDown.
+			self changed ]
+]
+
+{ #category : #'viewer functions' }
+RMapMorph >> rotateModelLeft [
+	hoverVertex
+		ifNotNil: [ :v | 
+			v rotateModelLeft.
+			self changed ]
+]
+
+{ #category : #'viewer functions' }
+RMapMorph >> rotateModelRight [
+	hoverVertex
+		ifNotNil: [ :v | 
+			v rotateModelRight.
+			self changed ]
+]
+
+{ #category : #'viewer functions' }
+RMapMorph >> rotateModelUp [
+	hoverVertex
+		ifNotNil: [ :v | 
+			v rotateModelUp.
+			self changed ]
 ]
 
 { #category : #private }
