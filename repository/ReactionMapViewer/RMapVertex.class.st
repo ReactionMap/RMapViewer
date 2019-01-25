@@ -8,12 +8,22 @@ Class {
 		'energy',
 		'baselineEnergy',
 		'bonds',
+		'normalizedLayoutPosition',
+		'layoutPosition',
+		'labelForm',
+		'infoForm',
+		'model32Form',
+		'model64Form',
+		'modelTransformation',
 		'forms'
 	],
 	#classVars : [
-		'AtomColors'
+		'AtomColors',
+		'CachedForm32',
+		'CachedForm64',
+		'FormLock'
 	],
-	#category : 'ReactionMapViewer-Support'
+	#category : #'ReactionMapViewer-Support'
 }
 
 { #category : #'instance creation' }
@@ -33,6 +43,13 @@ RMapVertex class >> fromJson: aDictionary [
 	^ RMapEQVertex new
 		setJson: aDictionary;
 		yourself
+]
+
+{ #category : #initialization }
+RMapVertex class >> initialize [
+	CachedForm32 := Form extent: 32 @ 32 depth: 32.
+	CachedForm64 := Form extent: 64 @ 64 depth: 32.
+	FormLock := Semaphore forMutualExclusion
 ]
 
 { #category : #accessing }
@@ -319,17 +336,6 @@ RMapVertex >> geometryDo: aBlock [
 	(json at: 'geometry') do: [ :axyz | aBlock valueWithArguments: axyz ]
 ]
 
-{ #category : #private }
-RMapVertex >> geometryMatrix [
-	| matrix cx cy cz |
-	matrix := (Array new: self geometry size) writeStream.
-	cx := self centroidX.
-	cy := self centroidY.
-	cz := self centroidZ.
-	self geometryDo: [ :atom :x :y :z | matrix nextPut: (Array with: x - cx with: y - cy with: z - cz) ].
-	^ matrix contents
-]
-
 { #category : #'accessing-energy' }
 RMapVertex >> hartree [
 	^ self energy
@@ -340,11 +346,17 @@ RMapVertex >> inchi [
 	^ self at: 'inchi' ifAbsent: [ 'N/A' ]
 ]
 
+{ #category : #'accessing-images' }
+RMapVertex >> infoForm [
+	^ infoForm
+]
+
 { #category : #'initialize-release' }
 RMapVertex >> initialize [
 	super initialize.
 	baselineEnergy := 0.0.
 	edges := OrderedCollection new.
+	modelTransformation := nil.
 	json := Dictionary new
 ]
 
@@ -394,6 +406,36 @@ RMapVertex >> label [
 ]
 
 { #category : #accessing }
+RMapVertex >> labelColor [
+	^ self subclassResponsibility
+]
+
+{ #category : #'accessing-images' }
+RMapVertex >> labelForm [
+	^ labelForm
+]
+
+{ #category : #accessing }
+RMapVertex >> layoutPosition [
+	^ layoutPosition
+]
+
+{ #category : #accessing }
+RMapVertex >> layoutPosition: aPoint [
+	^ layoutPosition := aPoint
+]
+
+{ #category : #'accessing-images' }
+RMapVertex >> model32Form [
+	^ model32Form
+]
+
+{ #category : #'accessing-images' }
+RMapVertex >> model64Form [
+	^ model64Form
+]
+
+{ #category : #accessing }
 RMapVertex >> neighbors [
 	^ edges
 		collect: [ :edge | 
@@ -409,6 +451,16 @@ RMapVertex >> neighborsDo: aBlock [
 			edge vertex1 == self
 				ifTrue: [ aBlock value: edge vertex2 ]
 				ifFalse: [ aBlock value: edge vertex1 ] ]
+]
+
+{ #category : #accessing }
+RMapVertex >> normalizedLayoutPosition [
+	^ normalizedLayoutPosition 
+]
+
+{ #category : #accessing }
+RMapVertex >> normalizedLayoutPosition: aPoint [
+	normalizedLayoutPosition := aPoint
 ]
 
 { #category : #accessing }
@@ -469,12 +521,45 @@ RMapVertex >> renderFormsWith: anRMapRenderer [
 	forms := anRMapRenderer formsFor: self
 ]
 
+{ #category : #utilities }
+RMapVertex >> rotateModelDown [
+	modelTransformation := (modelTransformation
+		ifNil: [ Jun3dTransformation unity ])
+		product: (Jun3dTransformation rotateX: (JunAngle fromDeg: 30)).
+	self updateModelForms
+]
+
+{ #category : #utilities }
+RMapVertex >> rotateModelLeft [
+	modelTransformation := (modelTransformation
+		ifNil: [ Jun3dTransformation unity ])
+		product: (Jun3dTransformation rotateY: (JunAngle fromDeg: -30)).
+	self updateModelForms
+]
+
+{ #category : #utilities }
+RMapVertex >> rotateModelRight [
+	modelTransformation := (modelTransformation
+		ifNil: [ Jun3dTransformation unity ])
+		product: (Jun3dTransformation rotateY: (JunAngle fromDeg: 30)).
+	self updateModelForms
+]
+
+{ #category : #utilities }
+RMapVertex >> rotateModelUp [
+	modelTransformation := (modelTransformation
+		ifNil: [ Jun3dTransformation unity ])
+		product: (Jun3dTransformation rotateX: (JunAngle fromDeg: -30)).
+	self updateModelForms
+]
+
 { #category : #private }
 RMapVertex >> setJson: aDictionary [
 	json := aDictionary.
 	(aDictionary at: 'position' ifAbsent: [Array with: 0 with: 0]) in:  [ :positionArray | position := positionArray first @ positionArray second ].
 	(aDictionary at: 'bonds' ifAbsent: [Array new]) in: [ :bondsArray | bonds := bondsArray collect: [  :triple | Array with: triple first + 1 with: triple second + 1 with: triple third ] ].
-	(aDictionary at: 'energy' ifAbsent: [0.0]) in: [:e | energy := e]
+	(aDictionary at: 'energy' ifAbsent: [0.0]) in: [:e | energy := e].
+	self updateForms
 ]
 
 { #category : #accessing }
@@ -492,6 +577,102 @@ RMapVertex >> sortEdgesByEnergy [
 						ifTrue: [ e vertex2 ]
 						ifFalse: [ e vertex1 ]) energy ]) asSortedCollection: [ :less :more | less value <= more value ])
 		collect: [ :assoc | assoc key ]) asOrderedCollection
+]
+
+{ #category : #'initialize-release' }
+RMapVertex >> updateForms [
+	self updateModelForms.
+	self updateLabelForm.
+	self updateInfoForm
+]
+
+{ #category : #'initialize-release' }
+RMapVertex >> updateInfoForm [
+	| color font lines |
+	color := Color white.
+	font := TextStyle default defaultFont.
+	lines := #('label' 'energy' 'smiles' 'inchi' 'canost')
+		collect: [ :attribute | 
+			attribute , ': '
+				, (self at: attribute ifAbsentPut: [ 'N/A' ]) asString ].
+	infoForm := Form
+		extent:
+			((lines
+				inject: 0
+				into: [ :max :each | max max: (font widthOfString: each) ]) + 4)
+				@ (lines size * font height + 4)
+		depth: 32.
+	infoForm getCanvas
+		in: [ :canvas | 
+			canvas fillColor: color.
+			canvas
+				frameRectangle: (0 @ 0 corner: infoForm extent)
+				color: Color black.
+			lines
+				keysAndValuesDo:
+					[ :index :line | canvas drawString: line at: 2 @ ((index - 1) * font height + 2) ] ]
+]
+
+{ #category : #'initialize-release' }
+RMapVertex >> updateLabelForm [
+	| label color font |
+	label := self label.
+	color := self labelColor.
+	font := TextStyle default defaultFont.
+	labelForm := Form
+		extent: ((font widthOfString: label) + 2) @ (font height + 2)
+		depth: 32.
+	labelForm getCanvas
+		in: [ :canvas | 
+			canvas fillColor: color.
+			canvas drawString: label at: 1 @ 1 ]
+]
+
+{ #category : #'initialize-release' }
+RMapVertex >> updateModelForms [
+	| transformation moleculeGeometry box projection |
+	transformation := modelTransformation
+		ifNil: [ Jun3dTransformation unity ].
+	moleculeGeometry := self asMolecule transform: transformation.
+	moleculeGeometry autoBonds.
+	box := moleculeGeometry boundingBox.
+	projection := JunParallelProjection
+		eyePoint: box center + ((0 ,, 0 ,, box depth) * 3.0)
+		sightPoint: box center
+		upVector: 0 ,, 1 ,, 0
+		height: (box height max: box width)
+		near: 0.01
+		far: box depth * 5.0.
+	FormLock
+		critical: [ | rc |
+			rc := CachedForm32 renderingContext.
+			rc
+				backgroundColor: Color transparent;
+				clear;
+				projection: projection;
+				enableCullface;
+				enableLighting;
+				enableLightIndex: 0;
+				ambientLight: (Color gray: 0.6);
+				lightIndex: 0 parallel: 0 ,, 0 ,, -1 color: (Color gray: 0.3).
+			moleculeGeometry renderOn: rc.
+			rc flush.
+			model32Form := CachedForm32
+				copy: (0 @ 0 extent: CachedForm32 extent).
+			rc := CachedForm64 renderingContext.
+			rc
+				backgroundColor: Color transparent;
+				clear;
+				projection: projection;
+				enableCullface;
+				enableLighting;
+				enableLightIndex: 0;
+				ambientLight: (Color gray: 0.6);
+				lightIndex: 0 parallel: 0 ,, 0 ,, -1 color: (Color gray: 0.3).
+			moleculeGeometry renderOn: rc.
+			rc flush.
+			model64Form := CachedForm64
+				copy: (0 @ 0 extent: CachedForm64 extent) ]
 ]
 
 { #category : #accessing }

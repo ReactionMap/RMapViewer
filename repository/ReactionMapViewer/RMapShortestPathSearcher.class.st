@@ -22,17 +22,15 @@ RMapShortestPathSearcher >> allShortestPathsWith: aDictionary [
 	agenda := reactants asArray collect: [ :v | Array with: v ].
 	paths := Array new writeStream.
 	[ agenda notEmpty ]
-		whileTrue: [ 
-			| newAgenda newDone |
+		whileTrue: [ | newAgenda newDone |
 			newAgenda := Array new writeStream.
 			newDone := Array new writeStream.
 			agenda
 				do: [ :path | 
 					(aDictionary at: path last ifAbsent: [ #() ])
 						do: [ :peer | 
-							(done includes: peer) not
-								ifTrue: [ 
-									| newPath |
+							(done includes: peer)
+								ifFalse: [ | newPath |
 									newDone nextPut: peer.
 									newPath := path copyWith: peer.
 									((products includes: peer)

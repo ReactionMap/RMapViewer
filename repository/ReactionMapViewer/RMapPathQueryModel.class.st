@@ -17,7 +17,7 @@ Class {
 		'productSelection',
 		'productPrimaryIndex'
 	],
-	#category : #'ReactionMapViewer-Morphs'
+	#category : #'ReactionMapViewer-Support'
 }
 
 { #category : #accessing }
@@ -249,7 +249,8 @@ RMapPathQueryModel >> deleteSelectedFree [
 		removeAll: (freeSelection collect: [ :index | freeList at: index ]).
 	freeSelection removeAll.
 	freePrimaryIndex := 0.
-	self changed: #freeList
+	self changed: #freeList.
+	self pathQueryChanged
 ]
 
 { #category : #operations }
@@ -259,7 +260,8 @@ RMapPathQueryModel >> deleteSelectedProduct [
 		removeAll: (productSelection collect: [ :index | productList at: index ]).
 	productSelection removeAll.
 	productPrimaryIndex := 0.
-	self changed: #productList
+	self changed: #productList.
+	self pathQueryChanged
 ]
 
 { #category : #operations }
@@ -269,7 +271,8 @@ RMapPathQueryModel >> deleteSelectedReactant [
 		removeAll: (reactantSelection collect: [ :index | reactantList at: index ]).
 	reactantSelection removeAll.
 	reactantPrimaryIndex := 0.
-	self changed: #reactantList
+	self changed: #reactantList.
+	self pathQueryChanged
 ]
 
 { #category : #accessing }
@@ -289,6 +292,22 @@ RMapPathQueryModel >> freeListPane [
 				bottomOffset: 20;
 				rightOffset: -40;
 				yourself);
+		addMorph:
+			((IconicButton new graphicalMorph: self unselectAllIcon asMorph)
+				target: self;
+				actionSelector: #unselectAllFree;
+				color: Color white;
+				borderNormal;
+				yourself)
+			fullFrame:
+			(LayoutFrame identity
+					leftFraction: 1;
+					bottomFraction: 0;
+					leftOffset: -60;
+					rightOffset: -40;
+					topOffset: 2;
+					bottomOffset: 20;
+					yourself);
 		addMorph:
 			((IconicButton new graphicalMorph: self selectAllIcon asMorph)
 				target: self;
@@ -508,6 +527,22 @@ RMapPathQueryModel >> productListPane [
 				rightOffset: -40;
 				yourself);
 		addMorph:
+			((IconicButton new graphicalMorph: self unselectAllIcon asMorph)
+				target: self;
+				actionSelector: #unselectAllProduct;
+				color: Color white;
+				borderNormal;
+				yourself)
+			fullFrame:
+			(LayoutFrame identity
+					leftFraction: 1;
+					bottomFraction: 0;
+					leftOffset: -60;
+					rightOffset: -40;
+					topOffset: 2;
+					bottomOffset: 20;
+					yourself);
+		addMorph:
 			((IconicButton new graphicalMorph: self selectAllIcon asMorph)
 				target: self;
 				actionSelector: #selectAllProduct;
@@ -597,6 +632,22 @@ RMapPathQueryModel >> reactantListPane [
 				bottomOffset: 20;
 				rightOffset: -40;
 				yourself);
+		addMorph:
+			((IconicButton new graphicalMorph: self unselectAllIcon asMorph)
+				target: self;
+				actionSelector: #unselectAllReactant;
+				color: Color white;
+				borderNormal;
+				yourself)
+			fullFrame:
+			(LayoutFrame identity
+					leftFraction: 1;
+					bottomFraction: 0;
+					leftOffset: -60;
+					rightOffset: -40;
+					topOffset: 2;
+					bottomOffset: 20;
+					yourself);
 		addMorph:
 			((IconicButton new graphicalMorph: self selectAllIcon asMorph)
 				target: self;
@@ -743,4 +794,34 @@ RMapPathQueryModel >> unselect: anRMapVertex [
 	self changed: #reactantList.
 	self changed: #productList.
 	self pathQueryChanged
+]
+
+{ #category : #operations }
+RMapPathQueryModel >> unselectAllFree [
+	freeSelection := Set new.
+	self changed: #freeList
+]
+
+{ #category : #icons }
+RMapPathQueryModel >> unselectAllIcon [
+	^ Smalltalk ui icons
+		iconNamed: #checkBoxOff
+		ifNone: [ | form |
+			form := Form extent: 20 @ 20 depth: 32.
+			form getCanvas
+				fillColor: (Color gray: 0.8);
+				drawString: 'V' at: 5 @ 2.
+			form ]
+]
+
+{ #category : #operations }
+RMapPathQueryModel >> unselectAllProduct [
+	productSelection := Set new.
+	self changed: #productList
+]
+
+{ #category : #operations }
+RMapPathQueryModel >> unselectAllReactant [
+	reactantSelection := Set new.
+	self changed: #reactantList
 ]

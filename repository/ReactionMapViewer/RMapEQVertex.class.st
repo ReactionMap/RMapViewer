@@ -44,6 +44,11 @@ RMapEQVertex >> isEQ [
 	^ true
 ]
 
+{ #category : #accessing }
+RMapEQVertex >> labelColor [
+	^ Color lightGray
+]
+
 { #category : #enumerating }
 RMapEQVertex >> to: vertex energiesDo: aBlock [
 	aBlock value: self energy

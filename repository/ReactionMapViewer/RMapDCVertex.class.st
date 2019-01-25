@@ -80,6 +80,11 @@ RMapDCVertex >> isDC [
 	^ true
 ]
 
+{ #category : #accessing }
+RMapDCVertex >> labelColor [
+	^ Color white
+]
+
 { #category : #enumerating }
 RMapDCVertex >> to: vertex energiesDo: aBlock [
 	(edges contains: [ :edge | vertex == (edge oppositeOf: self) ])

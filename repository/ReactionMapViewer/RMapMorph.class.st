@@ -5,12 +5,9 @@ Class {
 		'vertices',
 		'edges',
 		'form',
-		'xNumerizerSelector',
-		'yNumerizerSelector',
-		'zNumerizerSelector',
-		'projectorSelector',
-		'rendererSelector',
-		'hoverRenderer',
+		'visualizer',
+		'showInfoOnHover',
+		'layouter',
 		'pathQuery',
 		'viewScale',
 		'viewOffset',
@@ -100,15 +97,30 @@ RMapMorph class >> exampleJSONH2CO2 [
 
 { #category : #'instance creation' }
 RMapMorph class >> fromDictionary: json [
-	| rmap |
+	| rmap vs |
 	rmap := self new.
 	rmap extent: 500 @ 500.
-	(json at: 'vertices' ifAbsent: [ #() ]) do: [ :vertex | rmap addVertex: (RMapVertex fromJson: vertex) ].
+	vs := json at: 'vertices' ifAbsent: [ #() ].
+	vs size > 1
+		ifTrue: [ UIManager default
+				displayProgress: 'reading molecules...'
+				from: 1
+				to: vs size
+				during: [ :progress | 
+					vs
+						do: [ :v | 
+							rmap addVertex: (RMapVertex fromJson: v).
+							progress increment ] ] ]
+		ifFalse: [ vs do: [ :v | rmap addVertex: (RMapVertex fromJson: v) ] ].
 	(json at: 'edges' ifAbsent: [ #() ])
-		do: [ :edge | rmap addEdgeBetween: (edge at: 'vertex1') + 1 and: (edge at: 'vertex2') + 1 ].
+		do: [ :edge | 
+			rmap
+				addEdgeBetween: (edge at: 'vertex1') + 1
+				and: (edge at: 'vertex2') + 1 ].
 	rmap grrm: (json at: 'grrm' ifAbsent: [  ]).
 	rmap sortVerticesByEnergy.
 	rmap sortEdgesByEnergy.
+	rmap updateLayouter.
 	^ rmap
 ]
 
@@ -121,12 +133,20 @@ RMapMorph class >> fromDirectory: aFileReference [
 	rmap := self new.
 	rmap extent: 500 @ 500.
 	eqs0 := self readEQs: aFileReference / (prefix , '_EQ_list.log').
-	dcs := self readDCs: aFileReference / (prefix , '_DC_list.log') EQs: eqs0.
+	dcs := self
+		readDCs: aFileReference / (prefix , '_DC_list.log')
+		EQs: eqs0.
 	dcs
-		do: [ :dc | aFileReference / (prefix , '_' , dc label , '.log') readStreamDo: [ :stream | dc readMultiframe: stream ] ].
-	tss := self readTSs: aFileReference / (prefix , '_TS_list.log') EQs: eqs0.
+		do: [ :dc | 
+			aFileReference / (prefix , '_' , dc label , '.log')
+				readStreamDo: [ :stream | dc readMultiframe: stream ] ].
+	tss := self
+		readTSs: aFileReference / (prefix , '_TS_list.log')
+		EQs: eqs0.
 	tss
-		do: [ :ts | aFileReference / (prefix , '_' , ts label , '.log') readStreamDo: [ :stream | ts readMultiframe: stream ] ].
+		do: [ :ts | 
+			aFileReference / (prefix , '_' , ts label , '.log')
+				readStreamDo: [ :stream | ts readMultiframe: stream ] ].
 	eqs0
 		do: [ :eq | 
 			Transcript
@@ -151,8 +171,9 @@ RMapMorph class >> fromDirectory: aFileReference [
 		,
 			(Array
 				new: numGrids * numGrids - eqs0 size
-				streamContents: [ :stream | numGrids * numGrids - eqs0 size timesRepeat: [ stream nextPut: RMapImportEQ new ] ]))
-		shuffle.
+				streamContents: [ :stream | 
+					numGrids * numGrids - eqs0 size
+						timesRepeat: [ stream nextPut: RMapImportEQ new ] ])) shuffle.
 	0 to: eqs size - 1 do: [ :index | 
 		| eq x y |
 		eq := eqs at: index + 1.
@@ -162,8 +183,7 @@ RMapMorph class >> fromDirectory: aFileReference [
 			ifTrue: [ y := y + 0.5 ].
 		eq position: (x + 0.5) * gap , ((y + 0.5) * gap).
 		eq gap: gap ].
-	[ 
-	| changed |
+	[ | changed |
 	changed := false.
 	eqs
 		do: [ :eq | 
@@ -171,7 +191,8 @@ RMapMorph class >> fromDirectory: aFileReference [
 				ifTrue: [ changed := true ] ].
 	changed ] whileTrue.
 	nodes := eqs0 , dcs , tss.
-	tss do: [ :ts | ts position: (ts eq1 position + ts eq2 position) * 0.5 ].
+	tss
+		do: [ :ts | ts position: (ts eq1 position + ts eq2 position) * 0.5 ].
 	dcs do: [ :dc | dc position: dc eq position ].
 	tss do: [ :ts | ts arrange: nodes ].
 	dcs do: [ :dc | dc arrange: nodes ].
@@ -180,14 +201,20 @@ RMapMorph class >> fromDirectory: aFileReference [
 	rmap := self new.
 	rmap extent: 500 @ 500.
 	nodes do: [ :node | rmap addVertex: node asRMapVertex ].
-	dcs do: [ :dc | rmap addEdgeBetween: (nodes indexOf: dc) and: (nodes indexOf: dc eq) ].
+	dcs
+		do:
+			[ :dc | rmap addEdgeBetween: (nodes indexOf: dc) and: (nodes indexOf: dc eq) ].
 	tss
 		do: [ :ts | 
 			rmap addEdgeBetween: (nodes indexOf: ts) and: (nodes indexOf: ts eq1).
-			rmap addEdgeBetween: (nodes indexOf: ts) and: (nodes indexOf: ts eq2) ].
-	aFileReference / (prefix , '.com') readStreamDo: [ :stream | rmap grrm: stream contents ].
+			rmap
+				addEdgeBetween: (nodes indexOf: ts)
+				and: (nodes indexOf: ts eq2) ].
+	aFileReference / (prefix , '.com')
+		readStreamDo: [ :stream | rmap grrm: stream contents ].
 	rmap sortVerticesByEnergy.
 	rmap sortEdgesByEnergy.
+	rmap updateLayouter.
 	^ rmap
 ]
 
@@ -479,35 +506,39 @@ RMapMorph >> addVertex: anRMapVertex [
 { #category : #menu }
 RMapMorph >> addVertexMenu: aMenu [
 	hoverVertex
-		ifNil: [ 
-			aMenu addTitle: 'RMap'.
-			(aMenu add: 'show GRRM run params' translated target: self selector: #showGRRM) enabled: grrm notNil ]
+		ifNil: [ aMenu addTitle: 'RMap'.
+			(aMenu
+				add: 'show GRRM run params' translated
+				target: self
+				selector: #showGRRM) enabled: grrm notNil ]
 		ifNotNil: [ :v | 
 			aMenu addTitle: v label.
+			aMenu
+				add: 'rotate left' target: v selector: #rotateModelLeft;
+				add: 'rotate right' target: v selector: #rotateModelRight;
+				add: 'rotate up' target: v selector: #rotateModelUp;
+				add: 'rotate down' target: v selector: #rotateModelDown;
+				addLine.
 			(pathQuery includes: v)
-				ifTrue: [ 
-					aMenu
+				ifTrue: [ aMenu
 						add: 'unselect' translated
 						target: self
 						selector: #unselect:
 						argument: v ].
 			(pathQuery freeList includes: v)
-				ifFalse: [ 
-					aMenu
+				ifFalse: [ aMenu
 						add: 'select' translated
 						target: self
 						selector: #addSelection:
 						argument: v ].
 			(pathQuery reactantList includes: v)
-				ifFalse: [ 
-					aMenu
+				ifFalse: [ aMenu
 						add: 'reactant' translated
 						target: self
 						selector: #addReactant:
 						argument: v ].
 			(pathQuery productList includes: v)
-				ifFalse: [ 
-					aMenu
+				ifFalse: [ aMenu
 						add: 'product' translated
 						target: self
 						selector: #addProduct:
@@ -516,21 +547,29 @@ RMapMorph >> addVertexMenu: aMenu [
 				addLine;
 				add: 'open info' translated target: v selector: #openInfo;
 				add: 'open in 3D viewer' translated target: v selector: #openJmol;
-				add: 'open measure viewer' translated target: v selector: #openMeasureViewer ].
+				add: 'open measure viewer' translated
+					target: v
+					selector: #openMeasureViewer ].
 	aMenu
 		addLine;
-		add: 'open tree map' translated target: self selector: #openTreeViewer.
+		add: 'open tree map' translated
+			target: self
+			selector: #openTreeViewer.
 	(Smalltalk includesKey: #RMapServer)
-		ifTrue: [ 
-			aMenu
+		ifTrue: [ aMenu
 				addLine;
-				add: 'load from local server' translated target: self selector: #loadFromLocalServer;
-				add: 'store to local server' translated target: self selector: #storeToLocalServer ].
+				add: 'load from local server' translated
+					target: self
+					selector: #loadFromLocalServer;
+				add: 'store to local server' translated
+					target: self
+					selector: #storeToLocalServer ].
 	(Smalltalk includesKey: #RMapClient)
-		ifTrue: [ 
-			aMenu
+		ifTrue: [ aMenu
 				addLine;
-				add: 'load from server' translated target: self selector: #loadFromServer ].
+				add: 'load from server' translated
+					target: self
+					selector: #loadFromServer ].
 	^ aMenu
 ]
 
@@ -605,24 +644,6 @@ RMapMorph >> buildViewer [
 		color: Color white;
 		borderWidth: 0.
 	pane changeProportionalLayout.
-	pane
-		addMorph: xNumerizerSelector asDropListMorph
-		fullFrame:
-			((0 @ 1 corner: 0.2 @ 1) asLayoutFrame
-				topOffset: -20;
-				yourself).
-	pane
-		addMorph: yNumerizerSelector asDropListMorph
-		fullFrame:
-			((0.2 @ 1 corner: 0.4 @ 1) asLayoutFrame
-				topOffset: -20;
-				yourself).
-	pane
-		addMorph: zNumerizerSelector asDropListMorph
-		fullFrame:
-			((0.4 @ 1 corner: 0.6 @ 1) asLayoutFrame
-				topOffset: -20;
-				yourself).
 	pane
 		addMorph: self searchBox
 		fullFrame:
@@ -764,35 +785,34 @@ RMapMorph >> buildViewer [
 { #category : #updating }
 RMapMorph >> changed: aSymbol [
 	super changed: aSymbol.
-	self dependents do: [:aDependent | aDependent update: aSymbol].
-	(aSymbol = #visibleEnergyRangeMin or: [ aSymbol = #visibleEnergyRangeMax ])
-		ifTrue: [ self updatePaths ]
+	self dependents do: [ :aDependent | aDependent update: aSymbol ].
+	(aSymbol = #visibleEnergyRangeMin
+		or: [ aSymbol = #visibleEnergyRangeMax ])
+		ifTrue: [ self updatePaths ].
+	aSymbol = #view
+		ifTrue: [ self updateLayouter ].
+	self changed
 ]
 
 { #category : #'event handling' }
 RMapMorph >> click: anEvent [
-	| newHoverVertex handPosition visibleVertices |
+	| newHoverVertex minDist handPosition handRect |
 	newHoverVertex := nil.
+	minDist := 64.
 	handPosition := anEvent position - self position.
-	visibleVertices := (vertices
-		select: [ :v | 
-			(self isEffectiveVertex: v)
-				and: [ | p |
-					p := self positionFor: v.
-					(p x between: 0.0 and: self width asFloat)
-						and: [ p y between: 0.0 and: self height asFloat ] ] ])
-		asSortedCollection: [ :deeper :shallower | 
-			((self zNumerizer value: shallower) ifNil: [ Float infinity ])
-				<= ((self zNumerizer value: deeper) ifNil: [ Float infinity ]) ].
-	visibleVertices
-		do: [ :vertex | 
-			(self renderer rectangleFor: vertex)
-				ifNotNil: [ :rect | 
-					(rect containsPoint: handPosition)
-						ifTrue: [ newHoverVertex := vertex ] ] ].
+	handRect := handPosition - (32 @ 32) extent: 64 @ 64.
+	self
+		effectiveVerticesDo: [ :vertex | 
+			(handRect containsPoint: vertex layoutPosition)
+				ifTrue: [ | d |
+					d := vertex layoutPosition dist: handPosition.
+					d < minDist
+						ifTrue: [ minDist := d.
+							newHoverVertex := vertex ] ] ].
 	hoverVertex := newHoverVertex == hoverVertex
 		ifTrue: [ nil ]
-		ifFalse: [ newHoverVertex ]
+		ifFalse: [ newHoverVertex ].
+	self changed
 ]
 
 { #category : #private }
@@ -948,63 +968,12 @@ RMapMorph >> doubleClick: event [
 
 { #category : #drawing }
 RMapMorph >> drawOn: aCanvas [
-	form
-		ifNil: [ form := Form extent: self extent depth: 32.
-			form getCanvas
-				in: [ :canvas | 
-					| visibleVertices |
-					canvas fillColor: Color white.
-					edges
-						do: [ :edge | self renderer drawEdge: edge color: Color black on: canvas ].
-					visibleVertices := (vertices
-						select: [ :v | 
-							(self isEffectiveVertex: v)
-								and: [ | p |
-									p := self positionFor: v.
-									(p x between: 0.0 and: self width asFloat)
-										and: [ (p y between: 0.0 and: self height asFloat)
-												and: [ v ~~ hoverVertex ] ] ] ])
-						asSortedCollection: [ :deeper :shallower | 
-							((self zNumerizer value: shallower) ifNil: [ Float infinity ])
-								<= ((self zNumerizer value: deeper) ifNil: [ Float infinity ]) ].
-					self renderer numVertices: visibleVertices size.
-					visibleVertices
-						do:
-							[ :v | self renderer drawVertex: v borderColor: Color transparent on: canvas ].
-					pathSelector value
-						ifNotNil: [ (canvas asAlphaBlendingCanvas: 0.8) fillColor: Color white.
-							(paths at: pathSelector index)
-								in: [ :path | 
-									2 to: path size do: [ :index | 
-										(path at: index - 1)
-											edgesDo: [ :edge | 
-												(edge vertex1 == (path at: index)
-													or: [ edge vertex2 == (path at: index) ])
-													ifTrue: [ self renderer drawEdge: edge color: Color black on: canvas ] ] ].
-									path
-										do:
-											[ :vertex | self renderer drawVertex: vertex borderColor: nil on: canvas ] ] ].
-					self
-						selectedVerticesDo:
-							[ :vertex | self renderer drawVertex: vertex borderColor: Color red on: canvas ].
-					self
-						reactantsDo:
-							[ :vertex | self renderer drawVertex: vertex borderColor: Color blue on: canvas ].
-					self
-						productsDo: [ :vertex | 
-							(self renderer drawVertex: vertex borderColor: Color blue on: canvas)
-								ifNotNil: [ :rectangle | 
-									canvas
-										frameRectangle: (rectangle insetBy: -3)
-										width: 2
-										color: Color blue ] ].
-					hoverVertex
-						ifNotNil: [ (self hoverRenderer
-								forceDrawVertex: hoverVertex
-								borderColor: Color transparent
-								on: canvas)
-								ifNotNil: [ :rect | canvas frameRectangle: rect width: 3 color: Color black ] ].
-					canvas flush ] ].
+	| canvas |
+	form ifNil: [ form := Form extent: self extent depth: 32 ].
+	canvas := form getCanvas.
+	canvas fillColor: Color white.
+	layouter drawLegendsOn: canvas.
+	visualizer draw: self on: canvas.
 	aCanvas paintImage: form at: self position
 ]
 
@@ -1016,6 +985,23 @@ RMapMorph >> edges [
 { #category : #enumerating }
 RMapMorph >> edgesDo: aBlock [
 	edges do: aBlock
+]
+
+{ #category : #enumerating }
+RMapMorph >> effectiveEdgesDo: aBlock [
+	edges
+		do: [ :edge | 
+			((self isEffectiveVertex: edge vertex1)
+				and: [ self isEffectiveVertex: edge vertex2 ])
+				ifTrue: [ aBlock value: edge ] ]
+]
+
+{ #category : #enumerating }
+RMapMorph >> effectiveVerticesDo: aBlock [
+	vertices
+		do: [ :v | 
+			(self isEffectiveVertex: v)
+				ifTrue: [ aBlock value: v ] ]
 ]
 
 { #category : #'user interface' }
@@ -1115,8 +1101,13 @@ RMapMorph >> handlesMouseWheel: anEvent [
 ]
 
 { #category : #testing }
+RMapMorph >> hasMarked: anRMapVertex [
+	^ pathQuery includes: anRMapVertex
+]
+
+{ #category : #testing }
 RMapMorph >> hasMarkedVertices [
-	^ pathQuery isEmpty not
+	^ pathQuery notEmpty
 ]
 
 { #category : #testing }
@@ -1139,11 +1130,6 @@ RMapMorph >> hopsPathSorter [
 	^ 'number of hops'
 ]
 
-{ #category : #'accessing-renderer' }
-RMapMorph >> hoverRenderer [
-	^ hoverRenderer ifNil: [ hoverRenderer := RMapInfoRenderer on: self ]
-]
-
 { #category : #accessing }
 RMapMorph >> hoverVertex [
 	^ hoverVertex
@@ -1162,40 +1148,15 @@ RMapMorph >> initialize [
 	pathSelector := RMapSelector new.
 	pathSelector getMenuBlock: [ :aMenu | self addPathListMenu: aMenu ].
 	pathSelector index: 0.
+	pathSelector addDependent: self.
 	maxNumberOfHops := self defaultMaxNumberOfHops.
 	maxNumberOfPaths := self defaultMaxNumberOfPaths.
 	pathSorter := self defaultPathSorter.
 	shortestOnly := true.
-	self initializeNumerizers.
-	self initializeRenderers
-]
-
-{ #category : #'initialize-release' }
-RMapMorph >> initializeNumerizers [
-	| sorter |
-	sorter := RMapSimilaritySorter on: self.
-	xNumerizerSelector := RMapNumerizerSelector new
-		add: (RMapX on: self setter: #xNumerizer:);
-		add: (RMapEnergy on: self setter: #xNumerizer:);
-		add: (RMapKind on: self setter: #xNumerizer:);
-		add: (RMapMinEnergyGapFromReactants on: self setter: #xNumerizer:);
-		add: (RMapHopsFromReactants on: self setter: #xNumerizer:);
-		add: (sorter xNumerizer: #xNumerizer:);
-		yourself.
-	yNumerizerSelector := RMapNumerizerSelector new
-		add: (RMapY on: self setter: #yNumerizer:);
-		add: (RMapEnergy on: self setter: #yNumerizer:);
-		add: (RMapKind on: self setter: #yNumerizer:);
-		add: (RMapMinEnergyGapFromReactants on: self setter: #yNumerizer:);
-		add: (RMapHopsFromReactants on: self setter: #yNumerizer:);
-		add: (sorter yNumerizer: #yNumerizer:);
-		yourself.
-	zNumerizerSelector := RMapNumerizerSelector new
-		add: (RMapEnergy on: self setter: #zNumerizer:);
-		add: (RMapKind on: self setter: #zNumerizer:);
-		add: (RMapMinEnergyGapFromReactants on: self setter: #zNumerizer:);
-		add: (RMapHopsFromReactants on: self setter: #zNumerizer:);
-		yourself
+	layouter := RMapVertexMapLayouter on: self.
+	layouter update.
+	showInfoOnHover := false.
+	visualizer := RMapMinimalVisualizer new
 ]
 
 { #category : #'initialize-release' }
@@ -1208,42 +1169,6 @@ RMapMorph >> initializeRMap [
 	viewOffset := 0.5 @ 0.5.
 	hops := 1.
 	paths := Array new
-]
-
-{ #category : #'initialize-release' }
-RMapMorph >> initializeRenderers [
-	| eqDot dot edge plain geometry |
-	eqDot := RMapEQDotRenderer on: self.
-	dot := RMapDotRenderer on: self.
-	edge := RMapEdgeRenderer on: self.
-	plain := RMapPlainRenderer on: self.
-	geometry := RMap3dSmallGeometryRenderer on: self.
-	rendererSelector := RMapSelector new
-		add:
-			((RMapAdaptiveRenderer on: self)
-				add: geometry maxNumVertices: 40;
-				add: plain maxNumVertices: 100;
-				add: edge maxNumVertices: 1000;
-				add: dot maxNumVertices: Float infinity;
-				yourself);
-		add: eqDot;
-		add: dot;
-		add: edge;
-		add: plain;
-		add: (RMap3dLargeGeometryRenderer on: self);
-		add: geometry;
-		add: (RMapDepthRenderer on: self);
-		add: (RMapAlphaRenderer on: self);
-		add: (RMapUnderlineRenderer on: self);
-		add: (RMap2dGeometryRenderer on: self);
-		add: (RMap2dStructureRenderer on: self);
-		add: (RMap2dStructure2Renderer on: self);
-		add: (RMapGeometryRenderer on: self);
-		add: (RMapEQGeometryRenderer on: self);
-		add: (RMapEQGeometryUnderlineRenderer on: self);
-		add: (RMapInfoRenderer on: self);
-		addDependent: self;
-		yourself
 ]
 
 { #category : #'accessing-paths' }
@@ -1296,15 +1221,26 @@ RMapMorph >> keyboardFocusChange: event [
 	self focusChanged
 ]
 
+{ #category : #recategorized }
+RMapMorph >> layoutChanged [
+	super layoutChanged.
+	self updateLayouter
+]
+
 { #category : #accessing }
 RMapMorph >> load: aDictionary [
 	self initializeRMap.
-	(aDictionary at: 'vertices' ifAbsent: [ #() ]) do: [ :vertex | self addVertex: (RMapVertex fromJson: vertex) ].
+	(aDictionary at: 'vertices' ifAbsent: [ #() ])
+		do: [ :vertex | self addVertex: (RMapVertex fromJson: vertex) ].
 	(aDictionary at: 'edges' ifAbsent: [ #() ])
-		do: [ :edge | self addEdgeBetween: (edge at: 'vertex1') + 1 and: (edge at: 'vertex2') + 1 ].
+		do: [ :edge | 
+			self
+				addEdgeBetween: (edge at: 'vertex1') + 1
+				and: (edge at: 'vertex2') + 1 ].
 	self grrm: (aDictionary at: 'grrm' ifAbsent: [  ]).
 	self sortVerticesByEnergy.
 	self sortEdgesByEnergy.
+	self updateLayouter.
 	self changed: #rmap.
 	self changed: #paths
 ]
@@ -1516,11 +1452,11 @@ RMapMorph >> mouseMove: event [
 { #category : #'event handling' }
 RMapMorph >> mouseWheel: aMouseEvent [
 	aMouseEvent isDown
-		ifTrue: [ 
-			aMouseEvent wasHandled: true.
+		ifTrue: [ aMouseEvent wasHandled: true.
 			self zoomOut ].
 	aMouseEvent isUp
-		ifTrue: [ self zoomIn ].
+		ifTrue: [ aMouseEvent wasHandled: true.
+			self zoomIn ].
 	super mouseWheel: aMouseEvent
 ]
 
@@ -1612,7 +1548,7 @@ RMapMorph >> openScratchingBrowser [
 
 { #category : #private }
 RMapMorph >> openTreeViewer [
-	| topNode agenda done links extraLinks renderer icons b view |
+	| topNode agenda done links extraLinks b view |
 	topNode := vertices argmin: #energy.
 	agenda := Array with: nil -> topNode.
 	done := IdentitySet new: self vertices size.
@@ -1636,21 +1572,11 @@ RMapMorph >> openTreeViewer [
 			agenda := newAgenda contents ].
 	links := links contents.
 	extraLinks := extraLinks contents.
-	extraLinks := extraLinks reject: [ :assoc | links includes: assoc value -> assoc key ].
-	renderer := RMap3dLargeGeometryRenderer new.
-	icons := IdentityDictionary new.
-	links
-		do: [ :assoc | 
-			| vertex icon |
-			vertex := assoc value.
-			icon := Form extent: 100 @ 100 depth: 32.
-			icon getCanvas
-				fillColor: Color white;
-				paintImage: (renderer formsFor: vertex extent: 100 @ 100) first at: 0 @ 0.
-			icons at: vertex put: icon ].
+	extraLinks := extraLinks
+		reject: [ :assoc | links includes: assoc value -> assoc key ].
 	b := RTMondrian new.
 	b shape
-		shape: (RTBitmap new form: [ :v | icons at: v ]);
+		shape: (RTBitmap new form: [ :v | v model64Form ]);
 		withTextAbove: #label;
 		withTextBelow: [ :v | v kJpermol - topNode kJpermol printShowingDecimalPlaces: 2 ].
 	b nodes: (links collect: #value).
@@ -1824,22 +1750,6 @@ RMapMorph >> paths [
 	^ paths
 ]
 
-{ #category : #'accessing-visuals' }
-RMapMorph >> positionFor: anRMapVertex [
-	| w h scale x y |
-	w := self width asFloat.
-	h := self height asFloat.
-	scale := w max: h.
-	x := self xNumerizer value: anRMapVertex.
-	x ifNil: [ ^ nil ].
-	x := (x - self viewOffset x) * self viewScale * scale + (w // 2).
-	y := self yNumerizer value: anRMapVertex.
-	y ifNil: [ ^ nil ].
-	y := (y - self viewOffset y) * self viewScale negated * scale
-		+ (h // 2).
-	^ x @ y
-]
-
 { #category : #enumerating }
 RMapMorph >> productsDo: aBlock [
 	pathQuery productList do: aBlock
@@ -1868,23 +1778,32 @@ RMapMorph >> reactionMapMenuSpec [
 		subMenu:
 			(PluggableMenuSpec new
 				add: 'Reaction'
-					action: (MessageSend receiver: self selector: #setReactionView);
+					action: (MessageSend receiver: self selector: #setMapLayouter);
 				add: 'Energy'
-					action: (MessageSend receiver: self selector: #setEnergyView);
-				add: 'Similarity'
-					action: (MessageSend receiver: self selector: #setSimilarityView);
+					action: (MessageSend receiver: self selector: #setEnergyLayouter);
 				yourself).
 	spec addSeparator.
+	spec addMenuItem
+		label: 'Visuals';
+		subMenu:
+			(PluggableMenuSpec new
+				add: 'Minimal'
+					action: (MessageSend receiver: self selector: #setMinimalVisualizer);
+				add: 'Label'
+					action: (MessageSend receiver: self selector: #setLabelVisualizer);
+				add: 'Small model'
+					action: (MessageSend receiver: self selector: #setSmallModelVisualizer);
+				add: 'Large model'
+					action: (MessageSend receiver: self selector: #setLargeModelVisualizer);
+				yourself).
 	spec addMenuItem
 		label: 'Selected visual';
 		subMenu:
 			(PluggableMenuSpec new
-				add: 'Label'
-					action: (MessageSend receiver: self selector: #setLabelHoverRenderer);
 				add: 'Model'
-					action: (MessageSend receiver: self selector: #setGeometryHoverRenderer);
+					action: (MessageSend receiver: self selector: #setShowModelOnHover);
 				add: 'Info'
-					action: (MessageSend receiver: self selector: #setInfoHoverRenderer);
+					action: (MessageSend receiver: self selector: #setShowInfoOnHover);
 				yourself).
 	^ spec
 ]
@@ -1899,11 +1818,6 @@ RMapMorph >> release [
 RMapMorph >> removeDependent: anObject [
 	dependents := dependents copyWithout: anObject.
 	^ anObject
-]
-
-{ #category : #'accessing-renderer' }
-RMapMorph >> renderer [
-	^ rendererSelector value
 ]
 
 { #category : #private }
@@ -2029,24 +1943,18 @@ RMapMorph >> setDeltaEnergyPathSorter [
 	self updatePaths
 ]
 
+{ #category : #'accessing-layouter' }
+RMapMorph >> setEnergyLayouter [
+	layouter := RMapVertexEnergyLayouter on: self.
+	layouter update.
+	self changed
+]
+
 { #category : #'accessing-paths' }
 RMapMorph >> setEnergyPathSorter [
 	pathSorter := #energy.
 	self changed: #pathSorter.
 	self updatePaths
-]
-
-{ #category : #'accessing-numerizers' }
-RMapMorph >> setEnergyView [
-	self xNumerizer: (RMapKind on: self setter: #xNumerizer:).
-	self yNumerizer: (RMapEnergy on: self setter: #yNumerizer:).
-	self changed
-]
-
-{ #category : #'accessing-renderer' }
-RMapMorph >> setGeometryHoverRenderer [
-	hoverRenderer := RMap3dLargeGeometryRenderer on: self.
-	self changed
 ]
 
 { #category : #'accessing-paths' }
@@ -2056,22 +1964,28 @@ RMapMorph >> setHopsPathSorter [
 	self updatePaths
 ]
 
-{ #category : #'accessing-renderer' }
-RMapMorph >> setInfoHoverRenderer [
-	hoverRenderer := RMapInfoRenderer on: self.
+{ #category : #'accessing-visualizers' }
+RMapMorph >> setLabelVisualizer [
+	visualizer := RMapLabelVisualizer new.
 	self changed
 ]
 
-{ #category : #'accessing-renderer' }
-RMapMorph >> setLabelHoverRenderer [
-	hoverRenderer := RMapPlainRenderer on: self.
+{ #category : #'accessing-visualizers' }
+RMapMorph >> setLargeModelVisualizer [
+	visualizer := RMapLargeModelVisualizer new.
 	self changed
 ]
 
-{ #category : #'accessing-numerizers' }
-RMapMorph >> setReactionView [
-	self xNumerizer: (RMapX on: self setter: #xNumerizer:).
-	self yNumerizer: (RMapY on: self setter: #yNumerizer:).
+{ #category : #'accessing-layouter' }
+RMapMorph >> setMapLayouter [
+	layouter := RMapVertexMapLayouter on: self.
+	layouter update.
+	self changed
+]
+
+{ #category : #'accessing-visualizers' }
+RMapMorph >> setMinimalVisualizer [
+	visualizer := RMapMinimalVisualizer new.
 	self changed
 ]
 
@@ -2082,12 +1996,19 @@ RMapMorph >> setShortestOnly: aBoolean [
 	self updatePaths
 ]
 
-{ #category : #'accessing-numerizers' }
-RMapMorph >> setSimilarityView [
-	| sorter |
-	sorter := RMapSimilaritySorter on: self.
-	self xNumerizer: (sorter xNumerizer: #xNumerizer:).
-	self yNumerizer: (sorter yNumerizer: #yNumerizer:).
+{ #category : #'accessing-visualizers' }
+RMapMorph >> setShowInfoOnHover [
+	showInfoOnHover := true
+]
+
+{ #category : #'accessing-visualizers' }
+RMapMorph >> setShowModelOnHover [
+	showInfoOnHover := false
+]
+
+{ #category : #'accessing-visualizers' }
+RMapMorph >> setSmallModelVisualizer [
+	visualizer := RMapSmallModelVisualizer new.
 	self changed
 ]
 
@@ -2106,6 +2027,11 @@ RMapMorph >> showGRRM [
 		entryHeight: 200
 ]
 
+{ #category : #'accessing-visualizers' }
+RMapMorph >> showInfoOnHover [
+	^ showInfoOnHover ifNil: [ showInfoOnHover := false ]
+]
+
 { #category : #private }
 RMapMorph >> sortEdgesByEnergy [
 	vertices do: [ :v | v sortEdgesByEnergy ]
@@ -2121,17 +2047,13 @@ RMapMorph >> sortVerticesByEnergy [
 
 { #category : #'stepping and presenter' }
 RMapMorph >> step [
-	| startTime |
+	"| startTime |
 	startTime := Time millisecondClockValue. 
 	startTime - lastTime * 0.9 > stepTime ifTrue: [ stepTime := stepTime * 4 ].
 	startTime - lastTime * 0.95 < stepTime ifTrue: [ stepTime := stepTime * 2 // 3 max: 200 ].
 	lastTime := startTime.
 	form := nil.
-	self xNumerizer step.
-	self yNumerizer step.
-	self zNumerizer step.
-	self renderer step.
-	self changed
+	self changed"
 ]
 
 { #category : #'stepping and presenter' }
@@ -2176,36 +2098,35 @@ RMapMorph >> unselect: anRMapVertex [
 ]
 
 { #category : #updating }
-RMapMorph >> update: anObject [
-	anObject == rendererSelector
-		ifTrue: [ 
-			self updateRenderer.
-			self changed ]
+RMapMorph >> update: anAspect [
+	anAspect == pathSelector
+		ifTrue: [ self changed ].
+	^ super update: anAspect
+]
+
+{ #category : #updating }
+RMapMorph >> updateLayouter [
+	layouter update.
+	self changed
 ]
 
 { #category : #updating }
 RMapMorph >> updatePathQuery [
 	self updatePaths.
-	self xNumerizer updateSelection.
-	self yNumerizer updateSelection.
-	self zNumerizer updateSelection.
-	self changed: #selection
+	self changed: #selection.
+	self changed
 ]
 
 { #category : #updating }
 RMapMorph >> updatePaths [
 	pathSelector list: Array new.
 	searchProcess ifNotNil: [ searchProcess terminate ].
-	searchProcess := [ 
-	paths :=  self createPaths.
-	pathSelector list: (paths collect: [ :path | self morphForPath: path ]).
+	searchProcess := [ paths := self createPaths.
+	pathSelector
+		list: (paths collect: [ :path | self morphForPath: path ]).
 	self changed: #paths.
+	self changed.
 	searchProcess := nil ] forkAt: Processor userBackgroundPriority
-]
-
-{ #category : #updating }
-RMapMorph >> updateRenderer [
-	vertices do: [ :vertex | vertex renderFormsWith: self renderer ]
 ]
 
 { #category : #accessing }
@@ -2214,7 +2135,7 @@ RMapMorph >> vertexAtPoint: aPoint suchThat: guardBlock [
 	point := aPoint - self position.
 	^ self
 		argminVertex: [ :vertex | 
-			(self positionFor: vertex)
+			vertex layoutPosition
 				ifNil: [ Float fmax ]
 				ifNotNil: [ :p | p dist: point ] ]
 		suchThat: guardBlock
@@ -2308,21 +2229,6 @@ RMapMorph >> worldTop [
 		ifNotNil: [ :menubar | menubar bottom + 1 ]
 ]
 
-{ #category : #'accessing-numerizers' }
-RMapMorph >> xName [
-	^ self xNumerizer name
-]
-
-{ #category : #'accessing-numerizers' }
-RMapMorph >> xNumerizer [
-	^ xNumerizerSelector value
-]
-
-{ #category : #'accessing-numerizers' }
-RMapMorph >> xNumerizer: anRMapVertexNumerizer [
-	xNumerizerSelector value: anRMapVertexNumerizer
-]
-
 { #category : #private }
 RMapMorph >> xyzAnimationAndLabelDictionaryAndEnergyCurveFromPath [
 	| path labels energies frames |
@@ -2369,44 +2275,16 @@ RMapMorph >> xyzAnimationAndLabelDictionaryAndEnergyCurveFromPath [
 		with: energies contents
 ]
 
-{ #category : #'accessing-numerizers' }
-RMapMorph >> yName [
-	^ self yNumerizer name
-]
-
-{ #category : #'accessing-numerizers' }
-RMapMorph >> yNumerizer [
-	^  yNumerizerSelector value
-]
-
-{ #category : #'accessing-numerizers' }
-RMapMorph >> yNumerizer: anRMapVertexNumerizer [
-	yNumerizerSelector value: anRMapVertexNumerizer
-]
-
-{ #category : #'accessing-numerizers' }
-RMapMorph >> zName [
-	^ self zNumerizer name
-]
-
-{ #category : #'accessing-numerizers' }
-RMapMorph >> zNumerizer [
-	^ zNumerizerSelector value
-]
-
-{ #category : #'accessing-numerizers' }
-RMapMorph >> zNumerizer: anRMapVertexNumerizer [
-	zNumerizerSelector value: anRMapVertexNumerizer
-]
-
 { #category : #'viewer functions' }
 RMapMorph >> zoomIn [
 	viewScale := viewScale * 1.1.
+	self updateLayouter.
 	self changed: #view
 ]
 
 { #category : #'viewer functions' }
 RMapMorph >> zoomOut [
 	viewScale := viewScale / 1.1.
+	self updateLayouter.
 	self changed: #view
 ]

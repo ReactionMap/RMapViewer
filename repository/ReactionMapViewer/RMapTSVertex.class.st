@@ -99,6 +99,11 @@ RMapTSVertex >> isTS [
 	^ true
 ]
 
+{ #category : #accessing }
+RMapTSVertex >> labelColor [
+	^ Color white
+]
+
 { #category : #private }
 RMapTSVertex >> multiframeEnergies [
 	^ json

@@ -108,7 +108,9 @@ RMapVertexListItem >> listRenderOn: aCanvas atRow: row bounds: aRectangle color:
 	aCanvas
 		drawString: vertex label
 		at: 2 @ ((64 - TextStyle defaultFont height) / 2.0) + aRectangle topLeft.
-	aCanvas paintImage: self form at: aRectangle topLeft + (50 @ 0)
+	aCanvas
+		paintImage: vertex model64Form
+		at: aRectangle topLeft + (50 @ 0)
 ]
 
 { #category : #accessing }

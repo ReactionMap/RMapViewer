@@ -41,13 +41,13 @@ RMapLocatorMorph >> drawOn: aCanvas [
 			canvas fillRectangle: self bounds color: Color white.
 			rmapMorph
 				verticesDo: [ :vertex | 
-					(rmapMorph xNumerizer value: vertex)
-						ifNotNil: [ :x | 
-							(rmapMorph yNumerizer value: vertex)
-								ifNotNil: [ :y | 
-									canvas
-										fillRectangle: (x @ (1.0 - y) * (self extent - 10) + self position + 5 extent: 1 @ 1)
-										color: Color black ] ] ].
+					| p |
+					p := vertex normalizedLayoutPosition.
+					canvas
+						fillRectangle:
+							(p x @ (1.0 - p y) * (self extent - 10) + self position + 5
+								extent: 1 @ 1)
+						color: Color black ].
 			rmapMorph viewBounds
 				in: [ :rect | 
 					canvas
