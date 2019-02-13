@@ -148,7 +148,7 @@ RMapImportNode >> readBabel [
 			'f'.
 			'/dev/stdin'.
 			'/dev/stdout'}
-		stdin: sdf) lines in: [ :lines | lines first trim ifEmpty: [ lines third strip ] ifNotEmpty: [ nil ] ]
+		stdin: sdf) lines in: [ :lines | lines first trim ifEmpty: [ lines third trim ] ifNotEmpty: [ nil ] ]
 ]
 
 { #category : #accessing }
