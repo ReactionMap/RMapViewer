@@ -77,7 +77,7 @@ RMapClient >> initializePresenter [
 { #category : #initialization }
 RMapClient >> initializeWidgets [
 	urlField := self newTextInput
-		text: 'http://localhost:1701/';
+		text: 'http://133.167.127.202/rmapserver/';
 		removeEntryCompletion;
 		ghostText: 'Server URL';
 		autoAccept: true;
