@@ -464,13 +464,22 @@ class RMap:
             readline()
             readline()
             header = readline().split()
+            if len(header[0]) > 3:
+                header = [header[0][:3], header[0][3:6]]
             for _ in range(int(header[0])):
                 readline()
             for _ in range(int(header[1])):
-                columns = readline().split()
+                columns = list()
+                for c in (" "+readline()).split():
+                    if len(c) > 3:
+                        columns.append(c[:-3])
+                        c = c[-3:]
+                    columns.append(c)
                 node.bonds.append((int(columns[0])-1, int(columns[1])-1, int(columns[2])))
-            while readline().strip() != '$$$$':
-                pass
+            while True:
+                l = readline()
+                if l.strip() == '$$$$':
+                    break
             node.sdf = ''.join(lines)
         for eq in self.EQs:
             read_sdf(eq)
