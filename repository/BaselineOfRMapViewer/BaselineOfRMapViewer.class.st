@@ -13,7 +13,7 @@ BaselineOfRMapViewer >> baseline: spec [
 				baseline: 'Jun'
 					with: [ spec
 						loads: 'Chemistry-Full';
-						repository: 'github://tomooda/Jun/repository' ];
+						repository: 'github://tomooda/Jun:main/repository' ];
 				baseline: 'Roassal2'
 					with: [ spec
 						loads: 'NoGlamour';
