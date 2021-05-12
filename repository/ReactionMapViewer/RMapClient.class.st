@@ -89,7 +89,7 @@ RMapClient >> initializePresenter [
 { #category : #initialization }
 RMapClient >> initializeWidgets [
 	urlField := self newTextInput
-		text: 'http://133.167.127.202/rmapserver/';
+		text: 'http://www.reactionroutemap.com//rmapserver/';
 		removeEntryCompletion;
 		ghostText: 'Server URL';
 		autoAccept: true;
