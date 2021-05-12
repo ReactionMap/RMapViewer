@@ -494,7 +494,7 @@ RMapPathQueryModel >> moveSelectedReactantToFree [
 { #category : #announcements }
 RMapPathQueryModel >> onPathQueryChangeSend: aSelector to: anObject [
 	self announcer
-		subscribe: self pathQueryChangedAnnouncement
+		when: self pathQueryChangedAnnouncement
 		send: aSelector
 		to: anObject
 ]

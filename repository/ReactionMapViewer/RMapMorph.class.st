@@ -1422,12 +1422,15 @@ RMapMorph >> motionMoleculeFromPath [
 	triple ifNil: [ ^ nil ].
 	motionMolecule := RMapMotionMolecule fromXYZ: triple first.
 	motionMolecule autoBonds.
-	e0 := triple third ifEmpty: [ 0.0 ] ifNotEmpty: [ :nums | nums first ].
+	e0 := triple third
+		ifEmpty: [ 0.0 ]
+		ifNotEmpty: [ :nums | nums first ].
 	1 to: motionMolecule size do: [ :index | 
 		(motionMolecule at: index)
 			label: nil;
-			energy: (triple third at: index ifAbsent: [ e0 ]) - e0 ].
-	triple second keysAndValuesDo: [ :index :caption | (motionMolecule at: index) label: caption ].
+			energy: ((triple third at: index ifAbsent: [ e0 ]) ifNil: [ e0 ]) - e0 ].
+	triple second
+		keysAndValuesDo: [ :index :caption | (motionMolecule at: index) label: caption ].
 	^ motionMolecule
 ]
 
@@ -1501,7 +1504,7 @@ RMapMorph >> openFullInWorld [
 		ifFalse: [ | window |
 			window := viewer openInWindowLabeled: 'RMapViewer'.
 			window fullscreen.
-			window announcer subscribe: WindowClosed send: #delete to: self.
+			window announcer when: WindowClosed send: #delete to: self.
 			^ window ].
 	World submorphs copy
 		do: [ :m | 

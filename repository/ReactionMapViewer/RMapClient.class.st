@@ -49,16 +49,28 @@ RMapClient class >> on: anRMapMorph [
 
 { #category : #operations }
 RMapClient >> getRMap: aDictionary [
-	| url client response |
+	| url response |
 	aDictionary ifNil: [ ^ nil ].
 	url := urlField text asString trim asZnUrl / 'api' / 'get'.
+	[ :bar | 
+	| client |
 	client := ZnClient new
 		beOneShot;
+		signalProgress: true;
+		timeout: 120;
 		url: url;
 		yourself.
-	client queryAt: '_id' put: (aDictionary at: '_id' ifAbsent: [ ^ nil ]).
-	client get.
-	response := client response.
+	client
+		queryAt: '_id'
+		put: (aDictionary at: '_id' ifAbsent: [ ^ nil ]).
+	bar title: 'Downloading...'.
+	[ client get.
+	response := client response ]
+		on: HTTPProgress
+		do: [ :progress | 
+			progress isEmpty
+				ifFalse: [ bar current: progress percentage ].
+			progress resume ] ] asJob run.
 	^ response isSuccess
 		ifTrue: [ NeoJSONReader fromString: response entity string ]
 		ifFalse: [ nil ]
