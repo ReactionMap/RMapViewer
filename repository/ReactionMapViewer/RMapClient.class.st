@@ -109,7 +109,8 @@ RMapClient >> initializeWidgets [
 		label: 'Open';
 		action: [ self openRMap ];
 		disable;
-		yourself
+		yourself.
+	self title: 'ReactionMap Locator'
 ]
 
 { #category : #widgets }
