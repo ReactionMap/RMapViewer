@@ -18,12 +18,24 @@ BaselineOfRMapViewer >> baseline: spec [
 					with: [ spec
 						loads: 'NoGlamour';
 						repository: 'github://ObjectProfile/Roassal2/src' ];
-				baseline: 'NeoJSON' with: [ spec repository: 'github://svenvc/NeoJSON/repository' ];
-				baseline: 'PolyMath' with: [ spec repository: 'github://PolyMathOrg/PolyMath/src' ];
+				baseline: 'NeoJSON'
+					with: [ spec repository: 'github://svenvc/NeoJSON/repository' ];
+				baseline: 'PolyMath'
+					with: [ spec repository: 'github://PolyMathOrg/PolyMath/src' ];
 				package: 'ReactionMapViewer'
 					with: [ spec requires: #('Jun' 'NeoJSON' 'Roassal2' 'PolyMath') ];
+				postLoadDoIt: #postLoad;
 				yourself.
 			spec
 				group: 'default' with: #('ReactionMapViewer');
 				yourself ]
+]
+
+{ #category : #activation }
+BaselineOfRMapViewer >> postLoad [
+	PharoLightTheme beCurrent.
+	MenubarMorph closeAll.
+	MenubarMorph new
+		menuBarItems: RMapMorph menubarSpec items;
+		open
 ]
