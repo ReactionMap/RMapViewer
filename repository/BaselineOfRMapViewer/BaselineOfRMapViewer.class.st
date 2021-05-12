@@ -37,5 +37,6 @@ BaselineOfRMapViewer >> postLoad [
 	MenubarMorph closeAll.
 	MenubarMorph new
 		menuBarItems: RMapMorph menubarSpec items;
-		open
+		open.
+	RMapMorph openURL
 ]
