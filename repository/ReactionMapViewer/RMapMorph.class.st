@@ -796,22 +796,22 @@ RMapMorph >> changed: aSymbol [
 
 { #category : #'event handling' }
 RMapMorph >> click: anEvent [
+
 	| newHoverVertex minDist handPosition handRect |
 	newHoverVertex := nil.
 	minDist := 64.
 	handPosition := anEvent position - self position.
 	handRect := handPosition - (32 @ 32) extent: 64 @ 64.
-	self
-		effectiveVerticesDo: [ :vertex | 
-			(handRect containsPoint: vertex layoutPosition)
-				ifTrue: [ | d |
-					d := vertex layoutPosition dist: handPosition.
-					d < minDist
-						ifTrue: [ minDist := d.
-							newHoverVertex := vertex ] ] ].
+	self effectiveVerticesDo: [ :vertex | 
+		(handRect containsPoint: vertex layoutPosition) ifTrue: [ 
+			| d |
+			d := vertex layoutPosition distanceTo: handPosition.
+			d < minDist ifTrue: [ 
+				minDist := d.
+				newHoverVertex := vertex ] ] ].
 	hoverVertex := newHoverVertex == hoverVertex
-		ifTrue: [ nil ]
-		ifFalse: [ newHoverVertex ].
+		               ifTrue: [ nil ]
+		               ifFalse: [ newHoverVertex ].
 	self changed
 ]
 
@@ -1639,112 +1639,109 @@ RMapMorph >> pathSorter [
 
 { #category : #'user interface' }
 RMapMorph >> pathSorterMorph [
+
 	| morph |
 	morph := Morph new.
 	morph color: Smalltalk ui theme settings windowColor.
 	morph changeProportionalLayout.
 	morph
-		addMorph:
-			(PluggableButtonMorph
-				on: self
-				getState: #isDeltaEnergyPathSorter
-				action: #setDeltaEnergyPathSorter
-				label: #deltaEnergyPathSorter)
-		fullFrame:
-			(LayoutFrame identity
-				rightFraction: 0.15;
-				yourself).
+		addMorph: (PluggableButtonMorph
+				 on: self
+				 getState: #isDeltaEnergyPathSorter
+				 action: #setDeltaEnergyPathSorter
+				 label: #deltaEnergyPathSorter)
+		fullFrame: (LayoutFrame identity
+				 rightFraction: 0.15;
+				 yourself).
 	morph
-		addMorph:
-			(PluggableButtonMorph
-				on: self
-				getState: #isEnergyPathSorter
-				action: #setEnergyPathSorter
-				label: #energyPathSorter)
-		fullFrame:
-			(LayoutFrame identity
-				leftFraction: 0.15;
-				rightFraction: 0.3;
-				yourself).
+		addMorph: (PluggableButtonMorph
+				 on: self
+				 getState: #isEnergyPathSorter
+				 action: #setEnergyPathSorter
+				 label: #energyPathSorter)
+		fullFrame: (LayoutFrame identity
+				 leftFraction: 0.15;
+				 rightFraction: 0.3;
+				 yourself).
 	morph
-		addMorph:
-			(PluggableButtonMorph
-				on: self
-				getState: #isHopsPathSorter
-				action: #setHopsPathSorter
-				label: #hopsPathSorter)
-		fullFrame:
-			(LayoutFrame identity
-				leftFraction: 0.3;
-				rightFraction: 0.45;
-				yourself).
+		addMorph: (PluggableButtonMorph
+				 on: self
+				 getState: #isHopsPathSorter
+				 action: #setHopsPathSorter
+				 label: #hopsPathSorter)
+		fullFrame: (LayoutFrame identity
+				 leftFraction: 0.3;
+				 rightFraction: 0.45;
+				 yourself).
 	morph
-		addMorph:
-			(PluggableButtonMorph
-				on: self
-				getState: #isShortestOnly
-				action: #toggleShortestOnly
-				label: #shortestOnlyLabel)
-		fullFrame:
-			(LayoutFrame identity
-				leftFraction: 0.45;
-				rightFraction: 0.6;
-				yourself).
+		addMorph: (PluggableButtonMorph
+				 on: self
+				 getState: #isShortestOnly
+				 action: #toggleShortestOnly
+				 label: #shortestOnlyLabel)
+		fullFrame: (LayoutFrame identity
+				 leftFraction: 0.45;
+				 rightFraction: 0.6;
+				 yourself).
 	morph
 		addMorph: (RMapLabelMorph contents: 'search depth')
-		fullFrame:
-			(LayoutFrame identity
-				leftFraction: 0.65;
-				rightFraction: 0.75;
-				yourself).
+		fullFrame: (LayoutFrame identity
+				 leftFraction: 0.65;
+				 rightFraction: 0.75;
+				 yourself).
 	morph
-		addMorph:
-			((PluggableTextFieldMorph on: self text: #maxNumberOfHops accept: #maxNumberOfHops:)
-				convertTo: Integer;
-				acceptOnFocusChange: true;
-				wrapFlag: false;
-				acceptOnCR: true;
-				hideScrollBarsIndefinitely: true;
-				ghostText: 'max # hops';
-				backgroundColor: Color white;
-				yourself)
-		fullFrame:
-			(LayoutFrame identity
-				leftFraction: 0.75;
-				rightFraction: 0.80;
-				yourself).
+		addMorph: (RubPluggableTextFieldMorph new
+				 on: self
+				 text: #maxNumberOfHops
+				 accept: #maxNumberOfHops:
+				 readSelection: nil
+				 menu: nil;
+				 convertTo: Integer;
+				 wrapFlag: false;
+				 acceptOnCR: true;
+				 vScrollbarShowNever;
+				 ghostText: 'max # hops';
+				 backgroundColor: Color white;
+				 yourself)
+		fullFrame: (LayoutFrame identity
+				 leftFraction: 0.75;
+				 rightFraction: 0.80;
+				 yourself).
 	morph
 		addMorph: (RMapLabelMorph contents: 'search results')
-		fullFrame:
-			(LayoutFrame identity
-				leftFraction: 0.80;
-				rightFraction: 0.90;
-				yourself).
+		fullFrame: (LayoutFrame identity
+				 leftFraction: 0.80;
+				 rightFraction: 0.90;
+				 yourself).
+	morph
+		addMorph: (RubPluggableTextFieldMorph new
+				 on: self
+				 text: #maxNumberOfPaths
+				 accept: #maxNumberOfPaths:
+				 readSelection: nil
+				 menu: nil;
+				 convertTo: Integer;
+				 wrapFlag: false;
+				 acceptOnCR: true;
+				 vScrollbarShowNever;
+				 ghostText: 'max # paths';
+				 backgroundColor: Color white;
+				 yourself)
+		fullFrame: (LayoutFrame identity
+				 leftFraction: 0.90;
+				 rightFraction: 0.95;
+				 yourself).
 	morph
 		addMorph:
-			((PluggableTextFieldMorph on: self text: #maxNumberOfPaths accept: #maxNumberOfPaths:)
-				convertTo: Integer;
-				acceptOnFocusChange: true;
-				wrapFlag: false;
-				acceptOnCR: true;
-				hideScrollBarsIndefinitely: true;
-				ghostText: 'max # paths';
-				backgroundColor: Color white;
-				yourself)
-		fullFrame:
-			(LayoutFrame identity
-				leftFraction: 0.90;
-				rightFraction: 0.95;
-				yourself).
-	morph
-		addMorph:
-			((PluggableButtonMorph on: self getState: nil action: #savePathsAsCVS)
-				label: 'Save';
-				yourself)
-		fullFrame:
-			(LayoutFrame identity
-				leftFraction: 0.95;
-				yourself).
+			((PluggableButtonMorph
+				  on: self
+				  getState: nil
+				  action: #savePathsAsCVS)
+				 label: 'Save';
+				 yourself)
+		fullFrame: (LayoutFrame identity
+				 leftFraction: 0.95;
+				 yourself).
 	^ morph
 ]
 
@@ -1940,16 +1937,22 @@ RMapMorph >> search: anArrayOfRMapVertex score: aNumber into: aSortedCollection 
 
 { #category : #'user interface' }
 RMapMorph >> searchBox [
-	|  holder entryField |
+
+	| holder entryField |
 	holder := ValueHolder new.
-	entryField := PluggableTextFieldMorph on: holder text: #contents accept: #contents:.
+	entryField := RubPluggableTextFieldMorph new
+		              on: holder
+		              text: #contents
+		              accept: #contents:
+		              readSelection: nil
+		              menu: nil.
 	entryField autoAccept: true.
 	entryField alwaysAccept: true.
 	entryField acceptOnCR: true.
-	entryField acceptOnFocusChange: true.
-	entryField styled: false.
-	entryField hideVScrollBarIndefinitely: true.
-	entryField crAction: [:t | self search: t asString. entryField hasUnacceptedEdits: false ].
+	entryField vScrollbarShowNever.
+	entryField crAction: [ :t | 
+		self search: t asString.
+		entryField hasUnacceptedEdits: false ].
 	^ entryField
 ]
 
@@ -2224,12 +2227,17 @@ RMapMorph >> visibleEnergyRangeMax: aNumber [
 
 { #category : #'user interface' }
 RMapMorph >> visibleEnergyRangeMaxFieldMorph [
+
 	| morph |
-	morph := PluggableTextFieldMorph on: self text: #visibleEnergyRangeMax accept: #visibleEnergyRangeMax:.
+	morph := RubPluggableTextFieldMorph new
+		         on: self
+		         text: #visibleEnergyRangeMax
+		         accept: #visibleEnergyRangeMax:
+		         readSelection: nil
+		         menu: nil.
 	morph convertTo: Number.
-	morph acceptOnFocusChange: true.
 	morph wrapFlag: false.
-	morph hideScrollBarsIndefinitely: true.
+	morph vScrollbarShowNever.
 	morph acceptOnCR: true.
 	^ morph
 ]
@@ -2247,12 +2255,17 @@ RMapMorph >> visibleEnergyRangeMin: aNumber [
 
 { #category : #'user interface' }
 RMapMorph >> visibleEnergyRangeMinFieldMorph [
+
 	| morph |
-	morph := PluggableTextFieldMorph on: self text: #visibleEnergyRangeMin accept: #visibleEnergyRangeMin:.
+	morph := RubPluggableTextFieldMorph new
+		         on: self
+		         text: #visibleEnergyRangeMin
+		         accept: #visibleEnergyRangeMin:
+		         readSelection: nil
+		         menu: nil.
 	morph convertTo: Number.
-	morph acceptOnFocusChange: true.
 	morph wrapFlag: false.
-	morph hideScrollBarsIndefinitely: true.
+	morph vScrollbarShowNever.
 	morph acceptOnCR: true.
 	^ morph
 ]
