@@ -9,7 +9,7 @@ Class {
 		'hoverHop',
 		'hoverPoint'
 	],
-	#category : 'ReactionMapViewer-Morphs'
+	#category : #'ReactionMapViewer-Morphs'
 }
 
 { #category : #'instance creation' }
@@ -115,18 +115,22 @@ RMapEnergyTreeMorph >> drawHoverVertex: anRMapVertex hop: anInteger on: aCanvas 
 
 { #category : #drawing }
 RMapEnergyTreeMorph >> drawOn: aCanvas [
+
 	aCanvas fillRectangle: self bounds color: Color white.
 	hoverError := TextStyle defaultFont height.
 	hoverHop := nil.
-	hoverPoint := self globalPointToLocal: ActiveHand position.
-	(self yAtEnergy: rmapMorph visibleEnergyRangeMax)
-		in: [ :y | aCanvas line: self left @ y to: self right @ y color: Color red ].
-	(self yAtEnergy: rmapMorph visibleEnergyRangeMin)
-		in: [ :y | aCanvas line: self left @ y to: self right @ y color: Color red ].
+	hoverPoint := self globalPointToLocal: World activeHand position.
+	(self yAtEnergy: rmapMorph visibleEnergyRangeMax) in: [ :y | 
+		aCanvas line: self left @ y to: self right @ y color: Color red ].
+	(self yAtEnergy: rmapMorph visibleEnergyRangeMin) in: [ :y | 
+		aCanvas line: self left @ y to: self right @ y color: Color red ].
 	rmapMorph paths
 		ifEmpty: [ self drawHopsOn: aCanvas color: Color lightGray ]
 		ifNotEmpty: [ self drawPathsOn: aCanvas color: Color black ].
-	hoverHop ifNotNil: [ self drawHoverVertex: hoverVertex hop: hoverHop on: aCanvas ] ifNil: [ hoverVertex := nil ]
+	hoverHop
+		ifNotNil: [ 
+		self drawHoverVertex: hoverVertex hop: hoverHop on: aCanvas ]
+		ifNil: [ hoverVertex := nil ]
 ]
 
 { #category : #drawing }
@@ -278,7 +282,7 @@ RMapEnergyTreeMorph >> setRMapMorph: anRMapMorph [
 
 { #category : #'stepping and presenter' }
 RMapEnergyTreeMorph >> step [
-	(self owner bounds containsPoint: ActiveHand position)
+	(self owner bounds containsPoint: World activeHand position)
 		ifTrue: [ self changed ]
 ]
 
