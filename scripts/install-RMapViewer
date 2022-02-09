@@ -1,0 +1,12 @@
+#!/bin/bash
+mkdir RMapViewer
+cd RMapViewer
+curl -k -L https://get.pharo.org/64/90+vm | bash
+./pharo Pharo.image metacello install github://ReactionMap/RMapViewer:main BaselineOfRMapViewer
+cat <<EOF > rmapviewer
+#!/bin/bash
+cd \$(dirname \$0)
+./pharo-ui Pharo.image
+EOF
+chmod a+rx rmapviewer
+echo "install done. please add "$PWD" to your PATH env var."
