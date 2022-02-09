@@ -505,71 +505,89 @@ RMapMorph >> addVertex: anRMapVertex [
 
 { #category : #menu }
 RMapMorph >> addVertexMenu: aMenu [
+
 	hoverVertex
-		ifNil: [ aMenu addTitle: 'RMap'.
+		ifNil: [ 
+			aMenu addTitle: 'RMap'.
 			(aMenu
-				add: 'show GRRM run params' translated
-				target: self
-				selector: #showGRRM) enabled: grrm notNil ]
-		ifNotNil: [ :v | 
-			aMenu addTitle: v label.
-			aMenu
-				add: 'rotate left' target: self selector: #rotateModelLeft;
-				add: 'rotate right' target: self selector: #rotateModelRight;
-				add: 'rotate up' target: self selector: #rotateModelUp;
-				add: 'rotate down' target: self selector: #rotateModelDown;
-				addLine.
-			(pathQuery includes: v)
-				ifTrue: [ aMenu
-						add: 'unselect' translated
-						target: self
-						selector: #unselect:
-						argument: v ].
-			(pathQuery freeList includes: v)
-				ifFalse: [ aMenu
-						add: 'select' translated
-						target: self
-						selector: #addSelection:
-						argument: v ].
-			(pathQuery reactantList includes: v)
-				ifFalse: [ aMenu
-						add: 'reactant' translated
-						target: self
-						selector: #addReactant:
-						argument: v ].
-			(pathQuery productList includes: v)
-				ifFalse: [ aMenu
-						add: 'product' translated
-						target: self
-						selector: #addProduct:
-						argument: v ].
-			aMenu
-				addLine;
-				add: 'open info' translated target: v selector: #openInfo;
-				add: 'open in 3D viewer' translated target: v selector: #openJmol;
-				add: 'open measure viewer' translated
-					target: v
-					selector: #openMeasureViewer ].
+				 add: 'show GRRM run params' translated
+				 target: self
+				 selector: #showGRRM) enabled: grrm notNil ]
+		ifNotNil: [ :v | self addVertexMenu: aMenu on: v ].
+	aMenu
+		addLine;
+		add: 'inspect' translated target: self selector: #inspect.
 	aMenu
 		addLine;
 		add: 'open tree map' translated
+		target: self
+		selector: #openTreeViewer.
+	(Smalltalk includesKey: #RMapServer) ifTrue: [ 
+		aMenu
+			addLine;
+			add: 'load from local server' translated
 			target: self
-			selector: #openTreeViewer.
-	(Smalltalk includesKey: #RMapServer)
-		ifTrue: [ aMenu
-				addLine;
-				add: 'load from local server' translated
-					target: self
-					selector: #loadFromLocalServer;
-				add: 'store to local server' translated
-					target: self
-					selector: #storeToLocalServer ].
-	(Smalltalk includesKey: #RMapClient)
-		ifTrue: [ aMenu
-				addLine;
-				add: 'load from server' translated
-					target: self
-					selector: #loadFromServer ].
+			selector: #loadFromLocalServer;
+			add: 'store to local server' translated
+			target: self
+			selector: #storeToLocalServer ].
+	(Smalltalk includesKey: #RMapClient) ifTrue: [ 
+		aMenu
+			addLine;
+			add: 'load from server' translated
+			target: self
+			selector: #loadFromServer ].
+	^ aMenu
+]
+
+{ #category : #menu }
+RMapMorph >> addVertexMenu: aMenu on: aRMapVertex [
+
+	aRMapVertex ifNotNil: [ :v | 
+		aMenu addTitle: v label.
+		aMenu
+			add: 'rotate left' target: self selector: #rotateModelLeft;
+			add: 'rotate right' target: self selector: #rotateModelRight;
+			add: 'rotate up' target: self selector: #rotateModelUp;
+			add: 'rotate down' target: self selector: #rotateModelDown;
+			addLine.
+		(pathQuery includes: v) ifTrue: [ 
+			aMenu
+				add: 'unselect' translated
+				target: self
+				selector: #unselect:
+				argument: v ].
+		(pathQuery freeList includes: v) ifFalse: [ 
+			aMenu
+				add: 'select' translated
+				target: self
+				selector: #addSelection:
+				argument: v ].
+		(pathQuery reactantList includes: v) ifFalse: [ 
+			aMenu
+				add: 'reactant' translated
+				target: self
+				selector: #addReactant:
+				argument: v ].
+		(pathQuery productList includes: v) ifFalse: [ 
+			aMenu
+				add: 'product' translated
+				target: self
+				selector: #addProduct:
+				argument: v ].
+		aMenu
+			addLine;
+			add: 'open distance list' translated
+			target: self
+			selector: #openDistanceList:
+			argument: v.
+		aMenu
+			addLine;
+			add: 'open info' translated target: v selector: #openInfo;
+			add: 'open in 3D viewer' translated target: v selector: #openJmol;
+			add: 'open measure viewer' translated
+			target: v
+			selector: #openMeasureViewer ].
 	^ aMenu
 ]
 
@@ -1489,6 +1507,15 @@ RMapMorph >> openAnimationOnPath [
 			((RMapMotionMoleculeViewer on: motionMolecule)
 				indexChangedAction: [ :index | profile moleculeIndex: index ];
 				openInWindow) bounds: (0 @ self worldTop extent: 300 @ 400) ]
+]
+
+{ #category : #'user interface' }
+RMapMorph >> openDistanceList: aRMapVertex [
+
+	RMapDistanceDataSource
+		openOn: aRMapVertex
+		withAll: vertices
+		rmap: self
 ]
 
 { #category : #'user interface' }
