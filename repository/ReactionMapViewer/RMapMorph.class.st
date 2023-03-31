@@ -1894,7 +1894,6 @@ RMapMorph >> savePathsAsCVS [
 		ifNotNil: [ :fileReference | 
 			fileReference
 				writeStreamDo: [ :stream | 
-					stream ascii.
 					paths
 						do: [ :path | stream nextPutAll: (self cvsForPath: path) ]
 						separatedBy: [ stream lf ] ] ]
