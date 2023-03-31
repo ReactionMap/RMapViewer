@@ -10,8 +10,8 @@ Class {
 	#category : #'ReactionMapViewer-Client'
 }
 
-{ #category : #specs }
-RMapPreview class >> defaultSpec [
+{ #category : #layout }
+RMapPreview class >> defaultLayout [
 
 	<script:
 	'RMapPreview new openDialogWithSpec title: ''Vertex Preview'''>

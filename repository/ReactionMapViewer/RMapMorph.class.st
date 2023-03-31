@@ -325,7 +325,8 @@ RMapMorph class >> openFile [
 
 { #category : #operations }
 RMapMorph class >> openURL [
-	RMapClient new openWithSpec
+
+	RMapClient new open
 ]
 
 { #category : #'*ReactionMapViewer-GRRMImport' }

@@ -11,8 +11,8 @@ Class {
 	#category : #'ReactionMapViewer-Client'
 }
 
-{ #category : #specs }
-RMapQuery class >> defaultSpec [
+{ #category : #layout }
+RMapQuery class >> defaultLayout [
 
 	<script:
 	'RMapQuery new openDialogWithSpec title: ''RMapServer query'''>

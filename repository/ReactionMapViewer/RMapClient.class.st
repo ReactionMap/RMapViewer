@@ -13,8 +13,8 @@ Class {
 	#category : #'ReactionMapViewer-Client'
 }
 
-{ #category : #specs }
-RMapClient class >> defaultSpec [
+{ #category : #layout }
+RMapClient class >> defaultLayout [
 
 	<script: 'RMapClient new openWithSpec title: ''RMapClient'''>
 	<spec>
