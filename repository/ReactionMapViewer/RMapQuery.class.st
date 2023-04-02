@@ -1,6 +1,6 @@
 Class {
 	#name : #RMapQuery,
-	#superclass : #ComposablePresenter,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'nameField',
 		'commandField',
@@ -11,31 +11,24 @@ Class {
 	#category : #'ReactionMapViewer-Client'
 }
 
-{ #category : #specs }
-RMapQuery class >> defaultSpec [
-	<script: 'RMapQuery new openDialogWithSpec title: ''RMapServer query'''>
+{ #category : #layout }
+RMapQuery class >> defaultLayout [
+
+	<script:
+	'RMapQuery new openDialogWithSpec title: ''RMapServer query'''>
 	<spec>
-	^ SpecLayout composed
-		newColumn: [ :c | 
-					c
-						newRow: [ :r | 
-									r
-										add: #nameField;
-										yourself ]
-							height: 20;
-						newRow: [ :r | 
-									r
-										add: #commandField;
-										add: #methodField;
-										add: #basisField;
-										yourself ]
-							height: 20;
-						newRow: [ :r | 
-									r
-										add: #compositionTable;
-										yourself ] ]
-			width: 300;
-		yourself
+	^ SpBoxLayout newHorizontal
+		  add: (SpBoxLayout newVertical
+				   add: #nameField expand: false;
+				   add: (SpBoxLayout newHorizontal
+						    add: #commandField;
+						    add: #methodField;
+						    add: #basisField;
+						    yourself)
+				   expand: false;
+				   add: #compositionTable;
+				   yourself)
+		  width: 300
 ]
 
 { #category : #menus }
@@ -67,14 +60,27 @@ RMapQuery >> commandField: anObject [
 ]
 
 { #category : #menus }
-RMapQuery >> compositionMenu: aMenu shifted: aBoolean [
+RMapQuery >> compositionMenu [
+
+	| menu |
+	menu := self newMenu.
 	self compositionTable selectedItem
-		ifNil: [ aMenu add: 'add' target: self selector: #addElementInComposition ]
+		ifNil: [ 
+			menu addItem: [ :item | 
+				item
+					name: 'add';
+					action: [ self addElementInComposition ] ] ]
 		ifNotNil: [ 
-			aMenu
-				add: 'set quantity' target: self selector: #setQuantityInComposition;
-				add: 'remove' target: self selector: #removeElementInComposition ].
-	^ aMenu
+			menu
+				addItem: [ :item | 
+					item
+						name: 'set quantity';
+						action: [ self selector: #setQuantityInComposition ] ];
+				addItem: [ :item | 
+					item
+						name: 'remove';
+						action: [ self selector: #removeElementInComposition ] ] ].
+	^ menu
 ]
 
 { #category : #accessing }
@@ -88,44 +94,45 @@ RMapQuery >> compositionTable: anObject [
 ]
 
 { #category : #initialization }
-RMapQuery >> initializeWidgets [
+RMapQuery >> initializePresenters [
+
 	nameField := self newTextInput.
 	nameField removeEntryCompletion.
-	nameField ghostText: 'Name of reaction map'.
+	nameField placeholder: 'Name of reaction map'.
 	nameField autoAccept: true.
 	commandField := self newTextInput.
 	commandField removeEntryCompletion.
-	commandField ghostText: 'grrm command'.
+	commandField placeholder: 'grrm command'.
 	commandField autoAccept: true.
 	methodField := self newTextInput.
 	methodField removeEntryCompletion.
-	methodField ghostText: 'method'.
+	methodField placeholder: 'method'.
 	methodField autoAccept: true.
 	basisField := self newTextInput.
 	basisField removeEntryCompletion.
-	basisField ghostText: 'basis'.
+	basisField placeholder: 'basis'.
 	basisField autoAccept: true.
-	compositionTable := self newMultiColumnList.
+	compositionTable := self newTable.
 	compositionTable
-		displayBlock: [ :assoc | 
-			{(assoc key).
-			(assoc value)} ].
+		hideColumnHeaders;
+		addColumn: (SpStringTableColumn evaluated: #key);
+		addColumn: (SpStringTableColumn evaluated: #value).
 	compositionTable
 		sortingBlock: [ :less :more | 
-					(#('C' 'H' 'O') includes: less key)
-						ifTrue: [ 
-							(#('C' 'H' 'O') includes: more key)
-								ifTrue: [ less key <= more key ]
-								ifFalse: [ true ] ]
-						ifFalse: [ 
-							(#('C' 'H' 'O') includes: more key)
-								ifTrue: [ false ]
-								ifFalse: [ less key <= more key ] ] ];
-		items:
-				{('C' -> '').
-					('H' -> '').
-					('O' -> '')};
-		menu: [ :m :s | self compositionMenu: m shifted: s ]
+			(#( 'C' 'H' 'O' ) includes: less key)
+				ifTrue: [ 
+					(#( 'C' 'H' 'O' ) includes: more key)
+						ifTrue: [ less key <= more key ]
+						ifFalse: [ true ] ]
+				ifFalse: [ 
+					(#( 'C' 'H' 'O' ) includes: more key)
+						ifTrue: [ false ]
+						ifFalse: [ less key <= more key ] ] ];
+		items: { 
+				('C' -> '').
+				('H' -> '').
+				('O' -> '') };
+		contextMenu: [ self compositionMenu ]
 ]
 
 { #category : #accessing }
@@ -150,16 +157,21 @@ RMapQuery >> nameField: anObject [
 
 { #category : #accessing }
 RMapQuery >> query [
+
 	| meta |
 	meta := Dictionary new.
-	nameField getText asString trim ifNotEmpty: [ :name | meta at: 'name' put: name ].
-	commandField getText asString trim ifNotEmpty: [ :command | meta at: 'command1' put: command ].
-	methodField getText asString trim ifNotEmpty: [ :method | meta at: 'command2' put: method ].
-	basisField getText asString trim ifNotEmpty: [ :basis | meta at: 'command3' put: basis ].
-	compositionTable getList
-		do: [ :assoc | 
-			assoc key asString trim
-				ifNotEmpty: [ :element | assoc value asString trim ifNotEmpty: [ :num | meta at: 'atoms.' , element put: num ] ] ].
+	nameField text asString trim ifNotEmpty: [ :name | 
+		meta at: 'name' put: name ].
+	commandField text asString trim ifNotEmpty: [ :command | 
+		meta at: 'command1' put: command ].
+	methodField text asString trim ifNotEmpty: [ :method | 
+		meta at: 'command2' put: method ].
+	basisField text asString trim ifNotEmpty: [ :basis | 
+		meta at: 'command3' put: basis ].
+	compositionTable items do: [ :assoc | 
+		assoc key asString trim ifNotEmpty: [ :element | 
+			assoc value asString trim ifNotEmpty: [ :num | 
+				meta at: 'atoms.' , element put: num ] ] ].
 	^ meta
 ]
 

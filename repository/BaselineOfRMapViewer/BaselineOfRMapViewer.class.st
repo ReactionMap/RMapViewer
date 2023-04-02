@@ -17,17 +17,19 @@ BaselineOfRMapViewer >> baseline: spec [
 			baseline: 'GRMSD'
 			with: [ 
 			spec repository: 'github://ReactionMap/GRMSD-Pharo:main/src' ];
-			baseline: 'Roassal2' with: [ 
-			spec
-				loads: 'NoGlamour';
-				repository: 'github://ObjectProfile/Roassal2/src' ];
+			baseline: 'Roassal3'
+			with: [ spec repository: 'github://ObjectProfile/Roassal3:v1.0' ];
+			baseline: 'Roassal3Exporters'
+			with: [ 
+			spec repository: 'github://ObjectProfile/Roassal3Exporters' ];
 			baseline: 'NeoJSON'
 			with: [ spec repository: 'github://svenvc/NeoJSON/repository' ];
 			baseline: 'PolyMath'
 			with: [ spec repository: 'github://PolyMathOrg/PolyMath/src' ];
-			package: 'ReactionMapViewer'
-			with: [ 
-			spec requires: #( 'Jun' 'NeoJSON' 'Roassal2' 'PolyMath' 'GRMSD' ) ];
+			package: 'ReactionMapViewer' with: [ 
+			spec requires:
+				#( 'Jun' 'NeoJSON' 'Roassal3' 'Roassal3Exporters'
+				   'PolyMath' 'GRMSD' ) ];
 			postLoadDoIt: #postLoad;
 			yourself.
 		spec

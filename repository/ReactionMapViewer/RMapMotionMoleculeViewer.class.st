@@ -1,6 +1,6 @@
 Class {
 	#name : #RMapMotionMoleculeViewer,
-	#superclass : #MorphicModel,
+	#superclass : #ModelMorph,
 	#instVars : [
 		'motionMolecule',
 		'moleculeIndex',
@@ -19,7 +19,7 @@ Class {
 		'playIcon',
 		'emptyIcon'
 	],
-	#category : 'ReactionMapViewer-Morphs'
+	#category : #'ReactionMapViewer-Morphs'
 }
 
 { #category : #'instance creation' }

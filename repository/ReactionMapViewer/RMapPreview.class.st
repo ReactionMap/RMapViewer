@@ -1,6 +1,6 @@
 Class {
 	#name : #RMapPreview,
-	#superclass : #ComposablePresenter,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'nameLabel',
 		'componentsLabel',
@@ -10,18 +10,17 @@ Class {
 	#category : #'ReactionMapViewer-Client'
 }
 
-{ #category : #specs }
-RMapPreview class >> defaultSpec [
-	<script: 'RMapPreview new openDialogWithSpec title: ''Vertex Preview'''>
+{ #category : #layout }
+RMapPreview class >> defaultLayout [
+
+	<script:
+	'RMapPreview new openDialogWithSpec title: ''Vertex Preview'''>
 	<spec>
-	^ SpecLayout composed
-		newColumn: [ :c | 
-					c
-						add: #nameLabel height: 20;
-						add: #componentsLabel height: 20;
-						add: #vertexList;
-						yourself ];
-		yourself
+	^ SpBoxLayout newVertical
+		  add: #nameLabel expand: false;
+		  add: #componentsLabel expand: false;
+		  add: #vertexList;
+		  yourself
 ]
 
 { #category : #accessing }
@@ -35,14 +34,19 @@ RMapPreview >> componentsLabel: anObject [
 ]
 
 { #category : #initialization }
-RMapPreview >> initializeWidgets [
+RMapPreview >> initializePresenters [
+
 	nameLabel := self newLabel.
 	componentsLabel := self newLabel.
-	vertexList := self newIconList
-		displayBlock: [ :vertex | vertex label , ' ' , vertex kJpermolAboveBaselineString ];
-		icons: [ :vertex | vertex asFormExtent: 100 @ 100 ];
-		whenSelectedItemChanged: [ :vertex | vertex ifNotNil: #openJmol];
-		yourself.
+	vertexList := self newList
+		              display: [ :vertex | 
+			              vertex label , ' '
+			              , vertex kJpermolAboveBaselineString ];
+		              displayIcon: [ :vertex | 
+			              vertex asFormExtent: 100 @ 100 ];
+		              whenSelectionChangedDo: [ 
+			              vertexList selectedItem ifNotNil: #openJmol ];
+		              yourself.
 	self updateRMap
 ]
 
@@ -69,23 +73,25 @@ RMapPreview >> rmap: aDictionary [
 
 { #category : #private }
 RMapPreview >> updateRMap [
+
 	| meta vertices |
-	(rmap isNil or: [ (rmap includesKey: 'meta') not ])
-		ifTrue: [ 
-			self nameLabel label: '-'.
-			self componentsLabel label: '-'.
-			self vertexList
-				items: Array new;
-				resetSelection.
-			^ self ].
+	(rmap isNil or: [ (rmap includesKey: 'meta') not ]) ifTrue: [ 
+		self nameLabel label: '-'.
+		self componentsLabel label: '-'.
+		self vertexList
+			items: Array new;
+			unselectAll.
+		^ self ].
 	meta := rmap at: 'meta'.
 	self nameLabel label: (meta at: 'name' ifAbsent: [ '' ]).
-	self componentsLabel
-		label:
-			(meta at: 'numEQ' ifAbsent: [ 0 ]) asString , ' EQs, ' , (meta at: 'numTS' ifAbsent: [ 0 ]) asString , ' TSs, '
-				, (meta at: 'numDC' ifAbsent: [ 0 ]) asString , ' DCs'.
-	vertices := (meta at: 'stableEQs') collect: [ :json | RMapVertex fromJson: json ].
-	vertices do: [ :vertex | vertex baselineEnergy: vertices first energy ].
+	self componentsLabel label:
+		(meta at: 'numEQ' ifAbsent: [ 0 ]) asString , ' EQs, '
+		, (meta at: 'numTS' ifAbsent: [ 0 ]) asString , ' TSs, '
+		, (meta at: 'numDC' ifAbsent: [ 0 ]) asString , ' DCs'.
+	vertices := (meta at: 'stableEQs') collect: [ :json | 
+		            RMapVertex fromJson: json ].
+	vertices do: [ :vertex | 
+		vertex baselineEnergy: vertices first energy ].
 	self vertexList
 		items: vertices;
 		resetSelection

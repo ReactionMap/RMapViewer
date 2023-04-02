@@ -1,6 +1,6 @@
 Class {
 	#name : #RMapClient,
-	#superclass : #ComposablePresenter,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'urlField',
 		'queryModel',
@@ -13,31 +13,24 @@ Class {
 	#category : #'ReactionMapViewer-Client'
 }
 
-{ #category : #specs }
-RMapClient class >> defaultSpec [
+{ #category : #layout }
+RMapClient class >> defaultLayout [
+
 	<script: 'RMapClient new openWithSpec title: ''RMapClient'''>
 	<spec>
-	^ SpecLayout composed
-		newRow: [ :row | 
-					row
-						newColumn: [ :c | 
-									c
-										add: #urlField height: 20;
-										add: #queryModel;
-										add: #searchButton height: 25;
-										yourself ]
-							width: 300;
-						newColumn: [ :c | 
-									c
-										add: #rmapList;
-										yourself ]
-							width: 300;
-						newColumn: [ :c | 
-									c
-										add: #rmapModel;
-										add: #openButton height: 25;
-										yourself ] ];
-		yourself
+	^ SpBoxLayout newHorizontal
+		  add: (SpBoxLayout newVertical
+				   add: #urlField expand: false;
+				   add: #queryModel;
+				   add: #searchButton expand: false;
+				   yourself)
+		  width: 300;
+		  add: #rmapList width: 300;
+		  add: (SpBoxLayout newVertical
+				   add: #rmapModel;
+				   add: #openButton expand: false;
+				   yourself);
+		  yourself
 ]
 
 { #category : #'instance creation' }
@@ -82,35 +75,32 @@ RMapClient >> initialExtent [
 ]
 
 { #category : #initialization }
-RMapClient >> initializePresenter [
-	rmapList whenSelectedItemChanged: [ :rmap | self selectRMap: rmap ]
-]
+RMapClient >> initializePresenters [
 
-{ #category : #initialization }
-RMapClient >> initializeWidgets [
 	urlField := self newTextInput
-		text: 'http://www.reactionroutemap.com/rmapserver/';
-		removeEntryCompletion;
-		ghostText: 'Server URL';
-		autoAccept: true;
-		yourself.
+		            text: 'http://www.reactionroutemap.com/rmapserver/';
+		            removeEntryCompletion;
+		            placeholder: 'Server URL';
+		            autoAccept: true;
+		            yourself.
 	queryModel := self newQueryModel.
 	searchButton := self newButton
-		label: 'Search';
-		action: [ self search ];
-		yourself.
+		                label: 'Search';
+		                action: [ self search ];
+		                yourself.
 	rmapList := self newList
-		displayBlock: [ :json | (json at: 'meta') at: 'name' ];
-		yourself.
+		            display: [ :json | (json at: 'meta') at: 'name' ];
+		            yourself.
 	rmapModel := self newPreviewModel
-		rmap: nil;
-		yourself.
+		             rmap: nil;
+		             yourself.
 	openButton := self newButton
-		label: 'Open';
-		action: [ self openRMap ];
-		disable;
-		yourself.
-	self title: 'ReactionMap Locator'
+		              label: 'Open';
+		              action: [ self openRMap ];
+		              disable;
+		              yourself.
+	rmapList whenSelectionChangedDo: [ 
+		self selectRMap: rmapList selectedItem ]
 ]
 
 { #category : #widgets }
@@ -217,6 +207,12 @@ RMapClient >> searchButton: anObject [
 RMapClient >> selectRMap: aDictionary [
 	openButton enabled: aDictionary notNil.
 	rmapModel rmap: aDictionary
+]
+
+{ #category : #accessing }
+RMapClient >> title [
+
+	^ 'ReactionMap Locator'
 ]
 
 { #category : #accessing }
