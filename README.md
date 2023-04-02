@@ -2,13 +2,14 @@
 ReactionMap viewer on Pharo Smalltalk
 
 ## Installation
-Please evaluate the following on Pharo 4.0 (downloadable from Pharo [fileserver](https://files.pharo.org/platform/))
+Please evaluate the following on Pharo 10 (downloadable from Pharo [download page](https://pharo.org/download))
 
 ```smalltalk
-Metacello new
-    repository: 'github://ReactionMap/RMapViewer/repository';
+[Metacello new
+    onConflictUseIncoming;
+    repository: 'github://tomooda/RMapViewer:pharo10/repository';
     baseline: 'RMapViewer';
-    load
+    load] on: MCMergeOrLoadWarning do: [:warning | warning load ]
 ```
 
 If you are Pharo developer, you can simply save the image.
