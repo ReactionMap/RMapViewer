@@ -17,8 +17,8 @@ BaselineOfRMapViewer >> baseline: spec [
 			baseline: 'GRMSD'
 			with: [ 
 			spec repository: 'github://ReactionMap/GRMSD-Pharo:main/src' ];
-			baseline: 'Roassal3'
-			with: [ spec repository: 'github://ObjectProfile/Roassal3:v1.0' ];
+			"baseline: 'Roassal3'
+			with: [ spec repository: 'github://ObjectProfile/Roassal3:v1.0' ];"
 			baseline: 'Roassal3Exporters'
 			with: [ 
 			spec repository: 'github://ObjectProfile/Roassal3Exporters' ];
