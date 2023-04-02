@@ -1579,37 +1579,38 @@ RMapMorph >> openScratchingBrowser [
 
 { #category : #private }
 RMapMorph >> openTreeViewer [
+
 	| topNode agenda done links extraLinks b view |
 	topNode := vertices argmin: #energy.
 	agenda := Array with: nil -> topNode.
 	done := IdentitySet new: self vertices size.
 	done add: topNode.
-	links := Array new writeStream.
-	extraLinks := Array new writeStream.
-	[ agenda notEmpty ]
-		whileTrue: [ | newAgenda |
-			newAgenda := Array new writeStream.
-			agenda
-				do: [ :assoc | 
-					| node |
-					links nextPut: assoc.
-					node := assoc value.
-					node
-						neighborsDo: [ :next | 
-							(done includes: next)
-								ifTrue: [ extraLinks nextPut: node -> next ]
-								ifFalse: [ done add: next.
-									newAgenda nextPut: node -> next ] ] ].
-			agenda := newAgenda contents ].
-	links := links contents.
-	extraLinks := extraLinks contents.
-	extraLinks := extraLinks
-		reject: [ :assoc | links includes: assoc value -> assoc key ].
+	links := OrderedCollection new: self vertices size.
+	extraLinks := OrderedCollection new: self vertices size.
+	[ agenda notEmpty ] whileTrue: [ 
+		| newAgenda |
+		newAgenda := Array new writeStream.
+		agenda do: [ :assoc | 
+			| node |
+			links add: assoc.
+			node := assoc value.
+			node neighborsDo: [ :next | 
+				(done includes: next)
+					ifTrue: [ 
+						(extraLinks includes: next -> node) ifFalse: [ 
+							extraLinks add: node -> next ] ]
+					ifFalse: [ 
+						done add: next.
+						newAgenda nextPut: node -> next ] ] ].
+		agenda := newAgenda contents ].
+	extraLinks := extraLinks reject: [ :assoc | 
+		              links includes: assoc value -> assoc key ].
 	b := RTMondrian new.
 	b shape
 		shape: (RTBitmap new form: [ :v | v model64Form ]);
 		withTextAbove: #label;
-		withTextBelow: [ :v | v kJpermol - topNode kJpermol printShowingDecimalPlaces: 2 ].
+		withTextBelow: [ :v | 
+			v kJpermol - topNode kJpermol printShowingDecimalPlaces: 2 ].
 	b nodes: (links collect: #value).
 	b shape line.
 	b edges useAssociations: links.
@@ -1620,26 +1621,23 @@ RMapMorph >> openTreeViewer [
 	b edges useAssociations: extraLinks.
 	b build.
 	view := b view.
-	view announcer
-		subscribe: TRKeyUp
-		do: [ :evt | 
-			(evt commandKeyPressed and: [ evt keyValue = 35 ])
-				ifTrue: [ (UIManager default
-						chooseForSaveFileReference: 'Export as PNG'
-						extensions: #('png')
-						path: FileLocator home fullPath
-						preview: true)
-						ifNotNil: [ :ref | 
-							RTPNGExporter new
-								builder: view;
-								fileName: ref fullName;
-								exportToFile ] ].
-			evt keyValue = 126
-				ifTrue: [ view canvas camera scale: view canvas camera scale / 0.9.
-					view canvas morph changed ].
-			evt keyValue = 125
-				ifTrue: [ view canvas camera scale: view canvas camera scale * 0.9.
-					view canvas morph changed ] ].
+	view announcer when: TRKeyUp do: [ :evt | 
+		(evt commandKeyPressed and: [ evt keyValue = 112 ]) ifTrue: [ 
+			(UIManager default
+				 chooseForSaveFileReference: 'Export as PNG'
+				 extensions: #( 'png' )
+				 path: FileLocator home fullPath
+				 preview: true) ifNotNil: [ :ref | 
+				RTPNGExporter new
+					builder: view;
+					fileName: ref fullName;
+					exportToFile ] ].
+		evt keyValue = 30 ifTrue: [ 
+			view canvas camera scale: view canvas camera scale / 0.9.
+			view canvas morph changed ].
+		evt keyValue = 31 ifTrue: [ 
+			view canvas camera scale: view canvas camera scale * 0.9.
+			view canvas morph changed ] ].
 	view openInWindowSized: self extent titled: 'Reaction Tree View'
 ]
 
