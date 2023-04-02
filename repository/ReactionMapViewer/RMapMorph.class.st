@@ -1580,7 +1580,7 @@ RMapMorph >> openScratchingBrowser [
 { #category : #private }
 RMapMorph >> openTreeViewer [
 
-	| topNode agenda done links extraLinks b view |
+	| topNode agenda done links extraLinks shapes canvas |
 	topNode := vertices argmin: #energy.
 	agenda := Array with: nil -> topNode.
 	done := IdentitySet new: self vertices size.
@@ -1597,48 +1597,54 @@ RMapMorph >> openTreeViewer [
 			node neighborsDo: [ :next | 
 				(done includes: next)
 					ifTrue: [ 
-						(extraLinks includes: next -> node) ifFalse: [ 
-							extraLinks add: node -> next ] ]
+						(extraLinks includes: node -> next) ifFalse: [ 
+							extraLinks add: next -> node ] ]
 					ifFalse: [ 
 						done add: next.
 						newAgenda nextPut: node -> next ] ] ].
 		agenda := newAgenda contents ].
 	extraLinks := extraLinks reject: [ :assoc | 
-		              links includes: assoc value -> assoc key ].
-	b := RTMondrian new.
-	b shape
-		shape: (RTBitmap new form: [ :v | v model64Form ]);
-		withTextAbove: #label;
-		withTextBelow: [ :v | 
-			v kJpermol - topNode kJpermol printShowingDecimalPlaces: 2 ].
-	b nodes: (links collect: #value).
-	b shape line.
-	b edges useAssociations: links.
-	b layout tree.
-	b shape
-		shape: RMapTreeViewBezierLine new;
-		color: (Color blue alpha: 0.5).
-	b edges useAssociations: extraLinks.
-	b build.
-	view := b view.
-	view announcer when: TRKeyUp do: [ :evt | 
-		(evt commandKeyPressed and: [ evt keyValue = 112 ]) ifTrue: [ 
+		              (links includes: assoc value -> assoc key) or: [ 
+			              links includes: assoc ] ].
+	shapes := (links collect: #value) collect: [ :v | 
+		          | contents |
+		          contents := Array
+			                      with: (RSLabel new text: v label)
+			                      with: (RSBitmap new form: v model64Form)
+			                      with: (RSLabel new text:
+					                       (v kJpermol - topNode kJpermol 
+						                        printShowingDecimalPlaces: 2)).
+		          RSVerticalLineLayout new
+			          alignCenter;
+			          on: contents.
+		          RSComposite new
+			          shapes: contents;
+			          model: v ].
+	canvas := RSCanvas new
+		          addAll: shapes;
+		          yourself.
+	RSLineBuilder line
+		withVerticalAttachPoint;
+		canvas: canvas;
+		useAssociations: links.
+	RSTreeLayout on: shapes.
+	RSLineBuilder line
+		color: (Color blue alpha: 0.5);
+		canvas: canvas;
+		useAssociations: extraLinks.
+	canvas @ RSCanvasController.
+	canvas when: RSKeyUp do: [ :evt | 
+		evt keyName = 'P' ifTrue: [ 
 			(UIManager default
 				 chooseForSaveFileReference: 'Export as PNG'
 				 extensions: #( 'png' )
 				 path: FileLocator home fullPath
 				 preview: true) ifNotNil: [ :ref | 
-				RTPNGExporter new
-					builder: view;
+				RSPNGExporter new
+					canvas: canvas;
 					fileName: ref fullName;
-					exportToFile ] ].
-		evt keyValue = 30 ifTrue: [ 
-			view canvas camera scale: view canvas camera scale / 0.9.
-			view canvas morph changed ].
-		evt keyValue = 31 ifTrue: [ 
-			view canvas camera scale: view canvas camera scale * 0.9.
-			view canvas morph changed ] ].
-	view openInWindowSized: self extent titled: 'Reaction Tree View'
+					exportToFile ] ] ].
+	(canvas openWithTitle: 'Reaction Tree View') extent: self extent
 ]
 
 { #category : #'user interface' }
