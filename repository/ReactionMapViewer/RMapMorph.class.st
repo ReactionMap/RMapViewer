@@ -1628,7 +1628,7 @@ RMapMorph >> openTreeViewer [
 		canvas: canvas;
 		useAssociations: links.
 	RSTreeLayout on: shapes.
-	RSLineBuilder line
+	RSLineBuilder horizontalBezier
 		color: (Color blue alpha: 0.5);
 		canvas: canvas;
 		useAssociations: extraLinks.
@@ -1643,7 +1643,7 @@ RMapMorph >> openTreeViewer [
 				RSPNGExporter new
 					canvas: canvas;
 					fileName: ref fullName;
-					exportToFile ] ] ].
+					export ] ] ].
 	(canvas openWithTitle: 'Reaction Tree View') extent: self extent
 ]
 
