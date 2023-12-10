@@ -78,77 +78,65 @@ RMapScratchingBrowser class >> openOn: anRMapMorph [
 	^ window
 ]
 
-{ #category : #accessing }
-RMapScratchingBrowser >> FlistSelectionAt: anInteger put: aBoolean [
-	aBoolean
-		ifTrue: [ listSelection add: anInteger ]
-		ifFalse: [ listSelection remove: anInteger ifAbsent: [  ] ]
-]
-
 { #category : #'interface building' }
 RMapScratchingBrowser >> buildOn: aMorph [
+
 	| listWidth |
 	listWidth := RMapVertexListItem width + 18.
 	aMorph changeProportionalLayout.
 	aMorph
 		addMorph: (scratcherMorph := RMapMoleculeScratcherMorph new)
-		fullFrame:
-			((0 @ 0 corner: 1 @ 1) asLayoutFrame
-				rightOffset: listWidth negated;
-				bottomOffset: -100).
+		fullFrame: ((0 @ 0 corner: 1 @ 1) asLayoutFrame
+				 rightOffset: listWidth negated;
+				 bottomOffset: -100).
 	aMorph
-		addMorph:
-			(periodicTableMorph := JunPeriodicTableMorph new
-				selectedAtom: JunCarbon;
-				action: [ :atomClass | scratcherMorph defaultAtomClass: atomClass ];
-				yourself)
-		fullFrame:
-			((0 @ 1 corner: 1 @ 1) asLayoutFrame
-				rightOffset: listWidth negated;
-				topOffset: -100).
+		addMorph: (periodicTableMorph := JunPeriodicTableMorph new
+				                       selectedAtom: JunCarbon;
+				                       action: [ :atomClass |
+					                       scratcherMorph defaultAtomClass: atomClass ];
+				                       yourself)
+		fullFrame: ((0 @ 1 corner: 1 @ 1) asLayoutFrame
+				 rightOffset: listWidth negated;
+				 topOffset: -100).
 	aMorph
-		addMorph:
-			((sortByEnergyCheckbox := CheckboxMorph
-				on: self
-				selected: #sortByEnergy
-				changeSelected: #sortByEnergy:)
-				label: 'sort by energy';
-				yourself)
-		fullFrame:
-			((1 @ 0 corner: 1 @ 0) asLayoutFrame
-				leftOffset: listWidth negated;
-				rightOffset: -150;
-				bottomOffset: 20;
-				yourself).
+		addMorph: ((sortByEnergyCheckbox := CheckboxMorph
+				                          on: self
+				                          selected: #sortByEnergy
+				                          changeSelected: #sortByEnergy:)
+				 label: 'sort by energy';
+				 yourself)
+		fullFrame: ((1 @ 0 corner: 1 @ 0) asLayoutFrame
+				 leftOffset: listWidth negated;
+				 rightOffset: -150;
+				 bottomOffset: 20;
+				 yourself).
 	aMorph
 		addMorph:
 			((searchButton := SimpleButtonMorph newWithLabel: 'Search')
-				target: self;
-				actionSelector: #search;
-				color: Color white;
-				yourself)
-		fullFrame:
-			((1 @ 0 corner: 1 @ 0) asLayoutFrame
-				leftOffset: listWidth negated // 2;
-				bottomOffset: 20;
-				yourself).
+				 target: self;
+				 actionSelector: #search;
+				 color: Color white;
+				 yourself)
+		fullFrame: ((1 @ 0 corner: 1 @ 0) asLayoutFrame
+				 leftOffset: listWidth negated // 2;
+				 bottomOffset: 20;
+				 yourself).
 	aMorph
-		addMorph:
-			(listMorph := (RMapPluggableVertexListMorph
-				on: self
-				list: #moleculeList
-				primarySelection: #primarySelectionIndex
-				changePrimarySelection: #primarySelectionIndex:
-				listSelection: #listSelectionAt:
-				changeListSelection: #listSelectionAt:put:
-				menu: #moleculeListMenu:shifted:)
-				wrapSelector: #asListItem;
-				yourself)
-		fullFrame:
-			((1 @ 0 corner: 1 @ 1) asLayoutFrame
-				topOffset: 20;
-				leftOffset: listWidth negated;
-				yourself)
+		addMorph: (listMorph := (RMapPluggableVertexListMorph
+				               on: self
+				               list: #moleculeList
+				               primarySelection: #primarySelectionIndex
+				               changePrimarySelection: #primarySelectionIndex:
+				               listSelection: #listSelectionAt:
+				               changeListSelection: #listSelectionAt:put:
+				               menu: #moleculeListMenu:)
+				              beMultipleSelection;
+				              wrapSelector: #asListItem;
+				              yourself)
+		fullFrame: ((1 @ 0 corner: 1 @ 1) asLayoutFrame
+				 topOffset: 20;
+				 leftOffset: listWidth negated;
+				 yourself)
 ]
 
 { #category : #operations }
@@ -264,6 +252,48 @@ RMapScratchingBrowser >> molString [
 { #category : #accessing }
 RMapScratchingBrowser >> moleculeList [
 	^ moleculeList
+]
+
+{ #category : #menu }
+RMapScratchingBrowser >> moleculeListMenu: aMenu [
+
+	primarySelectionIndex > 0 ifTrue: [
+		| v |
+		v := moleculeList at: primarySelectionIndex.
+		aMenu addTitle: v label.
+		((rmap hasProduct: v) or: [
+			 (rmap hasReactant: v) or: [ rmap hasSelection: v ] ]) ifTrue: [
+			aMenu
+				add: 'unselect' translated
+				target: rmap
+				selector: #unselect:
+				argument: v ].
+		(rmap hasSelection: v) ifFalse: [
+			aMenu
+				add: 'select' translated
+				target: rmap
+				selector: #addSelection:
+				argument: v ].
+		(rmap hasReactant: v) ifFalse: [
+			aMenu
+				add: 'reactant' translated
+				target: rmap
+				selector: #addReactant:
+				argument: v ].
+		(rmap hasProduct: v) ifFalse: [
+			aMenu
+				add: 'product' translated
+				target: rmap
+				selector: #addProduct:
+				argument: v ].
+		aMenu
+			addLine;
+			add: 'open info' translated target: v selector: #openInfo;
+			add: 'open in 3D viewer' translated target: v selector: #openJmol;
+			add: 'open measure viewer' translated
+			target: v
+			selector: #openMeasureViewer ].
+	^ aMenu
 ]
 
 { #category : #menu }
