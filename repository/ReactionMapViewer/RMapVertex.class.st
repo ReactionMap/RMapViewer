@@ -652,49 +652,37 @@ RMapVertex >> updateLabelForm [
 
 { #category : #'initialize-release' }
 RMapVertex >> updateModelForms [
+
 	| transformation moleculeGeometry box projection |
-	transformation := modelTransformation
-		ifNil: [ Jun3dTransformation unity ].
+	transformation := modelTransformation ifNil: [
+		                  Jun3dTransformation unity ].
 	moleculeGeometry := self asMolecule transform: transformation.
 	moleculeGeometry autoBonds.
 	box := moleculeGeometry boundingBox.
 	projection := JunParallelProjection
-		eyePoint: box center + ((0 ,, 0 ,, box depth) * 3.0)
-		sightPoint: box center
-		upVector: 0 ,, 1 ,, 0
-		height: (box height max: box width)
-		near: 0.01
-		far: box depth * 5.0.
-	FormLock
-		critical: [ | rc |
-			rc := CachedForm32 renderingContext.
-			rc
-				backgroundColor: Color transparent;
-				clear;
-				projection: projection;
-				enableCullface;
-				enableLighting;
-				enableLightIndex: 0;
-				ambientLight: (Color gray: 0.6);
-				lightIndex: 0 parallel: 0 ,, 0 ,, -1 color: (Color gray: 0.3).
-			moleculeGeometry renderOn: rc.
-			rc flush.
-			model32Form := CachedForm32
-				copy: (0 @ 0 extent: CachedForm32 extent).
-			rc := CachedForm64 renderingContext.
-			rc
-				backgroundColor: Color transparent;
-				clear;
-				projection: projection;
-				enableCullface;
-				enableLighting;
-				enableLightIndex: 0;
-				ambientLight: (Color gray: 0.6);
-				lightIndex: 0 parallel: 0 ,, 0 ,, -1 color: (Color gray: 0.3).
-			moleculeGeometry renderOn: rc.
-			rc flush.
-			model64Form := CachedForm64
-				copy: (0 @ 0 extent: CachedForm64 extent) ]
+		              eyePoint: box center + (0 ,, 0 ,, box depth * 3.0)
+		              sightPoint: box center
+		              upVector: 0 ,, 1 ,, 0
+		              height: (box height max: box width)
+		              near: 0.01
+		              far: box depth * 5.0.
+	FormLock critical: [
+		| rc |
+		rc := CachedForm64 renderingContext.
+		rc
+			backgroundColor: Color transparent;
+			clear;
+			projection: projection;
+			enableCullface;
+			enableLighting;
+			enableLightIndex: 0;
+			ambientLight: (Color gray: 0.6);
+			lightIndex: 0 parallel: 0 ,, 0 ,, -1 color: (Color gray: 0.3).
+		moleculeGeometry renderRoughOn: rc.
+		rc flush.
+		model64Form := CachedForm64 copy:
+			               (0 @ 0 extent: CachedForm64 extent).
+		model32Form := model64Form magnifyBy: 0.5 ]
 ]
 
 { #category : #accessing }

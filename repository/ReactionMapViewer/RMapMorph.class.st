@@ -97,26 +97,26 @@ RMapMorph class >> exampleJSONH2CO2 [
 
 { #category : #'instance creation' }
 RMapMorph class >> fromDictionary: json [
+
 	| rmap vs |
 	rmap := self new.
 	rmap extent: 500 @ 500.
-	vs := json at: 'vertices' ifAbsent: [ #() ].
+	vs := json at: 'vertices' ifAbsent: [ #(  ) ].
 	vs size > 1
-		ifTrue: [ UIManager default
+		ifTrue: [
+			UIManager default
 				displayProgress: 'reading molecules...'
 				from: 1
 				to: vs size
-				during: [ :progress | 
-					vs
-						do: [ :v | 
-							rmap addVertex: (RMapVertex fromJson: v).
-							progress increment ] ] ]
+				during: [ :progress |
+					vs do: [ :v |
+						rmap addVertex: (RMapVertex fromJson: v).
+						progress increment ] ] ]
 		ifFalse: [ vs do: [ :v | rmap addVertex: (RMapVertex fromJson: v) ] ].
-	(json at: 'edges' ifAbsent: [ #() ])
-		do: [ :edge | 
-			rmap
-				addEdgeBetween: (edge at: 'vertex1') + 1
-				and: (edge at: 'vertex2') + 1 ].
+	(json at: 'edges' ifAbsent: [ #(  ) ]) do: [ :edge |
+		rmap
+			addEdgeBetween: (edge at: 'vertex1') + 1
+			and: (edge at: 'vertex2') + 1 ].
 	rmap grrm: (json at: 'grrm' ifAbsent: [  ]).
 	rmap sortVerticesByEnergy.
 	rmap sortEdgesByEnergy.
