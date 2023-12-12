@@ -34,17 +34,3 @@ RMapPluggableVertexListMorph >> listItemHeight [
 RMapPluggableVertexListMorph >> listMorphClass [
 	^RMapLazyVertexListMorph
 ]
-
-{ #category : #'multi-selection' }
-RMapPluggableVertexListMorph >> mouseUpOnMultiple: event [
-	"The mouse came up within the list; take appropriate action"
-
-	| row |
-	row := self rowAtLocation: event position.
-	(self enabled and: [ model okToChange ]) ifFalse: [ ^ self ].
-
-	"No change if model is locked or receiver disabled"
-	(row = 0 or: [ row isNil ]) ifTrue: [ ^ self ].
-	self listSelectionAt: row put: (self listSelectionAt: row) not.
-	Cursor normal show
-]

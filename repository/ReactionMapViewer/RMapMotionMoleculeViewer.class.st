@@ -39,7 +39,7 @@ RMapMotionMoleculeViewer >> build [
 			((0 @ 0 corner: 1 @ 1) asLayoutFrame
 				bottomOffset: -45;
 				yourself).
-	jumpToStartButton := IconicButton new
+	jumpToStartButton := IconicButtonMorph new
 		target: self;
 		actionSelector: #jumpToStart;
 		color: (Color gray: 0.95);
@@ -65,7 +65,7 @@ RMapMotionMoleculeViewer >> build [
 				topOffset: -45;
 				bottomOffset: -20;
 				yourself).
-	playPauseButton := IconicButton new
+	playPauseButton := IconicButtonMorph new
 		target: self;
 		actionSelector: #togglePlay;
 		color: (Color gray: 0.95);
@@ -91,7 +91,7 @@ RMapMotionMoleculeViewer >> build [
 				topOffset: -45;
 				bottomOffset: -20;
 				yourself).
-	jumpToEndButton := IconicButton new
+	jumpToEndButton := IconicButtonMorph new
 		target: self;
 		actionSelector: #jumpToEnd;
 		color: (Color gray: 0.95);
