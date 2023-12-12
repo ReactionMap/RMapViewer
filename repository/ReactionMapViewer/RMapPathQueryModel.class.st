@@ -282,81 +282,78 @@ RMapPathQueryModel >> freeList [
 
 { #category : #'interface building' }
 RMapPathQueryModel >> freeListPane [
+
 	^ Morph new
-		color: Color white;
-		changeProportionalLayout;
-		addMorph: (RMapLabelMorph contents: 'Selection')
-			fullFrame:
-			(LayoutFrame identity
-				bottomFraction: 0;
-				bottomOffset: 20;
-				rightOffset: -40;
-				yourself);
-		addMorph:
-			((IconicButton new graphicalMorph: self unselectAllIcon asMorph)
-				target: self;
-				actionSelector: #unselectAllFree;
-				color: Color white;
-				borderNormal;
-				yourself)
-			fullFrame:
-			(LayoutFrame identity
-					leftFraction: 1;
-					bottomFraction: 0;
-					leftOffset: -60;
-					rightOffset: -40;
-					topOffset: 2;
-					bottomOffset: 20;
-					yourself);
-		addMorph:
-			((IconicButton new graphicalMorph: self selectAllIcon asMorph)
-				target: self;
-				actionSelector: #selectAllFree;
-				color: Color white;
-				borderNormal;
-				yourself)
-			fullFrame:
-			(LayoutFrame identity
-					leftFraction: 1;
-					bottomFraction: 0;
-					leftOffset: -40;
-					rightOffset: -20;
-					topOffset: 2;
-					bottomOffset: 20;
-					yourself);
-		addMorph:
-			((IconicButton new graphicalMorph: self deleteIcon asMorph)
-				target: self;
-				actionSelector: #deleteSelectedFree;
-				color: Color white;
-				borderNormal;
-				yourself)
-			fullFrame:
-			(LayoutFrame identity
-					leftFraction: 1;
-					bottomFraction: 0.0;
-					topOffset: 2;
-					leftOffset: -20;
-					bottomOffset: 20;
-					yourself);
-		addMorph:
-			((RMapPluggableVertexListMorph
-				on: self
-				list: #freeList
-				primarySelection: #freePrimaryIndex
-				changePrimarySelection: #freePrimaryIndex:
-				listSelection: #freeSelectionAt:
-				changeListSelection: #freeSelectionAt:put:
-				menu: nil)
-				wrapSelector: #asListItem;
-				borderWidth: 2;
-				borderColor: Color black;
-				yourself)
-			fullFrame:
-			(LayoutFrame identity
-					topOffset: 20;
-					yourself);
-		yourself
+		  color: Color white;
+		  changeProportionalLayout;
+		  addMorph: (RMapLabelMorph contents: 'Selection')
+		  fullFrame: (LayoutFrame identity
+				   bottomFraction: 0;
+				   bottomOffset: 20;
+				   rightOffset: -40;
+				   yourself);
+		  addMorph:
+			  ((IconicButtonMorph new graphicalMorph:
+					    self unselectAllIcon asMorph)
+				   target: self;
+				   actionSelector: #unselectAllFree;
+				   color: Color white;
+				   borderNormal;
+				   yourself)
+		  fullFrame: (LayoutFrame identity
+				   leftFraction: 1;
+				   bottomFraction: 0;
+				   leftOffset: -60;
+				   rightOffset: -40;
+				   topOffset: 2;
+				   bottomOffset: 20;
+				   yourself);
+		  addMorph:
+			  ((IconicButtonMorph new graphicalMorph:
+					    self selectAllIcon asMorph)
+				   target: self;
+				   actionSelector: #selectAllFree;
+				   color: Color white;
+				   borderNormal;
+				   yourself)
+		  fullFrame: (LayoutFrame identity
+				   leftFraction: 1;
+				   bottomFraction: 0;
+				   leftOffset: -40;
+				   rightOffset: -20;
+				   topOffset: 2;
+				   bottomOffset: 20;
+				   yourself);
+		  addMorph:
+			  ((IconicButtonMorph new graphicalMorph: self deleteIcon asMorph)
+				   target: self;
+				   actionSelector: #deleteSelectedFree;
+				   color: Color white;
+				   borderNormal;
+				   yourself)
+		  fullFrame: (LayoutFrame identity
+				   leftFraction: 1;
+				   bottomFraction: 0.0;
+				   topOffset: 2;
+				   leftOffset: -20;
+				   bottomOffset: 20;
+				   yourself);
+		  addMorph: ((RMapPluggableVertexListMorph
+				    on: self
+				    list: #freeList
+				    primarySelection: #freePrimaryIndex
+				    changePrimarySelection: #freePrimaryIndex:
+				    listSelection: #freeSelectionAt:
+				    changeListSelection: #freeSelectionAt:put:
+				    menu: nil)
+				   wrapSelector: #asListItem;
+				   borderWidth: 2;
+				   borderColor: Color black;
+				   yourself)
+		  fullFrame: (LayoutFrame identity
+				   topOffset: 20;
+				   yourself);
+		  yourself
 ]
 
 { #category : #accessing }
@@ -516,81 +513,78 @@ RMapPathQueryModel >> productList [
 
 { #category : #'interface building' }
 RMapPathQueryModel >> productListPane [
+
 	^ Morph new
-		color: Color white;
-		changeProportionalLayout;
-		addMorph: (RMapLabelMorph contents: 'Product')
-			fullFrame:
-			(LayoutFrame identity
-				bottomFraction: 0;
-				bottomOffset: 20;
-				rightOffset: -40;
-				yourself);
-		addMorph:
-			((IconicButton new graphicalMorph: self unselectAllIcon asMorph)
-				target: self;
-				actionSelector: #unselectAllProduct;
-				color: Color white;
-				borderNormal;
-				yourself)
-			fullFrame:
-			(LayoutFrame identity
-					leftFraction: 1;
-					bottomFraction: 0;
-					leftOffset: -60;
-					rightOffset: -40;
-					topOffset: 2;
-					bottomOffset: 20;
-					yourself);
-		addMorph:
-			((IconicButton new graphicalMorph: self selectAllIcon asMorph)
-				target: self;
-				actionSelector: #selectAllProduct;
-				color: Color white;
-				borderNormal;
-				yourself)
-			fullFrame:
-			(LayoutFrame identity
-					leftFraction: 1;
-					bottomFraction: 0;
-					leftOffset: -40;
-					rightOffset: -20;
-					topOffset: 2;
-					bottomOffset: 20;
-					yourself);
-		addMorph:
-			((IconicButton new graphicalMorph: self deleteIcon asMorph)
-				target: self;
-				actionSelector: #deleteSelectedProduct;
-				color: Color white;
-				borderNormal;
-				yourself)
-			fullFrame:
-			(LayoutFrame identity
-					leftFraction: 1;
-					bottomFraction: 0.0;
-					topOffset: 2;
-					leftOffset: -20;
-					bottomOffset: 20;
-					yourself);
-		addMorph:
-			((RMapPluggableVertexListMorph
-				on: self
-				list: #productList
-				primarySelection: #productPrimaryIndex
-				changePrimarySelection: #productPrimaryIndex:
-				listSelection: #productSelectionAt:
-				changeListSelection: #productSelectionAt:put:
-				menu: nil)
-				wrapSelector: #asListItem;
-				borderWidth: 2;
-				borderColor: Color black;
-				yourself)
-			fullFrame:
-			(LayoutFrame identity
-					topOffset: 20;
-					yourself);
-		yourself
+		  color: Color white;
+		  changeProportionalLayout;
+		  addMorph: (RMapLabelMorph contents: 'Product')
+		  fullFrame: (LayoutFrame identity
+				   bottomFraction: 0;
+				   bottomOffset: 20;
+				   rightOffset: -40;
+				   yourself);
+		  addMorph:
+			  ((IconicButtonMorph new graphicalMorph:
+					    self unselectAllIcon asMorph)
+				   target: self;
+				   actionSelector: #unselectAllProduct;
+				   color: Color white;
+				   borderNormal;
+				   yourself)
+		  fullFrame: (LayoutFrame identity
+				   leftFraction: 1;
+				   bottomFraction: 0;
+				   leftOffset: -60;
+				   rightOffset: -40;
+				   topOffset: 2;
+				   bottomOffset: 20;
+				   yourself);
+		  addMorph:
+			  ((IconicButtonMorph new graphicalMorph:
+					    self selectAllIcon asMorph)
+				   target: self;
+				   actionSelector: #selectAllProduct;
+				   color: Color white;
+				   borderNormal;
+				   yourself)
+		  fullFrame: (LayoutFrame identity
+				   leftFraction: 1;
+				   bottomFraction: 0;
+				   leftOffset: -40;
+				   rightOffset: -20;
+				   topOffset: 2;
+				   bottomOffset: 20;
+				   yourself);
+		  addMorph:
+			  ((IconicButtonMorph new graphicalMorph: self deleteIcon asMorph)
+				   target: self;
+				   actionSelector: #deleteSelectedProduct;
+				   color: Color white;
+				   borderNormal;
+				   yourself)
+		  fullFrame: (LayoutFrame identity
+				   leftFraction: 1;
+				   bottomFraction: 0.0;
+				   topOffset: 2;
+				   leftOffset: -20;
+				   bottomOffset: 20;
+				   yourself);
+		  addMorph: ((RMapPluggableVertexListMorph
+				    on: self
+				    list: #productList
+				    primarySelection: #productPrimaryIndex
+				    changePrimarySelection: #productPrimaryIndex:
+				    listSelection: #productSelectionAt:
+				    changeListSelection: #productSelectionAt:put:
+				    menu: nil)
+				   wrapSelector: #asListItem;
+				   borderWidth: 2;
+				   borderColor: Color black;
+				   yourself)
+		  fullFrame: (LayoutFrame identity
+				   topOffset: 20;
+				   yourself);
+		  yourself
 ]
 
 { #category : #accessing }
@@ -622,81 +616,78 @@ RMapPathQueryModel >> reactantList [
 
 { #category : #'interface building' }
 RMapPathQueryModel >> reactantListPane [
+
 	^ Morph new
-		color: Color white;
-		changeProportionalLayout;
-		addMorph: (RMapLabelMorph contents: 'Reactant')
-			fullFrame:
-			(LayoutFrame identity
-				bottomFraction: 0;
-				bottomOffset: 20;
-				rightOffset: -40;
-				yourself);
-		addMorph:
-			((IconicButton new graphicalMorph: self unselectAllIcon asMorph)
-				target: self;
-				actionSelector: #unselectAllReactant;
-				color: Color white;
-				borderNormal;
-				yourself)
-			fullFrame:
-			(LayoutFrame identity
-					leftFraction: 1;
-					bottomFraction: 0;
-					leftOffset: -60;
-					rightOffset: -40;
-					topOffset: 2;
-					bottomOffset: 20;
-					yourself);
-		addMorph:
-			((IconicButton new graphicalMorph: self selectAllIcon asMorph)
-				target: self;
-				actionSelector: #selectAllReactant;
-				color: Color white;
-				borderNormal;
-				yourself)
-			fullFrame:
-			(LayoutFrame identity
-					leftFraction: 1;
-					bottomFraction: 0;
-					leftOffset: -40;
-					rightOffset: -20;
-					topOffset: 2;
-					bottomOffset: 20;
-					yourself);
-		addMorph:
-			((IconicButton new graphicalMorph: self deleteIcon asMorph)
-				target: self;
-				actionSelector: #deleteSelectedReactant;
-				color: Color white;
-				borderNormal;
-				yourself)
-			fullFrame:
-			(LayoutFrame identity
-					leftFraction: 1;
-					bottomFraction: 0.0;
-					topOffset: 2;
-					leftOffset: -20;
-					bottomOffset: 20;
-					yourself);
-		addMorph:
-			((RMapPluggableVertexListMorph
-				on: self
-				list: #reactantList
-				primarySelection: #reactantPrimaryIndex
-				changePrimarySelection: #reactantPrimaryIndex:
-				listSelection: #reactantSelectionAt:
-				changeListSelection: #reactantSelectionAt:put:
-				menu: nil)
-				borderWidth: 2;
-				borderColor: Color black;
-				wrapSelector: #asListItem;
-				yourself)
-			fullFrame:
-			(LayoutFrame identity
-					topOffset: 20;
-					yourself);
-		yourself
+		  color: Color white;
+		  changeProportionalLayout;
+		  addMorph: (RMapLabelMorph contents: 'Reactant')
+		  fullFrame: (LayoutFrame identity
+				   bottomFraction: 0;
+				   bottomOffset: 20;
+				   rightOffset: -40;
+				   yourself);
+		  addMorph:
+			  ((IconicButtonMorph new graphicalMorph:
+					    self unselectAllIcon asMorph)
+				   target: self;
+				   actionSelector: #unselectAllReactant;
+				   color: Color white;
+				   borderNormal;
+				   yourself)
+		  fullFrame: (LayoutFrame identity
+				   leftFraction: 1;
+				   bottomFraction: 0;
+				   leftOffset: -60;
+				   rightOffset: -40;
+				   topOffset: 2;
+				   bottomOffset: 20;
+				   yourself);
+		  addMorph:
+			  ((IconicButtonMorph new graphicalMorph:
+					    self selectAllIcon asMorph)
+				   target: self;
+				   actionSelector: #selectAllReactant;
+				   color: Color white;
+				   borderNormal;
+				   yourself)
+		  fullFrame: (LayoutFrame identity
+				   leftFraction: 1;
+				   bottomFraction: 0;
+				   leftOffset: -40;
+				   rightOffset: -20;
+				   topOffset: 2;
+				   bottomOffset: 20;
+				   yourself);
+		  addMorph:
+			  ((IconicButtonMorph new graphicalMorph: self deleteIcon asMorph)
+				   target: self;
+				   actionSelector: #deleteSelectedReactant;
+				   color: Color white;
+				   borderNormal;
+				   yourself)
+		  fullFrame: (LayoutFrame identity
+				   leftFraction: 1;
+				   bottomFraction: 0.0;
+				   topOffset: 2;
+				   leftOffset: -20;
+				   bottomOffset: 20;
+				   yourself);
+		  addMorph: ((RMapPluggableVertexListMorph
+				    on: self
+				    list: #reactantList
+				    primarySelection: #reactantPrimaryIndex
+				    changePrimarySelection: #reactantPrimaryIndex:
+				    listSelection: #reactantSelectionAt:
+				    changeListSelection: #reactantSelectionAt:put:
+				    menu: nil)
+				   borderWidth: 2;
+				   borderColor: Color black;
+				   wrapSelector: #asListItem;
+				   yourself)
+		  fullFrame: (LayoutFrame identity
+				   topOffset: 20;
+				   yourself);
+		  yourself
 ]
 
 { #category : #accessing }

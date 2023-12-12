@@ -8,7 +8,7 @@ Class {
 		'multiframeEnergies',
 		'multiframeIndex'
 	],
-	#category : 'ReactionMapViewer-GRRMImport'
+	#category : #'ReactionMapViewer-GRRMImport'
 }
 
 { #category : #layouting }
@@ -68,6 +68,12 @@ RMapImportTS >> initialize [
 	multiframeXYZ := Array new.
 	multiframeEnergies := Array new.
 	multiframeIndex := 0
+]
+
+{ #category : #testing }
+RMapImportTS >> isValid [
+
+	^ eq1 notNil and: [ eq2 notNil ]
 ]
 
 { #category : #accessing }
