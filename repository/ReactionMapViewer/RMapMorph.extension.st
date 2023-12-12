@@ -57,7 +57,7 @@ RMapMorph class >> fromDirectory: aFileReference [
 		y := index // numGrids.
 		x odd
 			ifTrue: [ y := y + 0.5 ].
-		eq position: (x + 0.5) * gap , ((y + 0.5) * gap).
+		eq position: (x + 0.5) * gap ,, ((y + 0.5) * gap).
 		eq gap: gap ].
 	[ | changed |
 	changed := false.
