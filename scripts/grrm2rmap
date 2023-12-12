@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import os
 from math import sqrt, ceil
@@ -8,7 +8,7 @@ from time import time
 from copy import copy
 from subprocess import Popen, PIPE, STDOUT
 from tempfile import NamedTemporaryFile
-from StringIO import StringIO
+from io import StringIO
 
 def which(program):
     def is_exe(fpath):
@@ -25,7 +25,9 @@ def which(program):
                 return exe_file
     return None
 
-def dist2((x0, y0), (x1, y1)):
+def dist2(xxx_todo_changeme, xxx_todo_changeme1):
+    (x0, y0) = xxx_todo_changeme
+    (x1, y1) = xxx_todo_changeme1
     dx = x0 - x1
     dy = y0 - y1
     return dx * dx + dy * dy
@@ -56,12 +58,12 @@ class RMap:
                     ts.eq2.TSs.remove(ts)
                 if ts.eq1 is not None and ts.eq2 is None:
                     ts.eq1.TSs.remove(ts)
-            self.TSs = filter(lambda ts:ts.eq1 is not None and ts.eq2 is not None, self.TSs)
+            self.TSs = [ts for ts in self.TSs if ts.eq1 is not None and ts.eq2 is not None]
             try:
-                self.grrm = file(logfile_prefix+".com", "rt").read()
+                self.grrm = open(logfile_prefix+".com", "rt").read()
             except:
                 self.grrm = None
-                print >> sys.stderr, "NO .com file. the rmap file will not have grrm run options"
+                print("NO .com file. the rmap file will not have grrm run options", file=sys.stderr)
 
     def arrange(self, timeout = None, number_of_trials = 1, verbose=True):
         if timeout:
@@ -69,23 +71,23 @@ class RMap:
         else:
             deadline = None
         if verbose:
-            print "1st try"
+            print("1st try")
         champ = self.deepcopy()
         champ._arrange(deadline=deadline, verbose=verbose)
         best_score = champ.total_dist2()
         if verbose:
-            print "Score: %s"%(best_score)
+            print("Score: %s"%(best_score))
         for i in range(number_of_trials-1):
             if verbose:
                 n = i + 2
                 if n % 10 == 1:
-                    print "%sst try"%(n,)
+                    print("%sst try"%(n,))
                 elif n % 10 == 2:
-                    print "%snd try"%(n,)
+                    print("%snd try"%(n,))
                 elif n % 10 == 3:
-                    print "%srd try"%(n,)
+                    print("%srd try"%(n,))
                 else:
-                    print "%sth try"%(n,)
+                    print("%sth try"%(n,))
             challenger = self.deepcopy()
             shuffle(challenger.EQs)
             challenger._arrange(deadline=deadline, verbose=verbose)
@@ -94,7 +96,7 @@ class RMap:
                 champ = challenger
                 best_score = challenger_score
             if verbose:
-                print "Best so far: %s"%(best_score,)
+                print("Best so far: %s"%(best_score,))
         self.EQs = champ.EQs
         self.DCs = champ.DCs
         self.TSs = champ.TSs
@@ -119,16 +121,16 @@ class RMap:
 
     def _arrange(self, deadline = None, verbose=False):
         if verbose:
-            print "Initializing EQs"
+            print("Initializing EQs")
         self.gridize_EQs()
         if verbose:
-            print "Arranging EQs"
+            print("Arranging EQs")
         self.arrange_EQs(deadline=deadline, verbose=verbose)
         if verbose:
-            print "Arranging TSs"
+            print("Arranging TSs")
         self.arrange_TSs()
         if verbose:
-            print "Arranging DCs"
+            print("Arranging DCs")
         self.arrange_DCs()
 
     def total_dist2(self):
@@ -154,7 +156,7 @@ class RMap:
         activelist = set(self.EQs)
         total_d = self.total_dist2()
         if verbose:
-            print total_d
+            print(total_d)
         last_d = total_d * 2.0
         while total_d < last_d:
             last_d = total_d
@@ -162,10 +164,10 @@ class RMap:
                 eq.swap_for_better_dist2(self, activelist = activelist, deadline=deadline)
             total_d = self.total_dist2()
             if verbose:
-                print total_d
+                print(total_d)
             if deadline is not None and time() > deadline:
                 if verbose:
-                    print "timed out"
+                    print("timed out")
                 break
 
     def arrange_TSs(self):
@@ -179,7 +181,7 @@ class RMap:
             dc.move_to_space(self)
 
     def write_gnuplot(self, filename, only_EQs=False):
-        with file(filename, "wt") as wfile:
+        with open(filename, "wt") as wfile:
             if only_EQs:
                 for ts in self.TSs:
                     x1, y1 = ts.eq1.position
@@ -224,66 +226,66 @@ class RMap:
         if self.grrm:
             graph["grrm"] = self.grrm
             
-        with file(filename, "wt") as wfile:
+        with open(filename, "wt") as wfile:
             json.dump(graph, wfile)
 
     def iter_other_than(self, node):
         for eq in self.EQs:
             if eq is not node:
                 if eq.position is None:
-                    print eq.label
+                    print(eq.label)
                 yield eq
         for dc in self.DCs:
             if dc is not node:
                 if dc.position is None:
-                    print dc.label
+                    print(dc.label)
                 yield dc
         for ts in self.TSs:
             if ts is not node:
                 if ts.position is None:
-                    print ts.label
+                    print(ts.label)
                 yield ts
 
     def _read_list(self, logfile_prefix):
         num_EQs = 0
         num_DCs = 0
         num_TSs = 0
-        with file(logfile_prefix+"_EQ_list.log", "rt") as rfile:
+        with open(logfile_prefix+"_EQ_list.log", "rt") as rfile:
             for line in rfile:
                 terms = line.split(" ")
                 if terms[:4] == ["#", "Geometry", "of", "EQ"]:
                     eq = int(terms[4][:-1])
                     if eq < num_EQs:
-                        print >> sys.stderr, "[FATAL] Duplicated EQs "+str(eq)+" in "+logfile_prefix+"_EQ_list.log"
+                        print("[FATAL] Duplicated EQs "+str(eq)+" in "+logfile_prefix+"_EQ_list.log", file=sys.stderr)
                         sys.exit(1)
                     if eq > num_EQs:
-                        print >> sys.stderr, "[FATAL] Gap between EQs ("+str(num_EQs)+","+str(eq)+")in "+logfile_prefix+"_EQ_list.log"
+                        print("[FATAL] Gap between EQs ("+str(num_EQs)+","+str(eq)+")in "+logfile_prefix+"_EQ_list.log", file=sys.stderr)
                         sys.exit(1)
                     num_EQs = num_EQs + 1
 
-        with file(logfile_prefix+"_TS_list.log", "rt") as rfile:
+        with open(logfile_prefix+"_TS_list.log", "rt") as rfile:
             for line in rfile:
                 terms = line.split(" ")
                 if terms[:4] == ["#", "Geometry", "of", "TS"]:
                     ts = int(terms[4][:-1])
                     if ts < num_TSs:
-                        print >> sys.stderr, "[FATAL] Duplicated TSs" + str(ts) + " in "+logfile_prefix+"_TS_list.log"
+                        print("[FATAL] Duplicated TSs" + str(ts) + " in "+logfile_prefix+"_TS_list.log", file=sys.stderr)
                         sys.exit(1)
                     if ts > num_TSs:
-                        print >> sys.stderr, "[FATAL] Gap between TSs ("+str(num_TS)+","+str(ts)+") in "+logfile_prefix+"_EQ_list.log"
+                        print("[FATAL] Gap between TSs ("+str(num_TS)+","+str(ts)+") in "+logfile_prefix+"_EQ_list.log", file=sys.stderr)
                         sys.exit(1)
                     num_TSs = num_TSs + 1
 
-        with file(logfile_prefix+"_DC_list.log", "rt") as rfile:
+        with open(logfile_prefix+"_DC_list.log", "rt") as rfile:
             for line in rfile:
                 terms = line.split(" ")
                 if terms[:4] == ["#", "Geometry", "of", "DC"]:
                     dc = int(terms[4][:-1])
                     if dc < num_DCs:
-                        print >> sys.stderr, "[FATAL] Duplicated DCs" + str(dc) + " in "+logfile_prefix+"_DC_list.log"
+                        print("[FATAL] Duplicated DCs" + str(dc) + " in "+logfile_prefix+"_DC_list.log", file=sys.stderr)
                         sys.exit(1)
                     if dc > num_DCs:
-                        print >> sys.stderr, "[FATAL] Gap between DCs in "+logfile_prefix+"_DC_list.log"
+                        print("[FATAL] Gap between DCs in "+logfile_prefix+"_DC_list.log", file=sys.stderr)
                         sys.exit(1)
                     num_DCs = num_DCs + 1
         return num_EQs, num_DCs, num_TSs
@@ -291,7 +293,7 @@ class RMap:
     def _read_EQ_list(self, filename):
         eq = 0
         geometry_mode = False
-        with file(filename, "rt") as rfile:
+        with open(filename, "rt") as rfile:
             for line in rfile:
                 if line.startswith("# Geometry of "):
                     assert not geometry_mode
@@ -300,7 +302,7 @@ class RMap:
                     assert geometry_mode
                     assert self.EQs[eq].geometry
                     geometry_mode = False
-                    self.EQs[eq].energy = float(line.split("=")[1].strip())
+                    self.EQs[eq].energy = float(line.split("=")[1].strip().split()[0])
                     eq += 1
                 elif geometry_mode:
                     atom, x, y, z = tuple(line.split())
@@ -310,7 +312,7 @@ class RMap:
     def _read_DC_list(self, filename):
         dc = 0
         geometry_mode = False
-        with file(filename, "rt") as rfile:
+        with open(filename, "rt") as rfile:
             for line in rfile:
                 if line.startswith("# Geometry of "):
                     assert not geometry_mode
@@ -318,7 +320,7 @@ class RMap:
                 elif line.startswith("Energy"):
                     assert geometry_mode
                     geometry_mode = False
-                    self.DCs[dc].energy = float(line.split("=")[1].strip())
+                    self.DCs[dc].energy = float(line.split("=")[1].strip().split()[0])
                 elif line.startswith("CONNECTION"):
                     assert self.DCs[dc].energy is not None
                     assert self.DCs[dc].geometry
@@ -334,12 +336,12 @@ class RMap:
                     self.DCs[dc].geometry.append((atom, float(x), float(y), float(z)))
                     
         assert dc == len(self.DCs)
-        assert not filter(lambda d:d.energy is None, self.DCs)
+        assert not [d for d in self.DCs if d.energy is None]
 
     def _read_TS_list(self, filename):
         ts = 0
         geometry_mode = False
-        with file(filename, "rt") as rfile:
+        with open(filename, "rt") as rfile:
             for line in rfile:
                 if line.startswith("# Geometry of "):
                     assert not geometry_mode
@@ -347,7 +349,7 @@ class RMap:
                 elif line[:6] == "Energy":
                     assert geometry_mode
                     geometry_mode = False
-                    self.TSs[ts].energy = float(line.split("=")[1].strip())
+                    self.TSs[ts].energy = float(line.split("=")[1].strip().split()[0])
                 elif line[:10] == "CONNECTION":
                     assert self.TSs[ts].energy is not None
                     assert self.TSs[ts].geometry
@@ -374,7 +376,7 @@ class RMap:
 
     def read_dc_multiframe_xyz(self, logfile_prefix, node):
       try:
-        with file(logfile_prefix+"_"+node.label+".log", "rt") as rfile:
+        with open(logfile_prefix+"_"+node.label+".log", "rt") as rfile:
             chunks = rfile.read().split("=========================================================================")
         def upToLineStartsWith(lines, keyword):
             result = list()
@@ -385,7 +387,7 @@ class RMap:
             return result
         header = "%s\n\n"%(len(node.geometry),)
         forward_steps = [header+'\n'.join(upToLineStartsWith(step.split('\n')[1:], "ENERGY")) for step in chunks[1].split("\n\n") if step.startswith("# STEP ")]
-        forward_energies = [float(step.split("\n")[-2].split("=")[1].strip()) for step in chunks[1].split("\n\n") if step.startswith("# STEP ")]
+        forward_energies = [float(step.split("\n")[-2].split("=")[1].strip().split()[0]) for step in chunks[1].split("\n\n") if step.startswith("# STEP ")]
 
         geometry = header+'\n'.join(upToLineStartsWith(chunks[0].split('\n')[2:], "ENERGY"))
         forward_steps.reverse()
@@ -398,7 +400,7 @@ class RMap:
 
     def read_ts_multiframe_xyz(self, logfile_prefix, node):
       try:
-        with file(logfile_prefix+"_"+node.label+".log", "rt") as rfile:
+        with open(logfile_prefix+"_"+node.label+".log", "rt") as rfile:
             chunks = rfile.read().split("=========================================================================")
         def upToLineStartsWith(lines, keyword):
             result = list()
@@ -409,9 +411,9 @@ class RMap:
             return result
         header = "%s\n\n"%(len(node.geometry),)
         forward_steps = [header+'\n'.join(upToLineStartsWith(step.split('\n')[1:], "ENERGY")) for step in chunks[1].split("\n\n") if step.startswith("# STEP ")]
-        forward_energies = [float(step.split("\n")[-2].split("=")[1].strip()) for step in chunks[1].split("\n\n") if step.startswith("# STEP ")]
+        forward_energies = [float(step.split("\n")[-2].split("=")[1].strip().split()[0]) for step in chunks[1].split("\n\n") if step.startswith("# STEP ")]
         backward_steps = [header+'\n'.join(upToLineStartsWith(step.split('\n')[1:], "ENERGY")) for step in chunks[3].split("\n\n") if step.startswith("# STEP ")]
-        backward_energies = [float(step.split("\n")[-2].split("=")[1].strip()) for step in chunks[3].split("\n\n") if step.startswith("# STEP ")]
+        backward_energies = [float(step.split("\n")[-2].split("=")[1].strip().split()[0]) for step in chunks[3].split("\n\n") if step.startswith("# STEP ")]
         geometry = header+'\n'.join(upToLineStartsWith(chunks[0].split('\n')[2:], "ENERGY"))
         forward_steps.reverse()
         forward_energies.reverse()
@@ -428,12 +430,12 @@ class RMap:
             node.multiframe_index = len(backward_steps)
 
     def _get_molinfo(self):
-        with NamedTemporaryFile() as wfile:
+        with NamedTemporaryFile(mode="wt") as wfile:
             def write_xyz(node):
-                print >> wfile, " %d"%(len(node.geometry))
-                print >> wfile, "XYZ"
+                print(" %d"%(len(node.geometry)), file=wfile)
+                print("XYZ", file=wfile)
                 for geom in node.geometry:
-                    print >> wfile, "%s %03.5f %03.5f %03.5f"%geom
+                    print("%s %03.5f %03.5f %03.5f"%geom, file=wfile)
             for eq in self.EQs:
                 write_xyz(eq)
             for dc in self.DCs:
@@ -447,13 +449,13 @@ class RMap:
         self._get_canost()
 
     def _get_bonds(self, xyz_filename):
-        program = which("babel")
+        program = which("obabel")
         if not program:
-            print >> sys.stderr, "[FATAL] The babel command not found."
+            print("[FATAL] The babel command not found.", file=sys.stderr)
             sys.exit(1)
         babel = Popen(
             [program, "---errorlevel", "1", "-i", "xyz", xyz_filename, "-o", "sd"],
-            stdin=PIPE, stdout=PIPE, stderr=None)
+            stdin=PIPE, stdout=PIPE, stderr=None, text=True)
         def read_sdf(node):
             lines = list()
             def readline():
@@ -489,13 +491,13 @@ class RMap:
             read_sdf(ts)
         babel.terminate()
     def _get_smiles(self, xyz_filename):
-        program = which("babel")
+        program = which("obabel")
         if not program:
-            print >> sys.stderr, "[FATAL] The babel command not found."
+            print("[FATAL] The babel command not found.", file=sys.stderr)
             sys.exit(1)
         babel = Popen(
             [program, "---errorlevel", "1", "-i", "xyz", xyz_filename, "-o", "can"],
-            stdin=PIPE, stdout=PIPE, stderr=None)
+            stdin=PIPE, stdout=PIPE, stderr=None, text=True)
         def read_smi(node):
             node.smiles = babel.stdout.readline().split('\t')[0].strip()
         for eq in self.EQs:
@@ -506,13 +508,13 @@ class RMap:
             read_smi(ts)
         babel.terminate()
     def _get_inchi(self, xyz_filename):
-        program = which("babel")
+        program = which("obabel")
         if not program:
-            print >> sys.stderr, "[FATAL] The babel command not found."
+            print("[FATAL] The babel command not found.", file=sys.stderr)
             sys.exit(1)
         babel = Popen(
             [program, "---errorlevel", "1", "-i", "xyz", xyz_filename, "-o", "inchi"],
-            stdin=PIPE, stdout=PIPE, stderr=None)
+            stdin=PIPE, stdout=PIPE, stderr=None, text=True)
         def read_inchi(node):
             for line in babel.stdout:
                 if line.startswith("InChI="):
@@ -528,14 +530,14 @@ class RMap:
     def _get_canost(self):
         canost_program = which("main_canost")
         if not canost_program:
-            print >> sys.stderr, "[Warning] The main_canost program not found."
+            print("[Warning] The main_canost program not found.", file=sys.stderr)
         def read_canost(node):
             node.canost = None
             if not canost_program:
                 return
             canost = Popen(
                 [canost_program, "-u", "f", "/dev/stdin", "/dev/stdout"],
-                stdin=PIPE, stdout=PIPE, stderr=None)
+                stdin=PIPE, stdout=PIPE, stderr=None, text=True)
             canost.stdin.write(node.sdf)
             if canost.stdout.readline().strip() == "":
                 canost.stdout.readline()
@@ -768,5 +770,5 @@ if __name__ == '__main__':
     if options.gnuplot:
         rmap.write_gnuplot(wfilename[:-5]+".dat")
     rmap.write_json(wfilename, only_EQs=False)
-    print "Wrote", wfilename
+    print("Wrote", wfilename)
 
