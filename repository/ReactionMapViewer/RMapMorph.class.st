@@ -342,6 +342,7 @@ RMapMorph class >> makeReleaseImage [
 	"RMapMorph makeReleaseImage"
 
 	| menuBar |
+	JunBabelWrapper flushBabelPath.
 	MenubarMorph closeAll.
 	World submorphs copy do: [ :m | m delete ].
 	menuBar := MenubarMorph new
