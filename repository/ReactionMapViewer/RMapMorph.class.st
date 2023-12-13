@@ -1655,31 +1655,18 @@ RMapMorph >> openDistanceList: aRMapVertex [
 
 { #category : #'user interface' }
 RMapMorph >> openFullInWorld [
-	| viewer menuBar |
+
+	| viewer menuBar window |
 	MenubarMorph closeAll.
 	menuBar := MenubarMorph new
-		menuBarItems: self menubarSpec items;
-		open;
-		yourself.
+		           menuBarItems: self menubarSpec items;
+		           open;
+		           yourself.
 	viewer := self buildViewer.
-	self class isReleaseImage
-		ifFalse: [ | window |
-			window := viewer openInWindowLabeled: 'RMapViewer'.
-			window fullscreen.
-			window announcer when: WindowClosed send: #delete to: self.
-			^ window ].
-	World submorphs copy
-		do: [ :m | 
-			((m isKindOf: MenubarMorph) or: [ m isKindOf: ImageMorph ])
-				ifFalse: [ m delete ] ].
-	World changeProportionalLayout.
-	World
-		addMorph: viewer
-		fullFrame:
-			(LayoutFrame identity
-				topOffset: menuBar bounds bottom;
-				yourself).
-	^ viewer
+	window := viewer openInWindowLabeled: 'RMapViewer'.
+	window fullscreen.
+	window announcer when: WindowClosed send: #delete to: self.
+	^ window
 ]
 
 { #category : #'user interface' }
