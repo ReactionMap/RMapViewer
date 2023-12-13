@@ -253,16 +253,17 @@ RMapMorph class >> fromTrajectoryDirectory: aFileReference [
 	tss := self
 		       readTrajectoryTSs: aFileReference / (prefix , '_TS_list.xyz')
 		       EQs: eqs0.
-	eqs0 do: [ :eq |
-		Transcript
-			cr;
-			show: eq label.
-		eq readBabel ].
-	tss do: [ :ts |
-		Transcript
-			cr;
-			show: ts label.
-		ts readBabel ].
+	UIManager default
+		displayProgress: 'converting trajectories with obabel...'
+		from: 1
+		to: eqs0 size + tss size
+		during: [ :progress |
+			eqs0 do: [ :eq |
+				eq readBabel.
+				progress increment ].
+			tss do: [ :ts |
+				ts readBabel.
+				progress increment ] ].
 	numGrids := (eqs0 size sqrt ceiling + 0.5) asInteger.
 	gap := 1.0 / numGrids.
 	eqs := (eqs0 , (Array
@@ -288,7 +289,14 @@ RMapMorph class >> fromTrajectoryDirectory: aFileReference [
 	tss do: [ :ts | ts arrange: nodes ].
 	rmap := self new.
 	rmap extent: 500 @ 500.
-	nodes do: [ :node | rmap addVertex: node asRMapVertex ].
+	UIManager default
+		displayProgress: 'reading molecules...'
+		from: 1
+		to: nodes size
+		during: [ :progress |
+			nodes do: [ :node |
+				rmap addVertex: node asRMapVertex.
+				progress increment ] ].
 	tss do: [ :ts |
 		rmap
 			addEdgeBetween: (nodes indexOf: ts)
@@ -540,32 +548,32 @@ RMapMorph class >> readTrajectoryEQs: aFileReference [
 { #category : #operations }
 RMapMorph class >> readTrajectoryTSs: aFileReference EQs: eqs [
 
-	^ (Array streamContents: [ :tsStream |
-		   aFileReference readStreamDo: [ :stream |
-			   [ stream atEnd ] whileFalse: [
-				   | ts numLines |
-				   ts := RMapImportTS new.
-				   ts label: 'TS' , tsStream position printString.
-				   tsStream nextPut: ts.
-				   numLines := stream nextLine.
-				   (stream nextLine substrings: ',') do: [ :pairString |
-					   | pair |
-					   pair := pairString substrings: '='.
-					   (pair size = 2 and: [ pair first trim = 'E' ]) ifTrue: [
-						   ts energy: pair second trim ].
-					   pair := pairString substrings: ':'.
-					   (pair size = 2 and: [ pair first trim = 'CONNECTION' ])
-						   ifTrue: [
-							   | connections |
-							   connections := pair second substrings: '-'.
-							   connections size = 2 ifTrue: [
-								   connections first trim asInteger ifNotNil: [ :index1 |
-									   connections second trim asInteger ifNotNil: [ :index2 |
-										   ts eq1: (eqs at: index1 + 1 ifAbsent: [ nil ]).
-										   ts eq2: (eqs at: index2 + 1 ifAbsent: [ nil ]) ] ] ] ] ].
-				   numLines trim asInteger timesRepeat: [
-					   ts geometryAdd: stream nextLine substrings ] ] ] ]) select:
-		  #isValid
+	^ ((Array streamContents: [ :tsStream |
+		    aFileReference readStreamDo: [ :stream |
+			    [ stream atEnd ] whileFalse: [
+				    | ts numLines |
+				    ts := RMapImportTS new.
+				    ts label: 'TS' , tsStream position printString.
+				    tsStream nextPut: ts.
+				    numLines := stream nextLine.
+				    (stream nextLine substrings: ',') do: [ :pairString |
+					    | pair |
+					    pair := pairString substrings: '='.
+					    (pair size = 2 and: [ pair first trim = 'E' ]) ifTrue: [
+						    ts energy: pair second trim ].
+					    pair := pairString substrings: ':'.
+					    (pair size = 2 and: [ pair first trim = 'CONNECTION' ])
+						    ifTrue: [
+							    | connections |
+							    connections := pair second substrings: '-'.
+							    connections size = 2 ifTrue: [
+								    connections first trim asInteger ifNotNil: [ :index1 |
+									    connections second trim asInteger ifNotNil: [ :index2 |
+										    ts eq1: (eqs at: index1 + 1 ifAbsent: [ nil ]).
+										    ts eq2: (eqs at: index2 + 1 ifAbsent: [ nil ]) ] ] ] ] ].
+				    numLines trim asInteger timesRepeat: [
+					    ts geometryAdd: stream nextLine substrings ] ] ] ]) select:
+		   #isValid) do: [ :ts | ts createSoleMultiframe ]
 ]
 
 { #category : #utilities }
@@ -1279,14 +1287,15 @@ RMapMorph >> hoverVertex [
 
 { #category : #'initialize-release' }
 RMapMorph >> initialize [
+
 	super initialize.
 	stepTime := 500.
 	lastTime := Time millisecondClockValue.
 	dependents := Array new.
 	self initializeRMap.
 	pathQuery := RMapPathQueryModel new
-		onPathQueryChangeSend: #updatePathQuery to: self;
-		yourself.
+		             onPathQueryChangeSend: #updatePathQuery to: self;
+		             yourself.
 	pathSelector := RMapSelector new.
 	pathSelector getMenuBlock: [ :aMenu | self addPathListMenu: aMenu ].
 	pathSelector index: 0.
@@ -1298,7 +1307,7 @@ RMapMorph >> initialize [
 	layouter := RMapVertexMapLayouter on: self.
 	layouter update.
 	showInfoOnHover := false.
-	visualizer := RMapMinimalVisualizer new
+	visualizer := RMapLabelVisualizer new
 ]
 
 { #category : #'initialize-release' }

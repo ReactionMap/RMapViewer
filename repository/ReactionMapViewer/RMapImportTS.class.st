@@ -41,6 +41,14 @@ RMapImportTS >> arrange: nodes [
 ]
 
 { #category : #accessing }
+RMapImportTS >> createSoleMultiframe [
+
+	multiframeXYZ := { self xyz }.
+	multiframeEnergies := { energy }.
+	multiframeIndex := 1
+]
+
+{ #category : #accessing }
 RMapImportTS >> eq1 [
 	^ eq1
 ]
