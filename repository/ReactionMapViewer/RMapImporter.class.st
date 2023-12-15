@@ -71,6 +71,7 @@ RMapImporter >> import [
 	dcs := self readDCs.
 	tss := self readTSs.
 	nodes := eqs , dcs , tss.
+	nodes ifEmpty: [ ^ nil ].
 	self readBabel.
 	self arrange
 ]
@@ -121,6 +122,7 @@ RMapImporter >> rmap [
 	(eqs isNil or: [ tss isNil or: [ dcs isNil or: [ nodes isNil ] ] ])
 		ifTrue: [ self import ].
 	nodes ifNil: [ ^ nil ].
+	nodes ifEmpty: [ ^ nil ].
 	rmap := RMapMorph new.
 	rmap extent: 500 @ 500.
 	UIManager default

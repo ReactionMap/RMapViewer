@@ -206,25 +206,25 @@ RMapMorph class >> makeReleaseImage [
 	JunBabelWrapper flushBabelPath.
 	MenubarMorph closeAll.
 	World submorphs copy do: [ :m | m delete ].
+	RMapWatcher flushCurrent.
 	menuBar := MenubarMorph new
-		menuBarItems: self menubarSpec items;
-		open;
-		yourself.
-	'RMapViewer.png' asFileReference
-		in: [ :ref | 
-			ref exists
-				ifTrue: [ | form |
-					form := PNGReadWriter formFromStream: ref binaryReadStream.
-					form getCanvas
-						fillRectangle: (0 @ 0 extent: form extent)
-						color: (Color white alpha: 0.7).
-					World color: (form colorAt: 0 @ 0).
-					form asMorph
-						position: 0 @ menuBar bottom;
-						beSticky;
-						openInWorld ] ].
+		           menuBarItems: self menubarSpec items;
+		           open;
+		           yourself.
+	'RMapViewer.png' asFileReference in: [ :ref |
+		ref exists ifTrue: [
+			| form |
+			form := PNGReadWriter formFromStream: ref binaryReadStream.
+			form getCanvas
+				fillRectangle: (0 @ 0 extent: form extent)
+				color: (Color white alpha: 0.7).
+			World color: (form colorAt: 0 @ 0).
+			form asMorph
+				position: 0 @ menuBar bottom;
+				beSticky;
+				openInWorld ] ].
 	isReleased := true.
-	Morph halosEnabled: false.
+	Morph halosEnabled: false
 	"Smalltalk snapshot: true andQuit: false"
 ]
 
@@ -251,6 +251,9 @@ RMapMorph class >> menubarSpec [
 				 addSeparator;
 				 add: 'Open url...'
 				 action: (MessageSend receiver: self selector: #openURL);
+				 addSeparator;
+				 add: 'Open watcher'
+				 action: (MessageSend receiver: self selector: #openWatcher);
 				 addSeparator;
 				 add: 'Close'
 				 action: (MessageSend receiver: self selector: #closeAll);
@@ -300,6 +303,12 @@ RMapMorph class >> openTrajectoryDirectory [
 RMapMorph class >> openURL [
 
 	RMapClient new open
+]
+
+{ #category : #operations }
+RMapMorph class >> openWatcher [
+
+	^ RMapWatcher open
 ]
 
 { #category : #utilities }
