@@ -170,8 +170,7 @@ RMapWatcher >> initializePresenters [
 		              disable;
 		              icon: self openIcon;
 		              action: [ self openRMap ];
-		              yourself.
-	self whenWindow
+		              yourself
 ]
 
 { #category : #initialization }
