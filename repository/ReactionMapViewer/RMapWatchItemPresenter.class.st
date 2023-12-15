@@ -22,19 +22,20 @@ RMapWatchItemPresenter class >> defaultLayout [
 		  beRowNotHomogeneous;
 		  beColumnNotHomogeneous;
 		  column: 1 withConstraints: [ :c | c vAlignCenter ];
+		  column: 2 withConstraints: [ :c | c expand: true ];
 		  column: 3 withConstraints: [ :c | c vAlignCenter ];
-		  add: 'name ' at: 1 @ 1;
+		  add: 'Name ' at: 1 @ 1;
 		  add:
 			  (SpBoxLayout newVertical
 				   add: #nameField
 				   height: self inputTextHeight)
 		  at: 2 @ 1;
-		  add: 'type ' at: 1 @ 2;
+		  add: 'Type ' at: 1 @ 2;
 		  add: (SpBoxLayout newVertical
 				   add: #typeDropList
 				   height: self inputTextHeight)
 		  at: 2 @ 2;
-		  add: 'directory ' at: 1 @ 3;
+		  add: 'Directory ' at: 1 @ 3;
 		  add: (SpBoxLayout newVertical
 				   add: #directoryField
 				   height: self inputTextHeight)
@@ -42,7 +43,7 @@ RMapWatchItemPresenter class >> defaultLayout [
 		  add:
 			  (SpBoxLayout newHorizontal add: #chooseDirectoryButton width: 24)
 		  at: 3 @ 3;
-		  add: 'interval' at: 1 @ 4;
+		  add: 'Interval' at: 1 @ 4;
 		  add: (SpBoxLayout newVertical
 				   add: #intervalField
 				   height: self inputTextHeight)
@@ -85,7 +86,7 @@ RMapWatchItemPresenter >> initializePresenters [
 			             self model ifNotNil: [ :item | item name: newText ] ];
 		             yourself.
 	directoryField := self newTextInput
-		                  disable;
+		                  beNotEditable;
 		                  text: '';
 		                  yourself.
 	chooseDirectoryButton := self newButton
@@ -108,6 +109,13 @@ RMapWatchItemPresenter >> initializePresenters [
 		                yourself
 ]
 
+{ #category : #initialization }
+RMapWatchItemPresenter >> initializeWindow: aSpWindowPresenter [
+
+	super initializeWindow: aSpWindowPresenter.
+	aSpWindowPresenter initialExtent: 450 @ 250
+]
+
 { #category : #accessing }
 RMapWatchItemPresenter >> modelChanged [
 
@@ -118,6 +126,12 @@ RMapWatchItemPresenter >> modelChanged [
 		intervalField number:
 			(watchItem interval ifNotNil: #asHours ifNil: [ 1.0 ]).
 		typeDropList selectItem: (watchItem type ifNil: [ RMapWatchItem grrmDigest ]) ]
+]
+
+{ #category : #accessing }
+RMapWatchItemPresenter >> title [
+
+	^ 'Watch setup'
 ]
 
 { #category : #accessing }
