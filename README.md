@@ -2,7 +2,7 @@
 ReactionMap viewer on Pharo Smalltalk
 
 ## Installation
-Please evaluate the following on Pharo 10 (downloadable from Pharo [download page](https://pharo.org/download))
+Please evaluate the following on Pharo 11 (downloadable from Pharo [download page](https://pharo.org/download))
 
 ```smalltalk
 [Metacello new
